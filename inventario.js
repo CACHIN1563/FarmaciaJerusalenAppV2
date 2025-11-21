@@ -493,7 +493,7 @@ function crearTarjetaProducto(producto) {
     const precioVenta = producto.precioPublico !== undefined && producto.precioPublico !== null
         ? `Q ${Number(producto.precioPublico).toFixed(2)}`
         : 'Q -';
-    const requiereReceta = producto.antibiotico ? `<span class="alerta-receta-badge">Requiere Receta</span>` : '';
+    const requiereReceta = producto.antibiotico ? `<span class="alerta-receta-badge">Antibiótico</span>` : '';
     const stockClase = stockTotal < 50 ? 'stock-bajo' : ''; 
     const stockStr = stockTotal > 0 ? `Stock Total: ${stockTotal} unidades` : 'AGOTADO';
 
