@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Registro de Venta</title>
+<title>Registro de Venta | Farmacia JERUSALÉN</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
@@ -32,7 +32,7 @@ min-height: 100vh;
 color: var(--dark-gray);
 }
 /* ---------------------------------------------------------------- */
-/* --- ESTILOS DEL MENÚ DE NAVEGACIÓN (NUEVOS ESTILOS) --- */
+/* --- ESTILOS DEL MENÚ DE NAVEGACIÓN --- */
 /* ---------------------------------------------------------------- */
 .navbar {
 background-color: var(--primary-blue);
@@ -239,7 +239,7 @@ margin-bottom: 20px;
 color: var(--danger-color);
 font-weight: 600;
 }
-/* Add to Cart Controls */
+/* Add to Cart Controls (Ajustado) */
 .add-to-cart-controls {
 display: flex;
 align-items: center;
@@ -247,13 +247,24 @@ gap: 10px;
 margin-top: 15px;
 padding-top: 15px;
 border-top: 1px solid var(--border-color);
+flex-wrap: wrap; /* Permitir que se ajusten en móviles */
 }
+
+/* Nuevo contenedor para Cantidad y Formato */
+.quantity-format-group {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-grow: 1; /* Permite que el grupo crezca */
+}
+
 .add-to-cart-controls label {
 flex-shrink: 0;
 margin-bottom: 0;
 font-weight: 500;
 }
-.add-to-cart-controls input[type="number"] {
+.add-to-cart-controls input[type="number"],
+.add-to-cart-controls select { /* Estilo para el nuevo SELECT */
 width: 80px;
 padding: 8px 10px;
 border-radius: 6px;
@@ -261,17 +272,33 @@ border: 1px solid var(--border-color);
 font-size: 0.95rem;
 text-align: center;
 }
+.add-to-cart-controls select {
+    width: 120px;
+    text-align: left;
+}
+
+/* Product Info Box */
+/* ... Código CSS anterior ... */
+
 .add-to-cart-controls .btn {
 flex-grow: 1;
 padding: 10px 15px;
 font-size: 1rem;
 border-radius: 8px;
-background-color: var(--medium-gray);
+/* 1. Cambia el color de fondo (EJEMPLO: VERDE) */
+background-color: var(--success-color); 
+/* 2. AÑADE ESTA LÍNEA para el color del texto */
+color: white;
 transition: background-color 0.2s ease;
 }
+
 .add-to-cart-controls .btn:hover {
-background-color: #5a6268;
+/* 3. Cambia el color al pasar el ratón (EJEMPLO: VERDE OSCURO) */
+background-color: #1e7e34; /* Un verde más oscuro para el efecto hover */
 }
+
+/* ... El resto de tus estilos CSS ... */
+
 /* Table Styles (Products in Cart) */
 .cart-table-wrapper {
 max-height: 350px;
@@ -477,7 +504,7 @@ display: block;
 margin-bottom: 5px;
 }
 /* ---------------------------------------------------------------- */
-/* --- ESTILOS DE BOTONES DE ACCIÓN (NUEVOS) --- */
+/* --- ESTILOS DE BOTONES DE ACCIÓN --- */
 /* ---------------------------------------------------------------- */
 .action-buttons {
 display: flex;
@@ -570,21 +597,38 @@ background-color: var(--dark-gray);
 </div>
 <ul id="lista-productos"></ul>
 </div>
+
 <div class="producto-info-box" id="productoInfo">
 Selecciona un producto de la lista.
 </div>
+
 <div class="add-to-cart-controls">
-<label for="cantidad">Cantidad:</label>
-<input type="number" id="cantidad" value="1" min="1" step="1">
-<button class="btn" id="btnAgregar"><i class="fas fa-plus"></i> Añadir a Venta</button>
+    
+    <div class="quantity-format-group">
+        <label for="cantidad">Cant:</label>
+        <input type="number" id="cantidad" value="1" min="1" step="1">
+
+        <label for="formatoVenta">Formato:</label>
+        <select id="formatoVenta" disabled>
+            <option value="unidad">Unidad (Pastilla)</option>
+            <option value="capsula">Cápsula</option>
+            <option value="tableta">Tableta (Tira)</option>
+            <option value="blister">Blister</option>
+            <option value="caja">Caja/Envase</option>
+            <option value="publico">P. Público (Ref.)</option>
+        </select>
+    </div>
+    
+    <button class="btn" id="btnAgregar" disabled><i class="fas fa-plus"></i> Añadir a Venta</button>
 </div>
+
 <h3><i class="fas fa-clipboard-list"></i> Productos en Venta</h3>
 <div class="cart-table-wrapper">
 <table class="tabla" id="tablaVenta">
 <thead>
 <tr>
 <th>Producto</th>
-<th>Cant.</th>
+<th>Formato</th> <th>Cant.</th>
 <th>Precio Unit.</th>
 <th>Subt.</th>
 <th>Acciones</th>
@@ -642,7 +686,6 @@ Tarjeta (+5% Recargo)
 <script type="module" src="ventas.js"></script>
 </body>
 </html>
-
 
 
 

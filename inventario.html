@@ -1,309 +1,588 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<title>Inventario de Productos</title>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
-<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
-<style>
-/* -------------------------------------------------------------------------------------- */
-/* ESTILOS CSS COMPLETOS */
-/* -------------------------------------------------------------------------------------- */
-:root{
-    --primary-blue:#1E88E5;
-    --primary-dark:#1565C0;
-    --dark-gray:#333;
-    --border-color:#E0E0E0;
-    --shadow-light:0 4px 8px rgba(0, 0, 0, 0.1);
-    --light-bg:#F8F9FA;
-    --success-color:#4CAF50;
-    --warning-color:#FFC107;
-    --danger-color:#E53935;
-    --button-lotes:#4CAF50;
-    --button-lotes-hover:#45A049;
-    --button-editar:#FFC107;
-    --button-editar-hover:#E0A800;
-    --button-añadir:#1E88E5;
-    --button-añadir-hover:#1565C0;
-}
-/* Estilos Generales y Navbar */
-body{
-    font-family:'Open Sans', Arial, sans-serif;
-    background-color:#f4f6f9;
-    margin:0;
-    padding-top:70px;
-}
-.navbar{
-    background-color:var(--primary-blue);
-    color:white;
-    padding:10px 30px;
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    box-shadow:0 2px 4px rgba(0,0,0,0.1);
-    position:fixed;
-    top:0;
-    left:0;
-    right:0;
-    z-index:1000;
-}
-.navbar .logo{
-    font-family:'Roboto', sans-serif;
-    font-size:1.6rem;
-    font-weight:700;
-    color:white;
-    text-decoration:none;
-    display:flex;
-    align-items:center;
-    gap:10px;
-}
-.nav-menu{list-style:none;display:flex;margin:0;padding:0;align-items:center;}
-.nav-menu li{margin-left:25px;}
-.nav-menu a{color:white;text-decoration:none;padding:10px 15px;display:block;border-radius:4px;transition:background-color 0.3s;}
-.nav-menu a:hover{background-color:var(--primary-dark);}
-.dropdown{position:relative;}
-.dropbtn{display:flex;align-items:center;gap:5px;}
-.dropdown-content{display:none;position:absolute;background-color:white;min-width:220px;box-shadow:0px 8px 16px 0px rgba(0,0,0,0.2);z-index:100;right:0;border-radius:4px;overflow:hidden;border:1px solid var(--border-color);}
-.dropdown-content a{color:var(--dark-gray);padding:12px 16px;text-decoration:none;display:block;text-align:left;font-weight:500;}
-.dropdown-content a:hover{background-color:var(--light-bg);}
-.dropdown:hover .dropdown-content{display:block;}
-.container{
-    padding:20px;
-    max-width:1200px;
-    margin:0 auto;
-}
-.card{
-    background-color:white;
-    padding:25px;
-    border-radius:10px;
-    box-shadow:var(--shadow-light);
-    margin-bottom:20px;
-}
-.card h2{
-    font-family:'Roboto', sans-serif;
-    color:var(--dark-gray);
-    font-weight:500;
-    margin-top:0;
-}
-/* Barra de Búsqueda y Acciones */
-.search-bar-container{
-    display:flex;
-    align-items:center;
-    gap:15px;
-    margin-bottom:25px;
-    padding-bottom:15px;
-    border-bottom:1px solid #eee;
-}
-.input-search-simple{
-    flex-grow:1;
-    padding:10px 15px;
-    border:1px solid #ccc;
-    border-radius:6px;
-    font-size:1rem;
-    transition:border-color 0.3s;
-    min-width:200px;
-}
-.button-action{
-    padding:10px 15px;
-    border:none;
-    border-radius:6px;
-    cursor:pointer;
-    font-weight:600;
-    transition:background-color 0.3s;
-    font-size:0.95rem;
-    display:flex;
-    align-items:center;
-    gap:8px;
-    white-space:nowrap;
-}
-.button-primary{background-color:var(--primary-blue);color:white;}
-.button-success-action{background-color:var(--success-color);color:white;}
-.button-secondary{background-color:#6C757D;color:white;}
-/* Estilos de las Tarjetas de Producto */
-.product-grid{
-    list-style:none;
-    padding:0;
-    margin:0;
-    display:grid;
-    grid-template-columns:repeat(auto-fill, minmax(280px, 1fr));
-    gap:20px;
-    margin-top:20px;
-}
-.product-card{
-    background-color:white;
-    border:1px solid var(--border-color);
-    border-radius:8px;
-    padding:15px;
-    display:flex;
-    flex-direction:column;
-    box-shadow:0 1px 5px rgba(0, 0, 0, 0.05);
-    transition:transform 0.2s, box-shadow 0.2s;
-    position:relative;
-}
-.product-card:hover{
-    transform:translateY(-3px);
-    box-shadow:0 6px 15px rgba(0, 0, 0, 0.1);
-}
-.product-header{
-    display:flex;
-    justify-content:space-between;
-    align-items:flex-start;
-    margin-bottom:10px;
-}
-.product-name{
-    font-size:1.15rem;
-    font-weight:700;
-    color:var(--primary-dark);
-    line-height:1.3;
-    flex-grow:1;
-    margin-right:10px;
-}
-.alerta-receta-badge{
-    background-color:var(--warning-color);
-    color:var(--dark-gray);
-    padding:4px 8px;
-    border-radius:4px;
-    font-size:0.75rem;
-    font-weight:700;
-    white-space:nowrap;
-    align-self:flex-start;
-}
-.product-details{
-    display:block;
-    font-size:0.88rem;
-    color:#555;
-    margin-bottom:15px;
-}
-.detail-item{
-    display:flex;
-    align-items:center;
-    gap:6px;
-    margin-bottom:4px;
-}
-.detail-item strong{
-    color:var(--dark-gray);
-    font-weight:600;
-}
-.stock-info{
-    font-size:1rem;
-    font-weight:700;
-    color:var(--success-color);
-    background-color:#E8F5E9;
-    padding:8px 10px;
-    border-radius:6px;
-    text-align:center;
-    margin-top:10px;
-    margin-bottom:15px;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    gap:8px;
-}
-.stock-bajo{
-    color:var(--danger-color);
-    background-color:#FFEBEE;
-}
-.product-actions-footer{
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    gap:10px;
-    margin-top:auto;
-    padding-top:10px;
-    border-top:1px solid #eee;
-}
-.product-actions-footer button{
-    padding:8px 12px;
-    border:none;
-    border-radius:5px;
-    cursor:pointer;
-    font-weight:600;
-    transition:background-color 0.2s, transform 0.1s;
-    font-size:0.85rem;
-    display:flex;
-    align-items:center;
-    gap:5px;
-    flex-grow:1;
-    justify-content:center;
-}
-.btn-lotes-card{background-color:var(--button-lotes);color:white;}
-/* Estilos para Modales */
-.modal{display:none;position:fixed;z-index:1001;left:0;top:0;width:100%;height:100%;overflow:auto;background-color:rgba(0,0,0,0.4);padding-top:50px;}
-.modal-content{background-color:#fefefe;margin:auto;padding:20px;border:1px solid #888;width:90%;max-width:800px;border-radius:8px;box-shadow:0 4px 8px rgba(0, 0, 0, 0.2);}
-.modal-content label{display:block;margin-top:10px;font-weight:bold;color:#333;font-size:0.95rem;}
-.modal-content input[type="text"], .modal-content input[type="number"], .modal-content input[type="date"], .modal-content textarea{width:100%;padding:8px;margin-top:5px;margin-bottom:10px;border:1px solid #ccc;border-radius:4px;box-sizing:border-box;}
-.form-row{display:flex;gap:20px;margin-top:10px;flex-wrap:wrap;}
-.form-column{flex:1;min-width:280px;}
-.checkbox-group{margin-top:25px;padding:8px;background-color:#f0f8ff;border-radius:4px;border:1px dashed #007bff;}
-.modal-footer{display:flex;justify-content:flex-end;gap:10px;margin-top:20px;padding-top:15px;border-top:1px solid #eee;}
-.btn-cancelar{background-color:#6c757d;color:white;padding:10px 15px;border:none;border-radius:4px;cursor:pointer;}
-.lote-item{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px dashed #eee;font-size:0.9rem;}
-/* Estilo para los botones dentro del modal lotes */
-.lote-actions button {
-    margin-left: 8px;
-    padding: 6px 10px;
-    font-size: 0.8rem;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-weight: 600;
-}
-.btn-editar-lote { background-color: var(--button-editar); color: var(--dark-gray); }
-.btn-eliminar-lote { background-color: var(--danger-color); color: white; }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Inventario | Farmacia</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
+    <style>
+        /* --- ESTILOS AGREGADOS PARA LA BARRA DE NAVEGACIÓN (NAVBAR) --- */
+        .navbar {
+            background-color: #1f2937; /* Color de fondo de la barra de navegación */
+            color: white;
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
 
-/* ESTILO CLAVE PARA EL INDICADOR DE CARGA */
-#loading-indicator {
-    font-size: 1.1rem;
-    color: var(--primary-blue);
-    text-align: center;
-    padding: 30px;
-}
-/* ESTILO PARA SUGERENCIAS */
-#nombre-container {
-    position: relative;
-}
-#nombre-sugerencias {
-    position: absolute;
-    z-index: 10;
-    width: 100%;
-    max-height: 150px;
-    overflow-y: auto;
-    background: white;
-    border: 1px solid #ccc;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-    list-style: none;
-    padding: 0;
-    margin: 0;
-}
-#nombre-sugerencias li {
-    padding: 10px;
-    cursor: pointer;
-}
-#nombre-sugerencias li:hover {
-    background-color: #f0f0f0;
-}
-.producto-existente {
-    background-color: #d4edda;
-    border-left: 4px solid #4CAF50;
-    font-weight: bold;
-}
-.producto-nuevo {
-    background-color: #fff3cd;
-    border-left: 4px solid #FFC107;
-}
-/* -------------------------------------------------------------------------------------- */
-</style>
+        .navbar .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: white;
+            text-decoration: none;
+        }
+
+        .nav-menu {
+            list-style: none;
+            display: flex;
+            margin: 0;
+            padding: 0;
+            align-items: center;
+        }
+
+        .nav-menu li {
+            margin-left: 20px;
+        }
+
+        .nav-menu a {
+            color: white;
+            text-decoration: none;
+            padding: 8px 12px;
+            display: block;
+            border-radius: 4px;
+            transition: background-color 0.2s;
+        }
+
+        .nav-menu a:hover {
+            background-color: #374151; /* Color de fondo al pasar el ratón */
+        }
+
+        .dropdown {
+            position: relative;
+        }
+
+        .dropbtn {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: white;
+            min-width: 200px;
+            box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+            z-index: 100;
+            right: 0;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .dropdown-content a {
+            color: var(--text-dark);
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+            text-align: left;
+            font-weight: 500;
+            font-size: 0.95rem;
+        }
+
+        .dropdown-content a:hover {
+            background-color: var(--bg-light);
+        }
+
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
+        
+        /* --- VARIABLES --- */
+        :root {
+            --primary-color: #3b82f6; /* Azul */
+            --secondary-color: #10b981; /* Verde esmeralda */
+            --danger-color: #ef4444; /* Rojo */
+            --warning-color: #f59e0b; /* Amarillo */
+            --bg-light: #f9fafb;
+            --text-dark: #1f2937;
+            --border-color: #e5e7eb;
+            --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+        }
+
+        /* --- ESTILOS BASE --- */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-light);
+            color: var(--text-dark);
+            line-height: 1.6;
+        }
+        
+        header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 1.5rem 0;
+            text-align: center;
+            box-shadow: var(--card-shadow);
+        }
+        /* ... el resto de tus estilos CSS (sin cambios) ... */
+
+        header h1 {
+            margin: 0;
+            font-size: 2rem;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 20px auto;
+            padding: 0 20px;
+        }
+
+        /* --- SECCIÓN DE CONTROLES --- */
+        .controls-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+        }
+
+        .search-bar {
+            flex-grow: 1;
+            position: relative;
+            max-width: 400px;
+        }
+
+        .search-bar input {
+            width: 100%;
+            padding: 10px 10px 10px 40px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 1rem;
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+        }
+
+        .search-bar .fas {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #9ca3af;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .button-action {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.1s;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .button-action:hover {
+            transform: translateY(-1px);
+        }
+
+        .new-product-btn {
+            background-color: var(--secondary-color);
+            color: white;
+        }
+
+        .bulk-load-btn {
+            background-color: var(--warning-color);
+            color: white;
+        }
+
+        .download-btn {
+            background-color: #6b7280;
+            color: white;
+        }
+
+        /* --- LISTA DE INVENTARIO (GRID) --- */
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 25px;
+            list-style: none;
+            padding: 0;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 50px;
+            font-size: 1.2rem;
+            color: var(--primary-color);
+        }
+        
+        /* --- TARJETA DE PRODUCTO --- */
+        .product-card {
+            background-color: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: var(--card-shadow);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            min-height: 250px;
+            border-left: 5px solid var(--primary-color);
+        }
+
+        .product-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 15px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 10px;
+        }
+
+        .product-name {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--text-dark);
+        }
+
+        .alerta-receta-badge {
+            background-color: var(--warning-color);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .product-details {
+            margin-bottom: 15px;
+            font-size: 0.95rem;
+        }
+
+        .detail-item {
+            margin-bottom: 5px;
+        }
+
+        /* --- SECCIÓN DE PRECIOS Y STOCKS DETALLADOS --- */
+        .price-section {
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px dashed var(--border-color);
+            font-size: 0.9em;
+        }
+
+        .price-format-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 5px 10px;
+            margin-top: 5px;
+        }
+        
+        .stock-individual-badges {
+            margin-bottom: 15px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            padding: 10px 0;
+            border-top: 1px solid var(--border-color);
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .stock-badge {
+            padding: 3px 6px;
+            border-radius: 4px;
+            font-size: 0.8em;
+            font-weight: 600;
+            color: var(--text-dark); /* Color por defecto, sobrescrito en JS */
+        }
+
+        /* --- SECCIÓN DE STOCK TOTAL Y BOTÓN --- */
+        .stock-info {
+            padding: 10px;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: 700;
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+            background-color: #e6ffed; /* Verde claro por defecto */
+            color: #1a6f3b;
+        }
+
+        .stock-bajo {
+            background-color: #fee2e2; /* Rojo claro */
+            color: var(--danger-color);
+        }
+        
+        .stock-bajo .fas {
+            color: var(--danger-color);
+        }
+
+        .product-actions-footer {
+            margin-top: auto;
+        }
+        
+        .btn-lotes {
+            width: 100%;
+            background-color: var(--primary-color) !important;
+            color: white !important;
+            justify-content: center;
+            font-size: 1rem;
+        }
+
+        /* --- MODALES GENERALES --- */
+        .modal {
+            display: none; 
+            position: fixed; 
+            z-index: 1000; 
+            left: 0;
+            top: 0;
+            width: 100%; 
+            height: 100%; 
+            overflow: auto; 
+            background-color: rgba(0,0,0,0.4); 
+            padding-top: 60px;
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 5% auto;
+            padding: 30px;
+            border-radius: 12px;
+            width: 90%; 
+            max-width: 700px;
+            box-shadow: var(--card-shadow);
+            position: relative;
+        }
+
+        .modal-content h2 {
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            position: absolute;
+            top: 10px;
+            right: 20px;
+            cursor: pointer;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: var(--text-dark);
+            text-decoration: none;
+        }
+
+        /* --- FORMULARIO --- */
+        .form-group {
+            margin-bottom: 15px;
+            position: relative;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+
+        .form-group input[type="text"],
+        .form-group input[type="number"],
+        .form-group input[type="date"],
+        .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            box-sizing: border-box;
+            font-size: 1rem;
+        }
+        
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .price-grid {
+            grid-template-columns: repeat(3, 1fr);
+        }
+
+        .stock-grid {
+            grid-template-columns: repeat(4, 1fr);
+        }
+
+        .stock-grid .form-group:first-child {
+            grid-column: span 2;
+        }
+
+        .meta-grid {
+            grid-template-columns: 2fr 1fr;
+        }
+        
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+        }
+
+        .modal-actions {
+            margin-top: 25px;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        .submit-btn {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .cancel-btn {
+            background-color: #9ca3af;
+            color: white;
+        }
+
+        /* --- SUGERENCIAS --- */
+        .sugerencias-dropdown {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            position: absolute;
+            width: 100%;
+            background-color: white;
+            border: 1px solid var(--primary-color);
+            border-top: none;
+            z-index: 10;
+            max-height: 200px;
+            overflow-y: auto;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .sugerencias-dropdown li {
+            padding: 10px;
+            cursor: pointer;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .sugerencias-dropdown li:hover {
+            background-color: #eff6ff;
+        }
+
+        .producto-nuevo {
+            font-style: italic;
+            color: var(--secondary-color);
+        }
+
+        /* --- MODAL LOTES --- */
+        .lotes-list {
+            max-height: 400px;
+            overflow-y: auto;
+            margin-top: 20px;
+        }
+
+        .lote-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            margin-bottom: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            background-color: #fff;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+        
+        .lote-item strong {
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+
+        .lote-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .action-button {
+            padding: 5px 10px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+        }
+        
+        .btn-editar-lote {
+            background-color: #38bdf8;
+            color: white;
+        }
+
+        .btn-eliminar-lote {
+            background-color: var(--danger-color);
+            color: white;
+        }
+
+        /* --- RESPONSIVE --- */
+        @media (max-width: 900px) {
+            .product-grid {
+                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            }
+            .price-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+            .stock-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+            .stock-grid .form-group:first-child {
+                grid-column: span 1;
+            }
+        }
+        
+        @media (max-width: 600px) {
+            .controls-section {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .search-bar {
+                max-width: none;
+            }
+            .action-buttons {
+                flex-direction: column;
+            }
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            .price-grid {
+                grid-template-columns: 1fr;
+            }
+            .stock-grid {
+                grid-template-columns: 1fr;
+            }
+            .stock-grid .form-group:first-child {
+                grid-column: span 1;
+            }
+        }
+    </style>
 </head>
+
+
 <body>
-<header>
+
     <nav class="navbar">
-        <a href="ventas_dashboard.html" class="logo">
-            FARMACIA JERUSALÉN
-        </a>
+        <a href="ventas_dashboard.html" class="logo">FARMACIA JERUSALÉN</a>
         <ul class="nav-menu">
-            <li><a href="index.html">Inicio</a></li>
-            <li><a href="ventas_dashboard.html">Dashboard</a></li>
+            <li><a href="index.html"><i class="fas fa-home"></i> Inicio</a></li>
+            <li><a href="ventas_dashboard.html"><i class="fas fa-chart-line"></i> Dashboard</a></li>
             <li class="dropdown">
-                <a href="#" class="dropbtn">Módulos <i class="fas fa-caret-down"></i></a>
+                <a href="#" class="dropbtn"><i class="fas fa-th-large"></i> Módulos <i class="fas fa-caret-down"></i></a>
                 <div class="dropdown-content">
                     <a href="ventas.html">Ventas <i class="fas fa-cash-register" style="float: right;"></i></a>
                     <a href="inventario.html">Inventario <i class="fas fa-boxes" style="float: right;"></i></a>
@@ -313,138 +592,165 @@ body{
             </li>
         </ul>
     </nav>
-</header>
-<div class="container">
-    <div class="card inventory-main-card">
-        <h2>Gestión de Inventario de Productos 💊</h2>
-        <div class="search-bar-container">
-            <input type="text" id="buscar" placeholder="Buscar producto por nombre, marca o SKU..." class="input-search-simple">
-            <button class="button-action button-secondary" id="btn-descargar-inventario"><i class="fas fa-download"></i> Descargar Inventario</button>
-            <button class="button-action button-secondary" id="btn-carga-masiva">Carga Masiva</button>
-            <button class="button-action button-primary" id="btn-nuevo-producto">Nuevo Producto</button>
+    <header>
+        <h1><i class="fas fa-warehouse"></i> Inventario de Productos</h1>
+    </header>
+
+    <main class="container">
+        
+        <section class="controls-section">
+            <div class="search-bar">
+                <input type="text" id="buscar" placeholder="Buscar por Nombre, Marca o Ubicación...">
+                <i class="fas fa-search"></i>
+            </div>
+            <div class="action-buttons">
+                <button id="btn-nuevo-producto" class="button-action new-product-btn"><i class="fas fa-plus"></i> Nuevo Producto/Lote</button>
+                <button id="btn-carga-masiva" class="button-action bulk-load-btn"><i class="fas fa-file-upload"></i> Carga Masiva</button>
+                <button id="btn-descargar-inventario" class="button-action download-btn"><i class="fas fa-file-csv"></i> Descargar Inventario</button>
+            </div>
+        </section>
+
+        <div id="loading-indicator" class="loading" style="display: none;">
+            <i class="fas fa-spinner fa-spin"></i> Cargando inventario...
         </div>
 
-        <h3>Listado de Productos</h3>
+        <section class="inventory-list-container">
+            <ul id="lista-inventario" class="product-grid">
+                </ul>
+        </section>
 
-        <div id="loading-indicator">
-            <i class="fas fa-spinner fa-spin"></i> Cargando datos de inventario... Por favor, espere.
-        </div>
+    </main>
 
-        <ul id="lista-inventario" class="product-grid" style="display: none;">
-            </ul>
-    </div>
-</div>
-
-<div id="modal-producto" class="modal">
-    <div class="modal-content">
-        <span class="close">&times;</span>
-        <h2 id="modal-title">Ingresar Nuevo Producto/Lote</h2>
-        <form id="form-producto">
-            <input type="hidden" id="producto-id" value="">
+    <div id="modal-producto" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2 id="modal-title"></h2>
             
-            <div class="form-row">
-                <div class="form-column" id="nombre-container">
-                    <label for="nombre">Nombre de Producto/Lote (*)</label>
+            <form id="form-producto">
+                <input type="hidden" id="producto-id" value="">
+
+                <div class="form-group">
+                    <label for="nombre">Nombre del Producto*:</label>
                     <input type="text" id="nombre" required>
-                    <ul id="nombre-sugerencias"></ul>
+                    <ul id="nombre-sugerencias" class="sugerencias-dropdown"></ul>
                 </div>
-                <div class="form-column">
-                    <label for="marca">Marca</label>
-                    <input type="text" id="marca">
+
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="marca">Marca:</label>
+                        <input type="text" id="marca">
+                    </div>
+                    <div class="form-group">
+                        <label for="ubicacion">Ubicación (Estante/Cajón):</label>
+                        <input type="text" id="ubicacion">
+                    </div>
                 </div>
+
+                <h3>Precios (Por Lote)</h3>
+                <div class="form-grid price-grid">
+                    <div class="form-group">
+                        <label for="precioPublico">P. Público (Ref.):</label>
+                        <input type="number" id="precioPublico" step="0.01" min="0">
+                    </div>
+                    <div class="form-group">
+                        <label for="precioUnidad">P. Unidad/Pastilla:</label>
+                        <input type="number" id="precioUnidad" step="0.01" min="0">
+                    </div>
+                    <div class="form-group">
+                        <label for="precioCapsula">P. Cápsula:</label>
+                        <input type="number" id="precioCapsula" step="0.01" min="0">
+                    </div>
+                    <div class="form-group">
+                        <label for="precioTableta">P. Tableta (Tira):</label>
+                        <input type="number" id="precioTableta" step="0.01" min="0">
+                    </div>
+                    <div class="form-group">
+                        <label for="precioBlister">P. Blister:</label>
+                        <input type="number" id="precioBlister" step="0.01" min="0">
+                    </div>
+                    <div class="form-group">
+                        <label for="precioCaja">P. Caja/Envase:</label>
+                        <input type="number" id="precioCaja" step="0.01" min="0">
+                    </div>
+                </div>
+
+                <h3>Inventario del Lote</h3>
+                <div class="form-grid stock-grid">
+                    <div class="form-group">
+                        <label for="stock">Stock Total Lote (Unidades/Pastillas)*:</label>
+                        <input type="number" id="stock" min="0" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="stockTableta">Stock Tabletas (Tiras):</label>
+                        <input type="number" id="stockTableta" min="0">
+                    </div>
+                    <div class="form-group">
+                        <label for="stockBlister">Stock Blisters:</label>
+                        <input type="number" id="stockBlister" min="0">
+                    </div>
+                    <div class="form-group">
+                        <label for="stockCaja">Stock Cajas/Envases:</label>
+                        <input type="number" id="stockCaja" min="0">
+                    </div>
+                </div>
+
+                <div class="form-grid meta-grid">
+                    <div class="form-group">
+                        <label for="vencimiento">Fecha Vencimiento (AAAA-MM-DD):</label>
+                        <input type="date" id="vencimiento">
+                    </div>
+                    <div class="form-group checkbox-group">
+                        <input type="checkbox" id="antibiotico">
+                        <label for="antibiotico">Requiere Receta (Antibiótico)</label>
+                    </div>
+                </div>
+
+                <div class="modal-actions">
+                    <button type="submit" class="button-action submit-btn"><i class="fas fa-save"></i> Guardar Lote</button>
+                    <button type="button" id="btn-cancelar-modal" class="button-action cancel-btn">Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="modal-carga-masiva" class="modal">
+        <div class="modal-content">
+            <span class="close" id="close-masiva">&times;</span>
+            <h2>Carga Masiva de Lotes</h2>
+            <p>Pega los datos de tu inventario en formato CSV (separado por comas).</p>
+            <p><small>Asegúrate de que la estructura sea correcta. Consulta la plantilla.</small></p>
+
+            <button id="btn-descargar-plantilla" class="button-action download-btn"><i class="fas fa-download"></i> Descargar Plantilla CSV</button>
+
+            <div class="form-group textarea-group">
+                <label for="datos-masivos">Datos CSV (sin encabezados):</label>
+                <textarea id="datos-masivos" rows="10" placeholder="Ej: Nombre,Marca,Ubicacion,P.Público,...,Stock,StockTableta,StockBlister,StockCaja,Vencimiento,Antibiotico"></textarea>
             </div>
 
-            <div class="form-row">
-                <div class="form-column">
-                    <label for="ubicacion">Ubicación (Ej: 1A IZQ)</label>
-                    <input type="text" id="ubicacion">
-                </div>
-                <div class="form-column">
-                    <label for="vencimiento">Fecha de Vencimiento</label>
-                    <input type="date" id="vencimiento">
-                </div>
+            <div class="modal-actions">
+                <button id="btn-procesar-masiva" class="button-action submit-btn"><i class="fas fa-cogs"></i> Procesar Carga</button>
+                <button type="button" id="btn-cancelar-masiva" class="button-action cancel-btn">Cancelar</button>
             </div>
+        </div>
+    </div>
 
-            <div class="form-row">
-                <div class="form-column">
-                    <label for="stock">Stock/Cantidad (*)</label>
-                    <input type="number" id="stock" required min="0">
-                </div>
-                <div class="form-column checkbox-group">
-                    <input type="checkbox" id="antibiotico">
-                    <label for="antibiotico" style="display: inline;">Marca como Antibiótico (Antibiótico)</label>
-                </div>
-            </div>
+    <div id="modal-lotes" class="modal">
+        <div class="modal-content">
+            <span class="close" id="close-lotes">&times;</span>
+            <h2 id="lotes-title" data-nombre-producto=""></h2>
             
-            <h3>Precios de Venta por Lote</h3>
-            <div class="form-row">
-                <div class="form-column">
-                    <label for="precioPublico">Precio Público (Unidad/Caja, si aplica)</label>
-                    <input type="number" id="precioPublico" step="0.01">
+            <div id="lotes-lista" class="lotes-list">
                 </div>
-                <div class="form-column">
-                    <label for="precioUnidad">Precio por Unidad (Ej: pastilla)</label>
-                    <input type="number" id="precioUnidad" step="0.01">
-                </div>
+            
+            <div class="modal-actions lotes-footer">
+                <button id="btn-agregar-lote" class="button-action new-product-btn"><i class="fas fa-plus"></i> Agregar Nuevo Lote</button>
+                <button id="btn-cerrar-lotes" class="button-action cancel-btn">Cerrar</button>
             </div>
-            <div class="form-row">
-                <div class="form-column">
-                    <label for="precioCapsula">Precio por Cápsula</label>
-                    <input type="number" id="precioCapsula" step="0.01">
-                </div>
-                <div class="form-column">
-                    <label for="precioTableta">Precio por Tableta</label>
-                    <input type="number" id="precioTableta" step="0.01">
-                </div>
-            </div>
-            <div class="form-row">
-                <div class="form-column">
-                    <label for="precioBlister">Precio por Blister</label>
-                    <input type="number" id="precioBlister" step="0.01">
-                </div>
-                <div class="form-column">
-                    <label for="precioCaja">Precio por Caja/Display</label>
-                    <input type="number" id="precioCaja" step="0.01">
-                </div>
-            </div>
-
-
-            <div class="modal-footer">
-                <button type="button" class="btn-cancelar" id="btn-cancelar-modal">Cancelar</button>
-                <button type="submit" class="button-action button-primary">Guardar Lote</button>
-            </div>
-        </form>
-    </div>
-</div>
-
-<div id="modal-carga-masiva" class="modal">
-    <div class="modal-content">
-        <span class="close" id="close-masiva">&times;</span>
-        <h2>Carga Masiva de Lotes (CSV/Excel)</h2>
-        <p>1. <button id="btn-descargar-plantilla" class="button-action button-secondary" style="display:inline-flex; padding:5px 10px;">Descargar Plantilla</button> y llénela con los datos de sus lotes.</p>
-        <p>2. Copie el contenido de las celdas (incluyendo encabezados si lo desea) y péguelo en el campo de texto a continuación.</p>
-        <textarea id="datos-masivos" rows="10" placeholder="Pega aquí los datos de tu inventario separados por comas (CSV)"></textarea>
-        <div class="modal-footer">
-            <button type="button" class="btn-cancelar" id="btn-cancelar-masiva">Cancelar</button>
-            <button type="button" class="button-action button-success-action" id="btn-procesar-masiva">Procesar Carga</button>
         </div>
     </div>
-</div>
 
-<div id="modal-lotes" class="modal">
-    <div class="modal-content">
-        <span class="close" id="close-lotes">&times;</span>
-        <h2 id="lotes-title" data-nombre-producto=""></h2>
-        <div id="lotes-lista">
-            </div>
-        <div class="modal-footer">
-            <button type="button" class="button-action button-primary" id="btn-agregar-lote">Añadir Nuevo Lote</button>
-            <button type="button" class="btn-cancelar" id="btn-cerrar-lotes">Cerrar</button>
-        </div>
-    </div>
-</div>
+    <script type="module" src="./inventario.js"></script>
 
-<script type="module" src="firebase-config.js"></script>
-<script type="module" src="inventario.js"></script>
 </body>
 </html>

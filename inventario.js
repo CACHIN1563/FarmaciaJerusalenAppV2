@@ -24,6 +24,11 @@ const precioTabletaInput = document.getElementById("precioTableta");
 const precioBlisterInput = document.getElementById("precioBlister");
 const precioCajaInput = document.getElementById("precioCaja");
 const stockInput = document.getElementById("stock");
+// NUEVOS CAMPOS DE STOCK POR FORMATO
+const stockTabletaInput = document.getElementById("stockTableta");
+const stockBlisterInput = document.getElementById("stockBlister");
+const stockCajaInput = document.getElementById("stockCaja");
+
 const vencimientoInput = document.getElementById("vencimiento");
 const antibioticoInput = document.getElementById("antibiotico");
 const btnCancelarModal = document.getElementById("btn-cancelar-modal");
@@ -104,23 +109,23 @@ btnCargaMasiva?.addEventListener("click", () => {
     if (modalMasiva) modalMasiva.style.display = "block";
 });
 
-// Botón de descargar inventario (AHORA FUNCIONAL)
+// Botón de descargar inventario
 btnDescargarInventario?.addEventListener("click", () => {
     if (inventarioBrutoGlobal.length === 0) {
         alert("No hay datos de inventario para descargar.");
         return;
     }
 
-    // 1. Definir encabezados
+    // 1. Definir encabezados (Añadiendo los nuevos campos de stock por formato)
     const headers = [
         "ID", "Nombre", "Marca", "Ubicacion", "PrecioPublico", "PrecioUnidad", 
         "PrecioCapsula", "PrecioTableta", "PrecioBlister", "PrecioCaja", 
-        "Stock", "Vencimiento", "Antibiotico", "FechaCreacion"
+        "Stock", "StockTableta", "StockBlister", "StockCaja",
+        "Vencimiento", "Antibiotico", "FechaCreacion"
     ].join(',') + '\n';
 
     // 2. Generar filas de datos
     const csvRows = inventarioBrutoGlobal.map(item => {
-        // Asegurar que los campos numéricos y booleanos sean formateados correctamente
         const row = [
             item.id || '',
             item.nombre || '',
@@ -133,6 +138,9 @@ btnDescargarInventario?.addEventListener("click", () => {
             item.precioBlister !== null && item.precioBlister !== undefined ? item.precioBlister.toFixed(2) : '',
             item.precioCaja !== null && item.precioCaja !== undefined ? item.precioCaja.toFixed(2) : '',
             item.stock || 0,
+            item.stockTableta || 0, // Nuevo
+            item.stockBlister || 0, // Nuevo
+            item.stockCaja || 0,     // Nuevo
             item.vencimiento || '',
             item.antibiotico ? 'true' : 'false',
             item.fechaCreacion || ''
@@ -260,6 +268,11 @@ async function obtenerDatosProductoParaEdicion(productoId) {
             precioBlisterInput.value = datos.precioBlister ?? '';
             precioCajaInput.value = datos.precioCaja ?? '';
             stockInput.value = datos.stock ?? '';
+            // Cargar stocks por formato (Nuevo)
+            stockTabletaInput.value = datos.stockTableta ?? '';
+            stockBlisterInput.value = datos.stockBlister ?? '';
+            stockCajaInput.value = datos.stockCaja ?? '';
+
             vencimientoInput.value = datos.vencimiento || '';
             antibioticoInput.checked = datos.antibiotico || false;
             cerrarModalLotes();
@@ -280,20 +293,26 @@ formProducto?.addEventListener("submit", async (e) => {
         nombre: nombreInput.value.trim(),
         marca: marcaInput.value.trim() || null,
         ubicacion: ubicacionInput.value.trim() || null,
+        // Precios
         precioPublico: precioPublicoInput.value !== '' ? parseFloat(precioPublicoInput.value) : null,
         precioUnidad: precioUnidadInput.value !== '' ? parseFloat(precioUnidadInput.value) : null,
         precioCapsula: precioCapsulaInput.value !== '' ? parseFloat(precioCapsulaInput.value) : null,
         precioTableta: precioTabletaInput.value !== '' ? parseFloat(precioTabletaInput.value) : null,
         precioBlister: precioBlisterInput.value !== '' ? parseFloat(precioBlisterInput.value) : null,
         precioCaja: precioCajaInput.value !== '' ? parseFloat(precioCajaInput.value) : null,
+        // Stocks
         stock: safeNumber(stockInput.value),
+        stockTableta: safeNumber(stockTabletaInput.value), // Nuevo
+        stockBlister: safeNumber(stockBlisterInput.value), // Nuevo
+        stockCaja: safeNumber(stockCajaInput.value),       // Nuevo
+
         vencimiento: vencimientoInput.value.trim() || null,
         antibiotico: !!antibioticoInput.checked,
         fechaCreacion: new Date().toISOString().split('T')[0]
     };
 
     if (!datosProducto.nombre || datosProducto.stock < 0) {
-        alert("El nombre y el stock deben ser válidos.");
+        alert("El nombre y el stock total deben ser válidos.");
         return;
     }
 
@@ -332,25 +351,23 @@ async function eliminarLote(loteId, nombreLote) {
 // ------------------ CARGA MASIVA ------------------
 
 btnDescargarPlantilla?.addEventListener("click", () => {
-    // Definición de las cabeceras (encabezados) del CSV
-    const headers = "Nombre,Marca,Ubicacion,PrecioPublico,PrecioUnidad,PrecioCapsula,PrecioTableta,PrecioBlister,PrecioCaja,Stock,Vencimiento,Antibiotico(true/false)\n";
+    // Definición de las cabeceras (Añadiendo stocks por formato)
+    const headers = "Nombre,Marca,Ubicacion,PrecioPublico,PrecioUnidad,PrecioCapsula,PrecioTableta,PrecioBlister,PrecioCaja,Stock,StockTableta,StockBlister,StockCaja,Vencimiento,Antibiotico(true/false)\n";
     
-    // Ejemplo de datos (para mostrar el formato esperado)
+    // Ejemplo de datos
     const exampleData = 
-        "SANTEMICINA SOBRE GRANULADO,SANTE,15,15.00,1.50,,,2.00,25,2026-08-01,false\n" +
-        "PARACETAMOL 500MG,GENERICO,2B DER,2.00,0.50,,,,,500,2026-06-15,false\n";
+        "SANTEMICINA SOBRE GRANULADO,SANTE,15,15.00,1.50,,,2.00,25,1000,0,0,0,2026-08-01,false\n" +
+        "PARACETAMOL 500MG,GENERICO,2B DER,2.00,0.50,,,,,500,0,10,5,2026-06-15,false\n";
 
     const csvContent = headers + exampleData;
     const filename = "plantilla_carga_inventario.csv";
 
-    // SOLUCIÓN ROBUSTA PARA EVITAR BLOQUEOS DEL NAVEGADOR
+    // SOLUCIÓN ROBUSTA PARA DESCARGA
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     
     if (navigator.msSaveBlob) {
-        // Para IE 10+
         navigator.msSaveBlob(blob, filename);
     } else {
-        // Para navegadores modernos
         const link = document.createElement("a");
         if (link.download !== undefined) { 
             const url = URL.createObjectURL(blob);
@@ -385,7 +402,8 @@ btnProcesarMasiva?.addEventListener("click", async () => {
 
     for (const linea of datosAProcesar) {
         const campos = linea.split(',').map(c => c.trim());
-        // Se espera el orden: [0]Nombre, [1]Marca, [2]Ubicacion, [3]P.Publico, ..., [9]Stock, [10]Vencimiento, [11]Antibiotico
+        
+        // Se espera el orden: [0]Nombre, ..., [9]Stock, [10]StockTableta, [11]StockBlister, [12]StockCaja, [13]Vencimiento, [14]Antibiotico
         if (!campos[0] || isNaN(parseInt(campos[9] || '0'))) { 
             console.warn("Fila ignorada por datos inválidos:", linea);
             errores++; 
@@ -404,8 +422,11 @@ btnProcesarMasiva?.addEventListener("click", async () => {
                 precioBlister: campos[7] ? parseFloat(campos[7]) : null,
                 precioCaja: campos[8] ? parseFloat(campos[8]) : null,
                 stock: safeNumber(campos[9] || 0),
-                vencimiento: campos[10] || null,
-                antibiotico: (campos[11] || 'false').toLowerCase() === 'true',
+                stockTableta: safeNumber(campos[10] || 0), // Nuevo
+                stockBlister: safeNumber(campos[11] || 0), // Nuevo
+                stockCaja: safeNumber(campos[12] || 0),    // Nuevo
+                vencimiento: campos[13] || null,
+                antibiotico: (campos[14] || 'false').toLowerCase() === 'true',
                 fechaCreacion: new Date().toISOString().split('T')[0]
             };
             const inventarioRef = collection(db, "inventario");
@@ -446,10 +467,18 @@ function abrirModalLotes(nombreProducto) {
             : `Vencimiento: <strong>${fechaVenc}</strong>`;
 
         const antibioticoLabel = lote.antibiotico ? `<span style="color:#b85">⚠ Antibiótico</span>` : '';
+        
+        // Stocks por formato en el lote (Nuevo)
+        const stockFormatos = `
+            ${lote.stockTableta > 0 ? `| Tiras: <strong>${lote.stockTableta}</strong>` : ''}
+            ${lote.stockBlister > 0 ? `| Blisters: <strong>${lote.stockBlister}</strong>` : ''}
+            ${lote.stockCaja > 0 ? `| Cajas: <strong>${lote.stockCaja}</strong>` : ''}
+        `;
 
         div.innerHTML = `
             <div>
-                Stock: <strong>${lote.stock}</strong> unidades | ${vencimientoHtml} ${antibioticoLabel}
+                Unidades Totales: <strong>${lote.stock}</strong> | ${vencimientoHtml} ${antibioticoLabel}
+                <div style="margin-top: 5px; font-size: 0.9em;">Stock por formato: ${stockFormatos || 'N/A'}</div>
                 <div>Precio público: ${lote.precioPublico !== null && lote.precioPublico !== undefined ? `Q ${Number(lote.precioPublico).toFixed(2)}` : '-' }</div>
                 <div>Marca: ${safeString(lote.marca)} | Ubicación: ${safeString(lote.ubicacion)}</div>
             </div>
@@ -474,22 +503,50 @@ btnAgregarLote?.addEventListener("click", () => {
 
     const datosAgrupados = inventarioAgrupadoGlobal[nombreLoteActual.toUpperCase().trim()];
     if (datosAgrupados) {
+        // Copiar precios de referencia
         precioPublicoInput.value = datosAgrupados.precioPublico ?? '';
+        precioUnidadInput.value = datosAgrupados.precioUnidad ?? '';
+        precioCapsulaInput.value = datosAgrupados.precioCapsula ?? '';
+        precioTabletaInput.value = datosAgrupados.precioTableta ?? '';
+        precioBlisterInput.value = datosAgrupados.precioBlister ?? '';
+        precioCajaInput.value = datosAgrupados.precioCaja ?? '';
         antibioticoInput.checked = datosAgrupados.antibiotico || false;
     }
+
+    // Resetear stocks para el nuevo lote
+    stockInput.value = '';
+    stockTabletaInput.value = '';
+    stockBlisterInput.value = '';
+    stockCajaInput.value = '';
+
 
     cerrarModalLotes();
     if (modal) modal.style.display = "block";
 });
 
 
-// ------------------ RENDER / AGRUPAR ------------------
+// ------------------ RENDER / AGRUPAR (MODIFICADO) ------------------
 
 function crearTarjetaProducto(producto) {
     const li = document.createElement("li");
     li.classList.add("product-card");
 
     const stockTotal = producto.totalStock || 0;
+    
+    // --- NUEVAS VARIABLES DE STOCKS Y PRECIOS POR FORMATO AGRUPADO ---
+    // Usaremos el stock total como la suma de unidades/pastillas
+    const totalStockPastilla = producto.totalStock || 0; 
+    const totalStockTableta = producto.totalStockTableta || 0; 
+    const totalStockBlister = producto.totalStockBlister || 0;
+    const totalStockCaja = producto.totalStockCaja || 0;
+    
+    const precioUnidad = producto.precioUnidad ?? null;
+    const precioCapsula = producto.precioCapsula ?? null;
+    const precioTableta = producto.precioTableta ?? null;
+    const precioBlister = producto.precioBlister ?? null;
+    const precioCaja = producto.precioCaja ?? null;
+    // ------------------------------------------------------------------
+
     const precioVenta = producto.precioPublico !== undefined && producto.precioPublico !== null
         ? `Q ${Number(producto.precioPublico).toFixed(2)}`
         : 'Q -';
@@ -503,8 +560,19 @@ function crearTarjetaProducto(producto) {
         return new Date(a.vencimiento) - new Date(b.vencimiento);
     })[0];
     const vencimientoStr = loteMasProximo && loteMasProximo.vencimiento ? loteMasProximo.vencimiento : '-';
-    const skuStr = loteMasProximo && loteMasProximo.sku ? loteMasProximo.sku : 'N/A';
     
+    // Función helper para formatear precios
+    const formatPrice = (price) => price !== null && price !== undefined ? `Q ${Number(price).toFixed(2)}` : 'N/A';
+
+    // Función helper para generar badges de stock
+    const createStockBadge = (label, value, color) => {
+        if (value > 0) {
+            // Usar un estilo CSS en línea simple para el badge (debería estar en styles.css)
+            return `<span class="stock-badge" style="background-color: ${color}; padding: 3px 6px; border-radius: 4px; font-size: 0.8em; margin-right: 5px; color: #333;">**${label}:** ${value}</span>`;
+        }
+        return '';
+    }
+
     li.innerHTML = `
         <div class="product-header">
             <span class="product-name">${safeString(producto.nombre)}</span>
@@ -513,15 +581,32 @@ function crearTarjetaProducto(producto) {
         <div class="product-details">
             <div class="detail-item"><strong>Marca:</strong> ${safeString(producto.marca)}</div>
             <div class="detail-item"><strong>Ubicación:</strong> ${safeString(producto.ubicacion)}</div>
-            <div class="detail-item"><strong>Vence:</strong> ${vencimientoStr}</div>
-            <div class="detail-item"><strong>SKU:</strong> ${skuStr}</div>
-            <div class="detail-item"><strong>P. Venta:</strong> ${precioVenta}</div>
+            <div class="detail-item"><strong class="vence-fecha">Vence:</strong> ${vencimientoStr}</div>
+            
+            <div class="price-section">
+                <div class="detail-item">P. Público (Ref.): **${precioVenta}**</div>
+                <div class="price-format-grid">
+                    <span>P. Unidad: ${formatPrice(precioUnidad)}</span>
+                    <span>P. Cápsula: ${formatPrice(precioCapsula)}</span>
+                    <span>P. Tableta: ${formatPrice(precioTableta)}</span>
+                    <span>P. Blister: ${formatPrice(precioBlister)}</span>
+                    <span>P. Caja: ${formatPrice(precioCaja)}</span>
+                </div>
+            </div>
         </div>
+
+        <div class="stock-individual-badges">
+            ${createStockBadge("Unidades", totalStockPastilla, '#e0f7fa')} 
+            ${createStockBadge("Tableta", totalStockTableta, '#fff3cd')}
+            ${createStockBadge("Blister", totalStockBlister, '#d1ecf1')}
+            ${createStockBadge("Cajas", totalStockCaja, '#e6ffed')}
+        </div>
+
         <div class="stock-info ${stockClase}">
-            <i class="fas fa-boxes"></i> ${stockStr}
+            <i class="fas fa-boxes"></i> **${stockStr}**
         </div>
         <div class="product-actions-footer">
-            <button class="btn-lotes-card btn-lotes" data-nombre="${producto.nombre.toUpperCase().trim()}">Ver Lotes</button>
+            <button class="button-action btn-lotes" data-nombre="${producto.nombre.toUpperCase().trim()}" style="background-color: #3b82f6; color: white;"><i class="fas fa-clipboard-list"></i> Ver Lotes (${producto.lotes.length})</button>
         </div>
     `;
     return li;
@@ -558,11 +643,22 @@ async function cargarInventario() {
                 nombresProductosExistentes.add(nombreClave); 
             }
 
-            const loteObj = {
+            // Datos específicos del lote (stock por formato y precios por formato)
+            const loteData = {
                 id: docItem.id,
                 vencimiento: data.vencimiento || null,
                 stock: Number(data.stock) || 0,
+                // Stock por formato (añadido)
+                stockTableta: Number(data.stockTableta) || 0,
+                stockBlister: Number(data.stockBlister) || 0,
+                stockCaja: Number(data.stockCaja) || 0,
+                // Precios por formato (añadido)
                 precioPublico: data.precioPublico ?? null,
+                precioUnidad: data.precioUnidad ?? null,
+                precioCapsula: data.precioCapsula ?? null,
+                precioTableta: data.precioTableta ?? null,
+                precioBlister: data.precioBlister ?? null,
+                precioCaja: data.precioCaja ?? null,
                 sku: data.sku || null, 
                 antibiotico: !!data.antibiotico,
                 marca: data.marca ?? null,
@@ -574,15 +670,32 @@ async function cargarInventario() {
                     nombre: data.nombre,
                     marca: data.marca ?? null,
                     ubicacion: data.ubicacion ?? null,
-                    precioPublico: data.precioPublico ?? null,
                     antibiotico: !!data.antibiotico,
                     totalStock: Number(data.stock) || 0,
-                    lotes: [loteObj]
+                    lotes: [loteData],
+                    // Inicializar stocks totales por formato
+                    totalStockTableta: loteData.stockTableta,
+                    totalStockBlister: loteData.stockBlister,
+                    totalStockCaja: loteData.stockCaja,
+                    // Usar los precios del primer lote como referencia para la tarjeta principal
+                    precioPublico: loteData.precioPublico,
+                    precioUnidad: loteData.precioUnidad,
+                    precioCapsula: loteData.precioCapsula,
+                    precioTableta: loteData.precioTableta,
+                    precioBlister: loteData.precioBlister,
+                    precioCaja: loteData.precioCaja,
                 };
             } else {
-                inventarioAgrupadoGlobal[nombreClave].totalStock += Number(data.stock) || 0;
-                inventarioAgrupadoGlobal[nombreClave].lotes.push(loteObj);
-                inventarioAgrupadoGlobal[nombreClave].antibiotico = inventarioAgrupadoGlobal[nombreClave].antibiotico || !!data.antibiotico;
+                // Sumar Stock Total General
+                inventarioAgrupadoGlobal[nombreClave].totalStock += loteData.stock;
+                // Sumar Stocks por formato
+                inventarioAgrupadoGlobal[nombreClave].totalStockTableta += loteData.stockTableta;
+                inventarioAgrupadoGlobal[nombreClave].totalStockBlister += loteData.stockBlister;
+                inventarioAgrupadoGlobal[nombreClave].totalStockCaja += loteData.stockCaja;
+
+                inventarioAgrupadoGlobal[nombreClave].lotes.push(loteData);
+                // Si algún lote es antibiótico, marcar todo el producto como antibiótico
+                inventarioAgrupadoGlobal[nombreClave].antibiotico = inventarioAgrupadoGlobal[nombreClave].antibiotico || loteData.antibiotico;
             }
         });
 
