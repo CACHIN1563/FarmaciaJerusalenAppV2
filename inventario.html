@@ -7,9 +7,31 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     
     <style>
-        /* --- ESTILOS AGREGADOS PARA LA BARRA DE NAVEGACIÓN (NAVBAR) --- */
+        /* --- VARIABLES --- */
+        :root {
+            --primary-color: #3b82f6; /* Azul */
+            --secondary-color: #10b981; /* Verde esmeralda */
+            --danger-color: #ef4444; /* Rojo */
+            --warning-color: #f59e0b; /* Amarillo */
+            --bg-light: #f9fafb;
+            --text-dark: #1f2937;
+            --border-color: #e5e7eb;
+            --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+        }
+
+        /* --- ESTILOS BASE --- */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-light);
+            color: var(--text-dark);
+            line-height: 1.6;
+        }
+        
+        /* --- ESTILOS BARRA DE NAVEGACIÓN (NAVBAR) --- */
         .navbar {
-            background-color: #1f2937; /* Color de fondo de la barra de navegación */
+            background-color: #1f2937;
             color: white;
             padding: 10px 20px;
             display: flex;
@@ -47,7 +69,7 @@
         }
 
         .nav-menu a:hover {
-            background-color: #374151; /* Color de fondo al pasar el ratón */
+            background-color: #374151;
         }
 
         .dropdown {
@@ -90,28 +112,6 @@
             display: block;
         }
         
-        /* --- VARIABLES --- */
-        :root {
-            --primary-color: #3b82f6; /* Azul */
-            --secondary-color: #10b981; /* Verde esmeralda */
-            --danger-color: #ef4444; /* Rojo */
-            --warning-color: #f59e0b; /* Amarillo */
-            --bg-light: #f9fafb;
-            --text-dark: #1f2937;
-            --border-color: #e5e7eb;
-            --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
-        }
-
-        /* --- ESTILOS BASE --- */
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: var(--bg-light);
-            color: var(--text-dark);
-            line-height: 1.6;
-        }
-        
         header {
             background-color: var(--primary-color);
             color: white;
@@ -119,8 +119,7 @@
             text-align: center;
             box-shadow: var(--card-shadow);
         }
-        /* ... el resto de tus estilos CSS (sin cambios) ... */
-
+        
         header h1 {
             margin: 0;
             font-size: 2rem;
@@ -294,7 +293,7 @@
             border-radius: 4px;
             font-size: 0.8em;
             font-weight: 600;
-            color: var(--text-dark); /* Color por defecto, sobrescrito en JS */
+            color: var(--text-dark);
         }
 
         /* --- SECCIÓN DE STOCK TOTAL Y BOTÓN --- */
@@ -305,12 +304,12 @@
             font-weight: 700;
             font-size: 1.1rem;
             margin-bottom: 15px;
-            background-color: #e6ffed; /* Verde claro por defecto */
+            background-color: #e6ffed; 
             color: #1a6f3b;
         }
 
         .stock-bajo {
-            background-color: #fee2e2; /* Rojo claro */
+            background-color: #fee2e2;
             color: var(--danger-color);
         }
         
@@ -379,7 +378,7 @@
             text-decoration: none;
         }
 
-        /* --- FORMULARIO --- */
+        /* --- FORMULARIO & GRIDS (ACTUALIZADOS) --- */
         .form-group {
             margin-bottom: 15px;
             position: relative;
@@ -394,36 +393,69 @@
         .form-group input[type="text"],
         .form-group input[type="number"],
         .form-group input[type="date"],
-        .form-group textarea {
+        .form-group select, /* AÑADIDO: SELECT */
+        .form-group textarea { /* AÑADIDO: TEXTAREA */
             width: 100%;
             padding: 10px;
             border: 1px solid var(--border-color);
             border-radius: 6px;
             box-sizing: border-box;
             font-size: 1rem;
+            background-color: white; /* Asegura que el select tenga fondo blanco */
         }
         
-        .form-grid {
+        .form-group input:disabled,
+        .form-group select:disabled {
+            background-color: #e9ecef;
+            cursor: not-allowed;
+            color: #6c757d;
+        }
+
+        /* Título para la sección de campos farmacéuticos */
+        .subsection-title { 
+            margin-top: 25px;
+            margin-bottom: 15px;
+            color: var(--secondary-color);
+            font-size: 1.1rem;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 5px;
+        }
+
+        /* Mensaje de ayuda */
+        .helper-text { 
+            display: block;
+            margin-top: 5px;
+            font-size: 0.85rem;
+            color: #6b7280;
+            font-style: italic;
+        }
+
+        /* Cuadrículas nuevas para la disposición del modal de producto */
+        .form-grid { /* Usado para los 2 campos básicos: Marca y Ubicación */
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 15px;
             margin-bottom: 15px;
         }
-        
-        .price-grid {
-            grid-template-columns: repeat(3, 1fr);
+
+        .price-inputs, /* Usado para Precio Público y Unidad */
+        .stock-conversion-inputs, /* Unidades por Blister y Blisters por Caja */
+        .vencimiento-antibiotico-inputs { /* Fecha y Checkbox */
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 15px;
         }
 
-        .stock-grid {
+        .price-inputs.format-prices { /* Precios detallados (Cápsula, Tableta, Blister, Caja) */
             grid-template-columns: repeat(4, 1fr);
         }
 
-        .stock-grid .form-group:first-child {
-            grid-column: span 2;
-        }
-
-        .meta-grid {
-            grid-template-columns: 2fr 1fr;
+        .stock-desagregado-inputs { /* Stock desagregado (solo lectura) */
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 15px;
         }
         
         .checkbox-group {
@@ -453,6 +485,23 @@
             background-color: #9ca3af;
             color: white;
         }
+
+        /* ---------------------------------------------------- */
+        /* --- CLASE CLAVE PARA OCULTAR/DESACTIVAR CAMPOS --- */
+        /* ---------------------------------------------------- */
+
+        /* Estilo para ocultar y deshabilitar los campos no requeridos (No Farmacéuticos) */
+        .disabled-fields {
+            opacity: 0.4;
+            pointer-events: none;
+            max-height: 0;
+            overflow: hidden;
+            padding: 0;
+            margin: 0;
+            transition: all 0.3s ease-in-out;
+            /* Si se quiere mantener el espacio, quitar max-height, overflow y margin */
+        }
+
 
         /* --- SUGERENCIAS --- */
         .sugerencias-dropdown {
@@ -530,18 +579,27 @@
             color: white;
         }
 
-        /* --- RESPONSIVE --- */
+        /* --- RESPONSIVE (AJUSTADO PARA LAS NUEVAS CUADRÍCULAS) --- */
         @media (max-width: 900px) {
             .product-grid {
                 grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
             }
-            .price-grid {
+            /* Modal de Producto */
+            .form-grid, 
+            .price-inputs, 
+            .stock-conversion-inputs,
+            .stock-desagregado-inputs { 
                 grid-template-columns: 1fr 1fr;
             }
-            .stock-grid {
+            .price-inputs.format-prices { /* Pasa de 4 a 2 columnas */
                 grid-template-columns: 1fr 1fr;
             }
-            .stock-grid .form-group:first-child {
+            .vencimiento-antibiotico-inputs {
+                grid-template-columns: 1fr 1fr;
+            }
+            
+            /* Ajuste para que los campos básicos sigan usando 2 columnas */
+            .form-grid .form-group {
                 grid-column: span 1;
             }
         }
@@ -557,25 +615,19 @@
             .action-buttons {
                 flex-direction: column;
             }
-            .form-grid {
+            /* Modal de Producto (Todo a 1 columna) */
+            .form-grid,
+            .price-inputs,
+            .stock-conversion-inputs,
+            .stock-desagregado-inputs,
+            .price-inputs.format-prices,
+            .vencimiento-antibiotico-inputs { 
                 grid-template-columns: 1fr;
-            }
-            .price-grid {
-                grid-template-columns: 1fr;
-            }
-            .stock-grid {
-                grid-template-columns: 1fr;
-            }
-            .stock-grid .form-group:first-child {
-                grid-column: span 1;
             }
         }
     </style>
 </head>
-
-
 <body>
-
     <nav class="navbar">
         <a href="ventas_dashboard.html" class="logo">FARMACIA JERUSALÉN</a>
         <ul class="nav-menu">
@@ -597,7 +649,6 @@
     </header>
 
     <main class="container">
-        
         <section class="controls-section">
             <div class="search-bar">
                 <input type="text" id="buscar" placeholder="Buscar por Nombre, Marca o Ubicación...">
@@ -618,114 +669,140 @@
             <ul id="lista-inventario" class="product-grid">
                 </ul>
         </section>
-
     </main>
 
     <div id="modal-producto" class="modal">
         <div class="modal-content">
             <span class="close">&times;</span>
-            <h2 id="modal-title"></h2>
-            
+            <h2 id="modal-title">Ingresar Nuevo Producto/Lote</h2>
+
             <form id="form-producto">
                 <input type="hidden" id="producto-id" value="">
 
                 <div class="form-group">
-                    <label for="nombre">Nombre del Producto*:</label>
-                    <input type="text" id="nombre" required>
+                    <label for="tipoProducto">📦 Tipo de Producto:</label>
+                    <select id="tipoProducto" name="tipoProducto" required>
+                        <option value="farmaceutico" selected>Farmacéutico (Pastilla, Jarabe, etc.)</option>
+                        <option value="otro">Otro (Misceláneo, Higiene, Suplemento, etc.)</option>
+                    </select>
+                    <small class="helper-text">Selecciona 'Otro' para ocultar/deshabilitar las opciones de formatos de medicina.</small>
+                </div>
+                
+                <hr>
+
+                <div class="form-group">
+                    <label for="nombre">Nombre del Producto/Lote*:</label>
+                    <input type="text" id="nombre" name="nombre" required placeholder="Ej: Paracetamol 500mg">
                     <ul id="nombre-sugerencias" class="sugerencias-dropdown"></ul>
                 </div>
 
                 <div class="form-grid">
                     <div class="form-group">
                         <label for="marca">Marca:</label>
-                        <input type="text" id="marca">
+                        <input type="text" id="marca" name="marca" placeholder="Ej: Genérico / Pfizer">
                     </div>
                     <div class="form-group">
                         <label for="ubicacion">Ubicación (Estante/Cajón):</label>
-                        <input type="text" id="ubicacion">
+                        <input type="text" id="ubicacion" name="ubicacion" placeholder="Ej: 2B DER">
                     </div>
                 </div>
 
-                <h3>Precios (Por Lote)</h3>
-                <div class="form-grid price-grid">
+                <h3 class="subsection-title">Precios Base (Referencia)</h3>
+                <div class="price-inputs">
                     <div class="form-group">
-                        <label for="precioPublico">P. Público (Ref.):</label>
-                        <input type="number" id="precioPublico" step="0.01" min="0">
+                        <label for="precioPublico">P. Público (Referencia):</label>
+                        <input type="number" id="precioPublico" name="precioPublico" step="0.01" min="0" placeholder="Ej: 15.00">
                     </div>
                     <div class="form-group">
-                        <label for="precioUnidad">P. Unidad/Pastilla:</label>
-                        <input type="number" id="precioUnidad" step="0.01" min="0">
-                    </div>
-                    <div class="form-group">
-                        <label for="precioCapsula">P. Cápsula:</label>
-                        <input type="number" id="precioCapsula" step="0.01" min="0">
-                    </div>
-                    <div class="form-group">
-                        <label for="precioTableta">P. Tableta (Tira):</label>
-                        <input type="number" id="precioTableta" step="0.01" min="0">
-                    </div>
-                    <div class="form-group">
-                        <label for="precioBlister">P. Blister:</label>
-                        <input type="number" id="precioBlister" step="0.01" min="0">
-                    </div>
-                    <div class="form-group">
-                        <label for="precioCaja">P. Caja/Envase:</label>
-                        <input type="number" id="precioCaja" step="0.01" min="0">
+                        <label for="precioUnidad">P. Unidad Suelta (Pastilla/Sobre/ML):</label>
+                        <input type="number" id="precioUnidad" name="precioUnidad" step="0.01" min="0" placeholder="Ej: 0.50">
                     </div>
                 </div>
-
-                <h3>Inventario del Lote</h3>
-                <div class="form-grid stock-grid">
-                    <div class="form-group">
-                        <label for="stock">Stock Total Lote (Unidades/Pastillas)*:</label>
-                        <input type="number" id="stock" min="0" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="stockTableta">Stock Tabletas (Tiras):</label>
-                        <input type="number" id="stockTableta" min="0">
-                    </div>
-                    <div class="form-group">
-                        <label for="stockBlister">Stock Blisters:</label>
-                        <input type="number" id="stockBlister" min="0">
-                    </div>
-                    <div class="form-group">
-                        <label for="stockCaja">Stock Cajas/Envases:</label>
-                        <input type="number" id="stockCaja" min="0">
-                    </div>
+                
+                <div class="form-group">
+                    <label for="stock">Stock Total Lote (Unidades/Pastillas)*:</label>
+                    <input type="number" id="stock" name="stock" min="0" required placeholder="Ej: 500">
                 </div>
 
-                <div class="form-grid meta-grid">
-                    <div class="form-group">
-                        <label for="vencimiento">Fecha Vencimiento (AAAA-MM-DD):</label>
-                        <input type="date" id="vencimiento">
-                    </div>
-                    <div class="form-group checkbox-group">
-                        <input type="checkbox" id="antibiotico">
-                        <label for="antibiotico">Requiere Receta (Antibiótico)</label>
-                    </div>
-                </div>
+                <div id="contenedor-campos-farmaceuticos"> 
+                    <h3 class="subsection-title">Detalle de Formato Farmacéutico y Precios</h3>
 
-                <div class="modal-actions">
-                    <button type="submit" class="button-action submit-btn"><i class="fas fa-save"></i> Guardar Lote</button>
+                    <div class="stock-conversion-inputs">
+                        <div class="form-group">
+                            <label for="tabletasPorBlister">Unidades/Tabletas por Blister (o Frasco):</label>
+                            <input type="number" id="tabletasPorBlister" name="tabletasPorBlister" min="0" placeholder="Ej: 10">
+                        </div>
+                        <div class="form-group">
+                            <label for="blistersPorCaja">Blisters/Frascos por Caja:</label>
+                            <input type="number" id="blistersPorCaja" name="blistersPorCaja" min="0" placeholder="Ej: 5">
+                        </div>
+                    </div>
+
+                    <div class="price-inputs format-prices">
+                        <div class="form-group">
+                            <label for="precioCapsula">P. Cápsula/Dosis:</label>
+                            <input type="number" id="precioCapsula" name="precioCapsula" step="0.01" min="0" placeholder="0.25">
+                        </div>
+                        <div class="form-group">
+                            <label for="precioTableta">P. Tableta/Pastilla:</label>
+                            <input type="number" id="precioTableta" name="precioTableta" step="0.01" min="0" placeholder="0.50">
+                        </div>
+                        <div class="form-group">
+                            <label for="precioBlister">P. Blister/Frasco:</label>
+                            <input type="number" id="precioBlister" name="precioBlister" step="0.01" min="0" placeholder="4.50">
+                        </div>
+                        <div class="form-group">
+                            <label for="precioCaja">P. Caja:</label>
+                            <input type="number" id="precioCaja" name="precioCaja" step="0.01" min="0" placeholder="20.00">
+                        </div>
+                    </div>
+
+                    <h3 class="subsection-title">Stock Desglosado (Cálculo Automático)</h3>
+                    <div class="stock-desagregado-inputs">
+                        <div class="form-group">
+                            <label for="stockTableta">Unidades Sueltas:</label>
+                            <input type="text" id="stockTableta" readonly placeholder="Unidades restantes">
+                        </div>
+                        <div class="form-group">
+                            <label for="stockBlister">Blisters Completos:</label>
+                            <input type="text" id="stockBlister" readonly placeholder="Blisters completos">
+                        </div>
+                        <div class="form-group">
+                            <label for="stockCaja">Cajas Completas:</label>
+                            <input type="text" id="stockCaja" readonly placeholder="Cajas completas">
+                        </div>
+                    </div>
+
+                    <div class="vencimiento-antibiotico-inputs">
+                        <div class="form-group">
+                            <label for="vencimiento">Fecha de Vencimiento:</label>
+                            <input type="date" id="vencimiento" name="vencimiento">
+                        </div>
+                        <div class="form-group checkbox-group">
+                            <input type="checkbox" id="antibiotico" name="antibiotico">
+                            <label for="antibiotico">Requiere Receta (Antibiótico)</label>
+                        </div>
+                    </div>
+                </div> <div class="modal-actions">
+                    <button type="submit" class="button-action submit-btn"><i class="fas fa-save"></i> Guardar Producto/Lote</button>
                     <button type="button" id="btn-cancelar-modal" class="button-action cancel-btn">Cancelar</button>
                 </div>
             </form>
         </div>
     </div>
-
+    
     <div id="modal-carga-masiva" class="modal">
         <div class="modal-content">
             <span class="close" id="close-masiva">&times;</span>
             <h2>Carga Masiva de Lotes</h2>
-            <p>Pega los datos de tu inventario en formato CSV (separado por comas).</p>
+            <p>Pega los datos de tu inventario en formato **CSV** (separado por comas).</p>
             <p><small>Asegúrate de que la estructura sea correcta. Consulta la plantilla.</small></p>
 
             <button id="btn-descargar-plantilla" class="button-action download-btn"><i class="fas fa-download"></i> Descargar Plantilla CSV</button>
 
             <div class="form-group textarea-group">
                 <label for="datos-masivos">Datos CSV (sin encabezados):</label>
-                <textarea id="datos-masivos" rows="10" placeholder="Ej: Nombre,Marca,Ubicacion,P.Público,...,Stock,StockTableta,StockBlister,StockCaja,Vencimiento,Antibiotico"></textarea>
+                <textarea id="datos-masivos" rows="10" placeholder="Ej: Nombre,Marca,Ubicacion,P.Público,...,Stock,TabletasPorBlister,BlistersPorCaja,Vencimiento,Antibiotico,TipoProducto"></textarea>
             </div>
 
             <div class="modal-actions">
@@ -741,7 +818,7 @@
             <h2 id="lotes-title" data-nombre-producto=""></h2>
             
             <div id="lotes-lista" class="lotes-list">
-                </div>
+            </div>
             
             <div class="modal-actions lotes-footer">
                 <button id="btn-agregar-lote" class="button-action new-product-btn"><i class="fas fa-plus"></i> Agregar Nuevo Lote</button>
@@ -750,7 +827,7 @@
         </div>
     </div>
 
+    <script type="module" src="./firebase-config.js"></script> 
     <script type="module" src="./inventario.js"></script>
-
 </body>
 </html>
