@@ -3,13 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bienvenido a Farmacia App</title>
+    <title>Farmacia Jerusalén App</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
-        /* Variables de color para un manejo fácil */
+        /* Variables de color */
         :root {
             --primary-blue: #007bff;
+            --dark-blue: #0056b3;
             --dark-gray: #343a40;
             --medium-gray: #6c757d;
             --light-gray: #f8f9fa;
@@ -29,36 +30,40 @@
             color: var(--dark-gray);
         }
 
-        /* Contenedor principal para simular la pantalla */
+        /* Contenedor principal */
         .desktop-monitor {
             background-color: var(--white);
             border-radius: 12px;
             box-shadow: var(--shadow-medium);
-            width: 90%;
+            width: 95%;
             max-width: 900px;
             overflow: hidden;
             padding-bottom: 30px;
         }
 
-        /* Encabezado azul del monitor */
+        /* Encabezado */
         .header-bar {
             background-color: var(--primary-blue);
             color: var(--white);
             padding: 20px 30px;
+            /* Se eliminó 'align-items: center;' para centrar solo el texto */
+            display: flex; 
+            justify-content: center;
             font-size: 1.8rem;
             font-weight: 700;
-            text-align: center;
         }
+
+        /* Se eliminaron los estilos .logo, .header-logo, .star-fill y .border-stroke */
 
         /* Contenido del Dashboard */
         .dashboard-content {
             padding: 30px;
         }
 
-        /* --- Nuevo Estilo para Versículo Diario --- */
+        /* Estilo para Versículo Diario */
         .daily-verse {
-            background-color: #f0f7ff; /* Azul muy claro */
-            color: var(--primary-blue);
+            background-color: #f0f7ff;
+            color: var(--dark-blue);
             border: 1px solid var(--primary-blue);
             border-radius: 8px;
             padding: 15px 20px;
@@ -74,8 +79,6 @@
             margin-top: 5px;
             font-size: 0.95rem;
         }
-        /* ------------------------------------------- */
-
 
         /* Estilo para los títulos de sección */
         .section-title {
@@ -86,29 +89,30 @@
             margin-bottom: 20px;
             border-bottom: 1px solid #e9ecef;
             padding-bottom: 10px;
+            text-align: center; 
         }
-
+        
         /* Nuevo: Contenedor para centrar el grid horizontalmente */
         .grid-container-centered {
             display: flex;
-            justify-content: center; /* Centra el grid */
+            justify-content: center;
+            margin-bottom: 30px; 
         }
 
         /* Contenedor de las tarjetas de módulos (Grid Layout) */
         .module-grid {
-            /* Definimos un ancho fijo o máximo para el grid que contenga solo los módulos visibles */
             display: grid;
-            grid-template-columns: repeat(3, 180px); /* 3 columnas de 180px para Listado de Productos */
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            max-width: 600px; 
             gap: 20px;
-            /* Si la grilla tiene menos de 4 elementos, centramos la grilla en sí */
         }
         
-        /* Ajuste para la sección de Reportes (solo 2 módulos) */
+        /* Ajuste para la sección de Reportes */
         .module-grid.reporteria-grid {
-             grid-template-columns: repeat(2, 180px); /* 2 columnas de 180px */
+            max-width: 600px;
         }
         
-        /* Estilo de cada tarjeta de módulo (manteniendo la misma tarjeta) */
+        /* Estilo de cada tarjeta de módulo */
         .module-card {
             display: flex;
             flex-direction: column;
@@ -128,7 +132,7 @@
         .module-card:hover {
             transform: translateY(-3px);
             box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
-            background-color: var(--light-gray);
+            background-color: #e9f5ff; 
         }
 
         /* Icono dentro de la tarjeta */
@@ -140,14 +144,14 @@
         
         /* Texto del módulo */
         .module-text {
-            font-weight: 600;
-            font-size: 1.1rem;
+            font-weight: 700;
+            font-size: 1.0rem;
             margin-bottom: 5px;
         }
 
         /* Texto de descripción más pequeño */
         .module-description {
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             color: var(--medium-gray);
             line-height: 1.2;
         }
@@ -160,7 +164,7 @@
         }
 
         .module-card.dashboard-highlight:hover {
-            background-color: #0056b3;
+            background-color: var(--dark-blue);
         }
         
         .module-card.dashboard-highlight .module-icon {
@@ -168,15 +172,16 @@
         }
 
         .module-card.dashboard-highlight .module-description {
-             color: #f0f0f0;
+            color: #c8e0ff;
         }
 
         @media (max-width: 600px) {
             .module-grid {
-                 grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+                grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+                max-width: 100%;
             }
             .module-grid.reporteria-grid {
-                 grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+                max-width: 100%;
             }
         }
     </style>
@@ -185,7 +190,7 @@
 
 <div class="desktop-monitor">
     <div class="header-bar">
-        Bienvenido a Farmacia App
+        Farmacia Jerusalén App
     </div>
 
     <div class="dashboard-content">
@@ -195,8 +200,9 @@
             <strong>Proverbios 16:3</strong>
         </div>
         
+        <hr style="border: 0; border-top: 1px solid #e0e0e0; margin: 30px 0;">
 
-        <h2 class="section-title">Listado de Productos</h2>
+        <h2 class="section-title">Gestión de Productos y Ventas</h2>
         <div class="grid-container-centered">
             <div class="module-grid">
                 
@@ -220,8 +226,6 @@
                 
             </div>
         </div>
-
-        ---
         
         <h2 class="section-title">Reportes y Control</h2>
         <div class="grid-container-centered">
@@ -239,6 +243,12 @@
                     <div class="module-description">Vista general del rendimiento</div>
                 </a>
 
+                <a href="Antibioticos.HTML" class="module-card">
+                    <i class="fas fa-flask-vial module-icon"></i>
+                    <div class="module-text">Antibióticos</div>
+                    <div class="module-description">Reporte de medicamentos controlados</div>
+                </a>
+
             </div>
         </div>
 
@@ -247,6 +257,4 @@
 
 </body>
 </html>
-
-
 

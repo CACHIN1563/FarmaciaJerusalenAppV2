@@ -38,7 +38,7 @@
         }
 
         /* ---------------------------------------------------------------- */
-        /* --- ESTILOS DEL MENÚ DE NAVEGACIÓN (NUEVOS ESTILOS) --- */
+        /* --- ESTILOS DEL MENÚ DE NAVEGACIÓN --- */
         /* ---------------------------------------------------------------- */
         
         .navbar {
@@ -131,27 +131,6 @@
         /* ---------------------------------------------------------------- */
         /* --- FIN ESTILOS DEL MENÚ DE NAVEGACIÓN --- */
         /* ---------------------------------------------------------------- */
-
-        /* Top Bar */
-        /* NOTA: Este CSS ya no se usa, pero lo mantengo por la instrucción de no cambiar nada */
-        .top-bar {
-            background-color: var(--primary-blue);
-            color: white;
-            padding: 15px 30px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: var(--shadow-medium);
-            font-weight: 600;
-        }
-        /* ... el resto de tu CSS original ... */
-
-        .top-bar .title {
-            font-size: 1.4rem;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
 
         /* Contenedor principal */
         .main-container {
@@ -289,6 +268,7 @@
             display: flex;
             align-items: center;
             gap: 10px;
+            margin-bottom: 5px;
         }
 
         .product-card .product-name {
@@ -296,6 +276,15 @@
             font-size: 1.1rem;
             flex-grow: 1;
         }
+        
+        /* Nuevo estilo para el detalle/formato */
+        .product-card .product-detail {
+            font-size: 0.9rem;
+            color: var(--medium-gray);
+            font-style: italic;
+            margin-top: -5px;
+        }
+
 
         .product-card .badge {
             display: inline-block;
@@ -367,8 +356,10 @@
                 <div class="filter-group">
                     <label for="filtroMeses"><i class="fas fa-filter"></i> Mostrar lotes:</label>
                     <select id="filtroMeses">
-                        <option value="+1" selected>Vencidos y Próximos a Vencer</option>
                         <option value="-1">Mostrar todos</option>
+                        <option value="0">Solo Vencidos</option>
+                        <option value="+90" selected>Solo Próximos (3 meses)</option>
+                        <option value="+180">Solo Próximos (6 meses)</option>
                     </select>
                 </div>
                 
