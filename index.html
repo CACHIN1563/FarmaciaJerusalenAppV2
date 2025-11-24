@@ -23,11 +23,20 @@
             margin: 0;
             padding: 0;
             background-color: var(--light-gray);
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            /* Cambiado de flexbox a relative/min-height 100% para el footer fijo */
             min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
             color: var(--dark-gray);
+            position: relative; /* Para el footer fijo */
+        }
+        
+        /* Ajuste para dejar espacio al footer fijo */
+        body > .desktop-monitor {
+             margin-top: 30px; /* Separación superior */
+             margin-bottom: 50px; /* Espacio para el footer */
         }
 
         /* Contenedor principal */
@@ -38,7 +47,7 @@
             width: 95%;
             max-width: 900px;
             overflow: hidden;
-            padding-bottom: 30px;
+            /* Se quitó padding-bottom: 30px; ya que el footer es global */
         }
 
         /* Encabezado */
@@ -46,14 +55,11 @@
             background-color: var(--primary-blue);
             color: var(--white);
             padding: 20px 30px;
-            /* Se eliminó 'align-items: center;' para centrar solo el texto */
             display: flex; 
             justify-content: center;
             font-size: 1.8rem;
             font-weight: 700;
         }
-
-        /* Se eliminaron los estilos .logo, .header-logo, .star-fill y .border-stroke */
 
         /* Contenido del Dashboard */
         .dashboard-content {
@@ -92,7 +98,7 @@
             text-align: center; 
         }
         
-        /* Nuevo: Contenedor para centrar el grid horizontalmente */
+        /* Contenedor para centrar el grid horizontalmente */
         .grid-container-centered {
             display: flex;
             justify-content: center;
@@ -174,6 +180,36 @@
         .module-card.dashboard-highlight .module-description {
             color: #c8e0ff;
         }
+        
+        /* --- ESTILOS DEL FOOTER DE AVISO --- */
+        .update-footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background-color: var(--dark-gray); /* Fondo oscuro para contraste */
+            color: var(--light-gray);
+            padding: 5px 0;
+            text-align: center;
+            font-size: 0.8rem;
+            z-index: 1000;
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.2);
+            overflow: hidden; /* Necesario para el efecto marquee */
+            white-space: nowrap;
+        }
+        
+        .update-footer marquee {
+            width: 100%;
+            display: block;
+            padding: 0 10px;
+        }
+
+        .update-footer strong {
+            color: #ffc107; /* Amarillo para resaltar la combinación de teclas */
+            font-weight: 700;
+            margin: 0 5px;
+        }
+        /* --- FIN ESTILOS DEL FOOTER DE AVISO --- */
 
         @media (max-width: 600px) {
             .module-grid {
@@ -254,6 +290,17 @@
 
     </div>
 </div>
+
+<!-- FOOTER DE AVISO PEGADO ABAJO -->
+<footer class="update-footer">
+    <!-- Usamos marquee para el efecto de movimiento, es simple y efectivo para avisos -->
+    <marquee behavior="scroll" direction="left" scrollamount="4">
+        <i class="fas fa-info-circle"></i> 
+        ¡AVISO IMPORTANTE! Para asegurar que la aplicación esté actualizada, por favor presione: 
+        <strong>CTRL + SHIFT + R</strong> (Windows/Linux) o 
+        <strong>CMD + SHIFT + R</strong> (Mac) al iniciar.
+    </marquee>
+</footer>
 
 </body>
 </html>
