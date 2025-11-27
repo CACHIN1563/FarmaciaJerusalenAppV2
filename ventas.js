@@ -12,8 +12,8 @@ const buscarInput = document.getElementById("buscar");
 const listaProductos = document.getElementById("lista-productos");
 const btnAgregar = document.getElementById("btnAgregar");
 const cantidadInput = document.getElementById("cantidad");
-const formatoVentaSelect = document.getElementById("formatoVenta"); 
-const productoInfoBox = document.getElementById("productoInfo"); // Contenedor del recuadro azul de info
+const formatoVentaSelect = document.getElementById("formatoVenta");
+const productoInfoBox = document.getElementById("productoInfo");
 const tablaVentaBody = document.querySelector("#tablaVenta tbody");
 const metodoEfectivoRadio = document.getElementById("metodoEfectivo");
 const metodoTarjetaRadio = document.getElementById("metodoTarjeta");
@@ -24,73 +24,65 @@ const recargoLbl = document.getElementById("recargo");
 const totalGeneralLbl = document.getElementById("totalGeneral");
 const cambioLbl = document.getElementById("cambio");
 const cambioDisplayDiv = document.getElementById("cambioDisplay");
-const btnVender = document.getElementById("btnVender"); // Asegúrate de que este ID existe en tu HTML
-
+const btnVender = document.getElementById("btnVender");
+const RECARGO_TARJETA = 0.05; // Constante para el recargo de tarjeta
 
 // --- ESTADO DE LA APLICACIÓN ---
-let lotesInventario = []; 
-let productosConsolidados = []; 
-let productoSeleccionado = null; 
-let carrito = []; 
+let lotesInventario = [];
+let productosConsolidados = [];
+let productoSeleccionado = null;
+let carrito = [];
 
 // --- FUNCIONES DE UTILIDAD ---
 const formatoMoneda = (monto) => {
-    // Usar toFixed(2) para garantizar dos decimales
-    return `Q ${parseFloat(monto).toFixed(2)}`; 
+    return `Q ${parseFloat(monto).toFixed(2)}`;
 };
 
 /**
- * Función CLAVE: Convierte el stock total de unidades en stock físico desagregado (caja, blister, tableta).
- * @param {number} stockTotal - El stock total en unidades base (tabletas/pastillas).
- * @param {number} upb - Unidades por Blister.
- * @param {number} bpc - Blisters por Caja.
+ * Convierte el stock total de unidades en stock físico desagregado (caja, blister, tableta).
  */
 function reconvertirStock(stockTotal, upb, bpc) {
-    upb = upb > 0 ? upb : 1; 
+    upb = upb > 0 ? upb : 1;
     bpc = bpc > 0 ? bpc : 1;
-    
+
     const unidadesPorCaja = upb * bpc;
-    
+
     let stockTemp = stockTotal;
-    
+
     // 1. Calcular Cajas
     const stockCaja = Math.floor(stockTemp / unidadesPorCaja);
     stockTemp -= stockCaja * unidadesPorCaja;
-    
+
     // 2. Calcular Blisters
     const stockBlister = Math.floor(stockTemp / upb);
     stockTemp -= stockBlister * upb;
-    
+
     // 3. El resto es Tableta
     const stockTableta = stockTemp;
 
     return { stockCaja, stockBlister, stockTableta };
 }
 
-
 /**
  * Calcula el stock disponible para la venta en cada formato (Stock Virtual)
- * basado en el Stock Total de UNIDADES CONSOLIDADAS (`producto.stockTotal`).
  */
 function calcularStockVendible(producto) {
     const stockTotal = producto.stockTotal;
-    const upb = producto.tabletasPorBlister || 1; 
-    const bpc = producto.blistersPorCaja || 1;     
-    const unidadesPorCaja = upb * bpc; 
+    const upb = producto.tabletasPorBlister || 1;
+    const bpc = producto.blistersPorCaja || 1;
+    const unidadesPorCaja = upb * bpc;
 
-    // Si el producto no es farmacéutico, solo podemos vender por unidad (tableta)
     if (producto.tipoProducto !== 'farmaceutico') {
         return {
             stockVendibleCaja: 0,
             stockVendibleBlister: 0,
-            stockVendibleTableta: stockTotal 
+            stockVendibleTableta: stockTotal
         };
     }
-    
-    // Stock vendible en cada formato (solo farmacéuticos)
+
     const stockVendibleCaja = Math.floor(stockTotal / unidadesPorCaja);
     const stockVendibleBlister = Math.floor(stockTotal / upb);
-    const stockVendibleTableta = stockTotal; // Stock total en la unidad base
+    const stockVendibleTableta = stockTotal;
 
     return {
         stockVendibleCaja,
@@ -100,65 +92,68 @@ function calcularStockVendible(producto) {
 }
 
 /**
- * Agrupa los lotes y CONSOLIDA el stock total en UNIDADES. 
- * Se añade la herencia del campo tipoProducto.
+ * Agrupa los lotes y CONSOLIDA el stock total en UNIDADES.
+ * ✅ LÓGICA DE HERENCIA: Usa precioPublico si no hay precioTableta definido.
  */
 const agruparLotes = (lotes) => {
     const productosAgrupados = new Map();
 
     lotes.forEach(lote => {
-        const clave = lote.nombre; 
-        
+        const clave = lote.nombre;
+
         if (!productosAgrupados.has(clave)) {
             productosAgrupados.set(clave, {
                 nombre: lote.nombre,
                 codigo: lote.codigo || '',
                 marca: lote.marca || '',
-                stockTotal: 0, // El stock de unidades base consolidado
-                antibiotico: lote.antibiotico === true || lote.antibiotico === 'Sí', 
-                tabletasPorBlister: lote.tabletasPorBlister || 1, 
-                blistersPorCaja: lote.blistersPorCaja || 1, 
-                tipoProducto: lote.tipoProducto || 'farmaceutico', // <-- AÑADIDO: Tipo de Producto (CRÍTICO)
+                stockTotal: 0,
+                antibiotico: lote.antibiotico === true || lote.antibiotico === 'Sí',
+                tabletasPorBlister: lote.tabletasPorBlister || 1,
+                blistersPorCaja: lote.blistersPorCaja || 1,
+                tipoProducto: lote.tipoProducto || 'farmaceutico',
                 precios: { tableta: 0, blister: 0, caja: 0, },
-                stocks: { unidad: 0, tableta: 0, blister: 0, caja: 0, }, // Se recalculará después
-                lotes: [] 
+                lotes: []
             });
         }
 
         const producto = productosAgrupados.get(clave);
 
-        // Sumar todos los stocks TOTALES de unidades de todos los lotes
-        producto.stockTotal += lote.stock; 
+        producto.stockTotal += lote.stock;
 
-        // Actualizar precios (solo toma el último, por simplicidad)
-        if (lote.precioTableta) producto.precios.tableta = parseFloat(lote.precioTableta) || 0;
-        if (lote.precioBlister) producto.precios.blister = parseFloat(lote.precioBlister) || 0;
-        if (lote.precioCaja) producto.precios.caja = parseFloat(lote.precioCaja) || 0;
-        
+        // ----------------------------------------------------------------------
+        // ✅ LÓGICA DE PRECIOS CON HERENCIA
+        // ----------------------------------------------------------------------
+        const pTableta = parseFloat(lote.precioTableta) || 0;
+        const pBlister = parseFloat(lote.precioBlister) || 0;
+        const pCaja = parseFloat(lote.precioCaja) || 0;
+        const pPublico = parseFloat(lote.precioPublico) || 0; // Nuevo campo
+
+        // Si el lote tiene precio de tableta definido, lo usa
+        if (pTableta > 0) {
+            producto.precios.tableta = pTableta;
+        } else if (pPublico > 0 && producto.precios.tableta === 0) {
+            // Si no hay precio de tableta y SÍ hay precio público, usar precio público
+            producto.precios.tableta = pPublico;
+        }
+
+        // Blister y Caja usan sus precios específicos si están definidos
+        if (pBlister > 0) producto.precios.blister = pBlister;
+        if (pCaja > 0) producto.precios.caja = pCaja;
+        // ----------------------------------------------------------------------
+
         if (lote.antibiotico === true || lote.antibiotico === 'Sí') {
              producto.antibiotico = true;
         }
 
         producto.lotes.push({
-            id: lote.id, 
-            stock: lote.stock, // Stock total en unidades del lote (esta es la fuente de verdad)
-            tabletasPorBlister: lote.tabletasPorBlister || 1, 
-            blistersPorCaja: lote.blistersPorCaja || 1, 
+            id: lote.id,
+            stock: lote.stock, // Stock total en unidades del lote
             vencimiento: lote.vencimiento ? new Date(lote.vencimiento) : new Date(0),
         });
     });
 
     productosAgrupados.forEach(producto => {
-        // Recalcular el stock físico consolidado a partir del stock total de unidades
-        const { stockCaja, stockBlister, stockTableta } = reconvertirStock(
-            producto.stockTotal, 
-            producto.tabletasPorBlister, 
-            producto.blistersPorCaja
-        );
-        producto.stocks.caja = stockCaja;
-        producto.stocks.blister = stockBlister;
-        producto.stocks.tableta = stockTableta;
-
+        // Ordenar lotes del producto consolidado por vencimiento (el más viejo primero)
         producto.lotes.sort((a, b) => a.vencimiento.getTime() - b.vencimiento.getTime());
     });
 
@@ -172,143 +167,179 @@ async function cargarProductos() {
         lotesInventario = [];
         querySnapshot.forEach(docu => {
             const data = docu.data();
-            lotesInventario.push({ 
+
+            let vencimientoString = data.vencimiento;
+            if (data.vencimiento && typeof data.vencimiento.toDate === 'function') {
+                vencimientoString = data.vencimiento.toDate().toISOString().split('T')[0];
+            } else if (data.vencimiento instanceof Date) {
+                vencimientoString = data.vencimiento.toISOString().split('T')[0];
+            }
+
+            lotesInventario.push({
                 ...data,
-                id: docu.id, 
+                id: docu.id,
                 stock: parseInt(data.stock) || 0, // Stock Total en Unidades/Pastillas
-                stockTableta: parseInt(data.stockTableta) || 0, // Físicos
-                stockBlister: parseInt(data.stockBlister) || 0, // Físicos
-                stockCaja: parseInt(data.stockCaja) || 0, // Físicos
+                vencimiento: vencimientoString, // Usamos la cadena de fecha normalizada
                 precioTableta: parseFloat(data.precioTableta) || 0,
                 precioBlister: parseFloat(data.precioBlister) || 0,
                 precioCaja: parseFloat(data.precioCaja) || 0,
+                // ✅ Añadido precioPublico (Aseguramos que sea un número)
+                precioPublico: parseFloat(data.precioPublico) || 0,
                 tabletasPorBlister: parseInt(data.tabletasPorBlister) || 1,
                 blistersPorCaja: parseInt(data.blistersPorCaja) || 1,
-                antibiotico: data.antibiotico === true || data.antibiotico === 'Sí', 
-                tipoProducto: data.tipoProducto || 'farmaceutico', // <-- AÑADIDO: Tipo de Producto (CRÍTICO)
+                antibiotico: data.antibiotico === true || data.antibiotico === 'Sí',
+                tipoProducto: data.tipoProducto || 'farmaceutico',
             });
         });
-        
-        productosConsolidados = agruparLotes(lotesInventario);
+
+        productosConsolidados = agruparLotes(lotesInventario.filter(l => l.stock > 0));
     } catch (error) {
         console.error("Error al cargar productos:", error);
         alert("Hubo un error al cargar el inventario.");
     }
 }
-cargarProductos();
 
-// --- FUNCIONES DE RENDER Y LÓGICA DE UI ---
+
+// --------------------------------------------------------------------------
+// LÓGICA DE HABILITACIÓN DE FORMATO Y LÓGICA DE STOCK EN EL SELECT
+// --------------------------------------------------------------------------
 function llenarSelectFormato(producto) {
     const productoActualizado = productosConsolidados.find(p => p.nombre === producto.nombre) || producto;
-    const stocksVendibles = calcularStockVendible(productoActualizado); 
+    const stocksVendibles = calcularStockVendible(productoActualizado);
 
     let formatosPermitidos = {};
-    
-    // Si NO es farmacéutico, solo permitimos 'tableta' (Unidad)
+
     if (productoActualizado.tipoProducto !== 'farmaceutico') {
         formatosPermitidos = {
             'tableta': 'Unidad/Tableta',
         };
     } else {
-        // Si es farmacéutico, permitimos todos los formatos
+        // Orden de preferencia para el select
         formatosPermitidos = {
-            'tableta': 'Tableta (Tira)',
+            'caja': 'Caja/Frasco',
             'blister': 'Blister',
-            'caja': 'Caja/Frasco', 
+            'tableta': 'Unidad', // Cambiado a 'Tableta/Unidad' para ser genérico
         };
     }
 
     formatoVentaSelect.innerHTML = '';
-    
+    let primerFormatoValido = null;
+
     for (const [key, label] of Object.entries(formatosPermitidos)) {
         const precio = productoActualizado.precios[key] || 0;
         let stock = 0;
-        
+
         if (key === 'caja') stock = stocksVendibles.stockVendibleCaja;
         else if (key === 'blister') stock = stocksVendibles.stockVendibleBlister;
         else if (key === 'tableta') stock = stocksVendibles.stockVendibleTableta;
 
-        // Mostrar solo si hay precio o stock disponible
-        if (precio > 0 || stock > 0) {
+        // Solo añadir opción si tiene precio Y stock
+        if (precio > 0 && stock > 0) {
             const option = document.createElement('option');
+            // Nota: Se omite el stock en el display del select para mantener la UI limpia,
+            // pero la validación de stock y precio se mantiene
             option.value = key;
-            
-            // CORRECCIÓN: Mostrar solo el nombre del formato (quitando precio y stock del texto)
-            option.textContent = label; 
-            
+            option.textContent = `${label} (${formatoMoneda(precio)})`;
             formatoVentaSelect.appendChild(option);
+
+            if (!primerFormatoValido) {
+                primerFormatoValido = key;
+            }
         }
     }
-    
-    // Seleccionar el formato de mayor prioridad si existe 
-    if (productoActualizado.tipoProducto === 'farmaceutico' && productoActualizado.precios.caja > 0 && stocksVendibles.stockVendibleCaja > 0) formatoVentaSelect.value = 'caja';
-    else if (productoActualizado.tipoProducto === 'farmaceutico' && productoActualizado.precios.blister > 0 && stocksVendibles.stockVendibleBlister > 0) formatoVentaSelect.value = 'blister';
-    else if (productoActualizado.precios.tableta > 0 && stocksVendibles.stockVendibleTableta > 0) formatoVentaSelect.value = 'tableta';
-    else if (formatoVentaSelect.options.length > 0) formatoVentaSelect.value = formatoVentaSelect.options[0].value;
+
+    if (primerFormatoValido) {
+        // Seleccionar el primer formato válido por defecto
+        formatoVentaSelect.value = primerFormatoValido;
+        formatoVentaSelect.disabled = false;
+        renderInfoProducto(productoActualizado, formatoVentaSelect.value);
+    } else {
+        // Caso: Sin opciones válidas (Agotado o sin precio definido)
+        formatoVentaSelect.disabled = true;
+        btnAgregar.disabled = true;
+        cantidadInput.disabled = true;
+        productoInfoBox.innerHTML = '<p style="color: #b00020; font-weight: bold; padding: 10px 0;">Producto agotado o sin precio de venta para formatos disponibles.</p>';
+    }
 }
 
+/**
+ * Renderiza la información detallada del producto, aplicando el estilo simplificado
+ * si solo el precio unitario está disponible.
+ */
 function renderInfoProducto(producto, formato) {
-    // Asegurarse de usar la versión más actualizada del producto consolidado
     const productoActualizado = productosConsolidados.find(p => p.nombre === producto.nombre) || producto;
-    const stocksVendibles = calcularStockVendible(productoActualizado); 
+    const stocksVendibles = calcularStockVendible(productoActualizado);
     const precio = productoActualizado.precios[formato] || 0;
-    
-    let stockBase = 0; 
-    
-    // Determinar stock base A PARTIR DEL STOCK VIRTUAL (calculado de forma consistente)
-    if (formato === 'tableta') {
-        stockBase = stocksVendibles.stockVendibleTableta; 
-    } else if (formato === 'blister') {
-        stockBase = stocksVendibles.stockVendibleBlister; 
-    } else if (formato === 'caja') {
-        stockBase = stocksVendibles.stockVendibleCaja;     
-    }
-    
-    // Asignar datos al objeto seleccionado para que btnAgregar lo use
-    productoSeleccionado.stockBaseFormato = stockBase; 
-    productoSeleccionado.precioUnitarioFormato = precio;
-    
-    // Asignar el factor de conversión para btnAgregar
-    const upb = productoActualizado.tabletasPorBlister || 1; 
-    const bpc = productoActualizado.blistersPorCaja || 1; 
-    const unidadesPorCaja = upb * bpc;
-    
-    if (formato === 'tableta') productoSeleccionado.factorConversion = 1; 
-    else if (formato === 'blister') productoSeleccionado.factorConversion = upb;
-    else if (formato === 'caja') productoSeleccionado.factorConversion = unidadesPorCaja;
 
-    
-    const antibioticoWarning = productoActualizado.antibiotico 
-        ? `<span class="antibiotico-warning" style="font-weight: bold; color: #b00020;"><i class="fas fa-exclamation-triangle"></i>Antibiótico - Producto Controlado</span>`
+    let stockBase = 0;
+    let factorConversion = 1;
+
+    // Determinar stock base y factor de conversión
+    const upb = productoActualizado.tabletasPorBlister || 1;
+    const bpc = productoActualizado.blistersPorCaja || 1;
+    const unidadesPorCaja = upb * bpc;
+
+    if (formato === 'tableta') {
+        stockBase = stocksVendibles.stockVendibleTableta;
+        factorConversion = 1;
+    } else if (formato === 'blister') {
+        stockBase = stocksVendibles.stockVendibleBlister;
+        factorConversion = upb;
+    } else if (formato === 'caja') {
+        stockBase = stocksVendibles.stockVendibleCaja;
+        factorConversion = unidadesPorCaja;
+    }
+
+    // Actualizar datos de productoSeleccionado y el input de cantidad
+    if (productoSeleccionado) {
+        productoSeleccionado.stockBaseFormato = stockBase;
+        productoSeleccionado.precioUnitarioFormato = precio;
+        productoSeleccionado.factorConversion = factorConversion;
+    }
+
+    cantidadInput.max = stockBase;
+    cantidadInput.disabled = stockBase <= 0; // Habilitar/Deshabilitar el input
+    cantidadInput.value = Math.min(parseInt(cantidadInput.value) || 1, stockBase); // Ajustar el valor actual
+
+    const antibioticoWarning = productoActualizado.antibiotico
+        ? `<span class="antibiotico-warning" style="font-weight: bold; color: #b00020;"><i class="fas fa-exclamation-triangle"></i> Antibiótico - Producto Controlado</span>`
         : `<span class="regular-product" style="font-weight: bold; color: #1e88e5;"><i class="fas fa-info-circle"></i> Producto regular</span>`;
 
-    const proxVencimiento = productoActualizado.lotes.length > 0 ? 
-        productoActualizado.lotes[0].vencimiento.toISOString().split('T')[0] : 'N/A';
-    
+    const proxVencimientoDate = productoActualizado.lotes.length > 0 ?
+        productoActualizado.lotes[0].vencimiento : null;
+
+    const proxVencimientoDisplay = proxVencimientoDate instanceof Date && !isNaN(proxVencimientoDate)
+        ? proxVencimientoDate.toLocaleDateString('es-GT', { year: 'numeric', month: '2-digit', day: '2-digit' })
+        : 'N/A';
+
     // --------------------------------------------------------------------------
-    //  ✅ CAMBIO CLAVE: LÓGICA CONDICIONAL DE RENDERIZADO
+    // Renderizado UI - Estilo Simplificado o Completo
     // --------------------------------------------------------------------------
-    if (productoActualizado.tipoProducto !== 'farmaceutico') {
-        // Renderizado MINIMALISTA para productos "Otros" (Misceláneos)
-        productoInfoBox.innerHTML = `
+    const pTableta = productoActualizado.precios.tableta || 0;
+    const pBlister = productoActualizado.precios.blister || 0;
+    const pCaja = productoActualizado.precios.caja || 0;
+
+    // Condición para usar el estilo simplificado: Solo si tableta tiene precio Y (Blister y Caja no tienen precio O no es farmacéutico)
+    const estiloSimplificado = pTableta > 0 && ((pBlister === 0 && pCaja === 0) || productoActualizado.tipoProducto !== 'farmaceutico');
+
+    let productoInfoHtml = '';
+
+    if (estiloSimplificado) {
+        // Estilo simplificado (como se solicitó)
+        productoInfoHtml = `
             <strong style="display: block; margin-bottom: 5px; font-size: 1.1em;">${productoActualizado.nombre}</strong>
-            <p style="margin-top: 5px;">Tipo: <strong style="color: #f59e0b;"><i class="fas fa-tag"></i> Producto Misceláneo/Otro</strong></p>
-            <p style="margin-top: 5px;">Stock Total Unidades: <strong style="font-size: 1.1em;">${productoActualizado.stockTotal}</strong></p>
-            <p style="margin-top: 10px; font-style: italic; font-size: 0.9em; padding-left: 10px; border-left: 3px solid #ccc;">
-               Solo se vende por Unidad (Tableta/Unidad). Precio Unitario: ${formatoMoneda(productoActualizado.precios.tableta)}.
-            </p>
+            Próx. Vencimiento: ${proxVencimientoDisplay}<br>
+            <div style="background-color: #e3f2fd; border: 1px solid #90caf9; border-radius: 4px; padding: 10px; margin: 8px 0;">
+                <h4 style="margin: 0 0 5px 0; color: #1e88e5; font-size: 1.2em;">Precio Unitario: ${formatoMoneda(pTableta)}</h4>
+                <p style="margin: 0; font-weight: bold;">Stock Total Unidades: ${stocksVendibles.stockVendibleTableta}</p>
+            </div>
         `;
-        // Para productos misceláneos, asumimos que el stock base es el total y el factor es 1
-        productoSeleccionado.stockBaseFormato = productoActualizado.stockTotal; 
-        productoSeleccionado.precioUnitarioFormato = productoActualizado.precios.tableta || 0; 
-        productoSeleccionado.factorConversion = 1;
-        
     } else {
-        // Renderizado COMPLETO para productos FARMACÉUTICOS (Tabla de stock/precio)
-        productoInfoBox.innerHTML = `
+        // Estilo completo (con la tabla de formatos)
+        productoInfoHtml = `
             <strong style="display: block; margin-bottom: 5px; font-size: 1.1em;">${productoActualizado.nombre}</strong>
-            Próx. Vencimiento: ${proxVencimiento}<br>
-            
+            Próx. Vencimiento: ${proxVencimientoDisplay}<br>
+
             <table class="info-table" style="width: 100%; border-collapse: collapse; margin: 8px 0; font-size: 0.9em;">
                 <thead style="background-color: #d8d8d8;">
                     <tr>
@@ -319,27 +350,32 @@ function renderInfoProducto(producto, formato) {
                 </thead>
                 <tbody>
                     <tr>
-                        <td style="padding: 6px; border: 1px solid #aaa;">Tableta</td>
-                        <td style="padding: 6px; border: 1px solid #aaa; text-align: center;">${formatoMoneda(productoActualizado.precios.tableta)}</td>
+                        <td style="padding: 6px; border: 1px solid #aaa;">Unidad</td>
+                        <td style="padding: 6px; border: 1px solid #aaa; text-align: center;">${formatoMoneda(pTableta)}</td>
                         <td style="padding: 6px; border: 1px solid #aaa; text-align: center; font-weight: bold;">${stocksVendibles.stockVendibleTableta}</td>
                     </tr>
+                    ${productoActualizado.tipoProducto === 'farmaceutico' && pBlister > 0 ? `
                     <tr>
                         <td style="padding: 6px; border: 1px solid #aaa;">Blister</td>
-                        <td style="padding: 6px; border: 1px solid #aaa; text-align: center;">${formatoMoneda(productoActualizado.precios.blister)}</td>
+                        <td style="padding: 6px; border: 1px solid #aaa; text-align: center;">${formatoMoneda(pBlister)}</td>
                         <td style="padding: 6px; border: 1px solid #aaa; text-align: center; font-weight: bold;">${stocksVendibles.stockVendibleBlister}</td>
                     </tr>
+                    ` : ''}
+                    ${productoActualizado.tipoProducto === 'farmaceutico' && pCaja > 0 ? `
                     <tr>
                         <td style="padding: 6px; border: 1px solid #aaa;">Caja/Frasco</td>
-                        <td style="padding: 6px; border: 1px solid #aaa; text-align: center;">${formatoMoneda(productoActualizado.precios.caja)}</td>
+                        <td style="padding: 6px; border: 1px solid #aaa; text-align: center;">${formatoMoneda(pCaja)}</td>
                         <td style="padding: 6px; border: 1px solid #aaa; text-align: center; font-weight: bold;">${stocksVendibles.stockVendibleCaja}</td>
                     </tr>
+                    ` : ''}
                 </tbody>
             </table>
-
-            ${antibioticoWarning}
         `;
     }
-    
+
+    productoInfoBox.innerHTML = productoInfoHtml + `<p style="margin-top: 10px;">${antibioticoWarning}</p>`;
+    // --------------------------------------------------------------------------
+
     btnAgregar.disabled = stockBase <= 0 || precio <= 0;
 }
 
@@ -347,39 +383,47 @@ function renderInfoProducto(producto, formato) {
 buscarInput.addEventListener("input", () => {
     const texto = buscarInput.value.toLowerCase().trim();
     listaProductos.innerHTML = "";
-    
-    if (texto.length < 2) { 
-        productoInfoBox.innerHTML = 'Selecciona un producto de la lista.';
-        productoSeleccionado = null; 
+
+    // Resetear UI si el texto es muy corto
+    if (texto.length < 2) {
+        productoInfoBox.innerHTML = '<p style="padding: 10px 0;">Selecciona un producto de la lista.</p>';
+        productoSeleccionado = null;
         formatoVentaSelect.disabled = true;
+        cantidadInput.disabled = true; // Deshabilitar cantidad
         btnAgregar.disabled = true;
         return;
     }
-    
+
     const filtrados = productosConsolidados.filter(p =>
         p.nombre.toLowerCase().includes(texto) || (p.codigo && p.codigo.toLowerCase().includes(texto))
     ).slice(0, 5);
-    
+
     if (filtrados.length > 0) {
         filtrados.forEach(p => {
             const li = document.createElement("li");
-            
+
             const marcaNombre = p.marca || 'Proveedor Desconocido';
-            li.textContent = `${p.nombre} - ${marcaNombre}`; 
+            li.innerHTML = `${p.nombre} - <span style="color: #1e88e5; font-weight: 600;">${marcaNombre}</span>`;
 
             li.onclick = () => {
                 // Al hacer clic, aseguramos que el producto seleccionado es la versión consolidada
                 productoSeleccionado = productosConsolidados.find(item => item.nombre === p.nombre);
-                
-                llenarSelectFormato(productoSeleccionado);
-                formatoVentaSelect.disabled = false;
-                
-                // Renderizar la información del producto
-                renderInfoProducto(productoSeleccionado, formatoVentaSelect.value);
 
-                listaProductos.innerHTML = ""; 
-                buscarInput.value = p.nombre; 
-                cantidadInput.focus();
+                llenarSelectFormato(productoSeleccionado);
+
+                // Si se habilitó el select, renderizamos la info
+                if (!formatoVentaSelect.disabled) {
+                    renderInfoProducto(productoSeleccionado, formatoVentaSelect.value);
+                }
+
+                listaProductos.innerHTML = "";
+                buscarInput.value = p.nombre;
+
+                // Asegurarse de habilitar la cantidad si hay stock
+                if (!cantidadInput.disabled) {
+                    cantidadInput.value = "1";
+                    cantidadInput.focus();
+                }
             };
             listaProductos.appendChild(li);
         });
@@ -395,7 +439,7 @@ formatoVentaSelect.addEventListener('change', () => {
 });
 
 
-// --- AGREGAR PRODUCTO AL CARRITO (LÓGICA CORREGIDA PARA MANEJO DE CACHÉ) ---
+// --- AGREGAR PRODUCTO AL CARRITO ---
 btnAgregar.addEventListener("click", () => {
     if (!productoSeleccionado) {
         alert("⚠️ Por favor, seleccione un producto de la lista.");
@@ -404,206 +448,193 @@ btnAgregar.addEventListener("click", () => {
     const formato = formatoVentaSelect.value;
     let cantidadRequerida = parseInt(cantidadInput.value);
 
-    // VUELVE A CARGAR el producto más reciente antes de empezar
     const productoActualizado = productosConsolidados.find(p => p.nombre === productoSeleccionado.nombre);
     if (!productoActualizado) {
         alert("⚠️ Error: Producto no encontrado en la caché de inventario.");
         return;
     }
-    
+
     const precioUnitario = productoSeleccionado.precioUnitarioFormato || 0;
-    const stockBase = productoSeleccionado.stockBaseFormato || 0; 
-    const factorConversion = productoSeleccionado.factorConversion || 1; 
+    const stockBase = productoSeleccionado.stockBaseFormato || 0;
+    const factorConversion = productoSeleccionado.factorConversion || 1;
 
     if (isNaN(cantidadRequerida) || cantidadRequerida <= 0) {
         alert("⚠️ Cantidad inválida. Debe ser un número positivo.");
         return;
     }
-    
+
     if (precioUnitario <= 0) {
         alert("⚠️ El precio para este formato es Q 0.00. No se puede vender.");
         return;
     }
-    
+
     if (cantidadRequerida > stockBase) {
         alert(`⚠️ No hay suficiente stock en formato ${formato.toUpperCase()}. Disponible: ${stockBase}.`);
         return;
     }
 
     // --- LÓGICA DE ASIGNACIÓN DE LOTES (Descuenta STOCK TOTAL de UNIDADES) ---
-    const unidadesBaseVendidas = cantidadRequerida * factorConversion; 
+    const unidadesBaseVendidas = cantidadRequerida * factorConversion;
     let unidadesPendientes = unidadesBaseVendidas;
     const lotesVendidosDetallado = [];
-    
-    // CREAMOS UNA COPIA PROFUNDA de los lotes del producto ACTUALIZADO
+
     const lotesTemp = JSON.parse(JSON.stringify(productoActualizado.lotes));
 
-    // Recorrer lotes por vencimiento (FIFO) y descontar del stock total de UNIDADES
-    for (const lote of lotesTemp) { 
+    for (const lote of lotesTemp) {
         if (unidadesPendientes <= 0) break;
 
         let cantidadTomar = Math.min(unidadesPendientes, lote.stock);
-        
+
         if (cantidadTomar > 0) {
-            lotesVendidosDetallado.push({ 
-                loteId: lote.id, 
-                unidadesVendidas: cantidadTomar, // Unidades/Tabletas base vendidas
-                stockAnteriorLote: lote.stock // Stock total antes del descuento
+            const loteOriginal = lotesInventario.find(l => l.id === lote.id);
+            const stockAnteriorLote = loteOriginal ? loteOriginal.stock : lote.stock;
+
+            lotesVendidosDetallado.push({
+                loteId: lote.id,
+                unidadesVendidas: cantidadTomar,
+                stockAnteriorLote: stockAnteriorLote
             });
             lote.stock -= cantidadTomar;
             unidadesPendientes -= cantidadTomar;
         }
     }
-    // --- FIN DE LÓGICA DE ASIGNACIÓN DE LOTES ---
 
     if (unidadesPendientes > 0) {
         alert("⚠️ Error crítico: El stock total no pudo cubrir la demanda. Venta abortada.");
         return;
     }
 
-    // ----------------------------------------------------------------
-    //  ✅ CORRECCIÓN CRÍTICA: ACTUALIZAR STOCK INMEDIATAMENTE EN CACHÉ
-    // ----------------------------------------------------------------
+    // 1. ACTUALIZAR STOCK INMEDIATAMENTE EN CACHÉ
     productoActualizado.stockTotal -= unidadesBaseVendidas;
-
-    // ----------------------------------------------------------------
-    //  ✅ CORRECCIÓN ADICIONAL: ACTUALIZAR LOTES EN CACHÉ
-    // ----------------------------------------------------------------
-    productoActualizado.lotes = lotesTemp.filter(l => l.stock > 0); 
+    productoActualizado.lotes = lotesTemp.filter(l => l.stock > 0);
 
     // 2. Crear el ítem en el carrito
     const subtotalTotal = cantidadRequerida * precioUnitario;
-    
+
     const index = carrito.findIndex(p => p.nombre === productoActualizado.nombre && p.formatoVenta === formato);
-    
+
     if (index > -1) {
-        alert(`⚠️ Ya existe un producto con el formato ${formato.toUpperCase()} en el carrito.`);
+        alert(`⚠️ Ya existe un producto con el formato ${formato.toUpperCase()} en el carrito. Por favor, elimínelo y vuelva a añadir la cantidad correcta.`);
         return;
     } else {
         carrito.push({
             nombre: productoActualizado.nombre,
             codigo: productoActualizado.codigo,
             cantidad: cantidadRequerida,
-            unidadesBaseVendidas: unidadesBaseVendidas, 
+            unidadesBaseVendidas: unidadesBaseVendidas,
             precioUnitario: precioUnitario,
             subtotal: subtotalTotal,
             antibiotico: productoActualizado.antibiotico,
-            formatoVenta: formato, 
-            lotesVendidos: lotesVendidosDetallado 
+            formatoVenta: formato,
+            lotesVendidos: lotesVendidosDetallado
         });
     }
 
     renderTablaVenta();
     actualizarTotales();
-    
-    // 3. Forzar el refresco de información (Síncrono para reflejar el stock restado)
+
+    // 3. Forzar el refresco de información
     const pUpdated = productosConsolidados.find(p => p.nombre === productoSeleccionado.nombre);
     if (pUpdated) {
-        productoSeleccionado = pUpdated; // Actualizar la referencia
-        renderInfoProducto(productoSeleccionado, formato); 
-        llenarSelectFormato(productoSeleccionado); // Para actualizar el select con el nuevo stock
+        productoSeleccionado = pUpdated;
+        llenarSelectFormato(productoSeleccionado);
     }
-    
+
     // Limpieza de UI
-    buscarInput.value = ""; 
-    cantidadInput.value = "1"; 
+    buscarInput.value = "";
+    cantidadInput.value = "1";
     listaProductos.innerHTML = "";
     btnAgregar.disabled = true;
     formatoVentaSelect.disabled = true;
-    productoInfoBox.innerHTML = 'Selecciona un producto de la lista.';
+    cantidadInput.disabled = true;
+    productoInfoBox.innerHTML = '<p style="padding: 10px 0;">Selecciona un producto de la lista.</p>';
 });
 
 
-// --- REGISTRAR VENTA (APLICACIÓN ATÓMICA FINAL Y CORREGIDA) ---
+// --- REGISTRAR VENTA ---
 btnVender.addEventListener("click", async () => {
     if (carrito.length === 0) return alert("⚠️ No hay productos en la venta.");
 
     // Validación de pago en efectivo
-    if (metodoEfectivoRadio.checked) {
-        const totalGeneral = parseFloat(totalGeneralLbl.textContent.replace('Q ', '').replace(',', '')) || 0;
-        const recibido = parseFloat(dineroRecibidoInput.value) || 0;
-        if (recibido < totalGeneral) {
-            alert("⚠️ El dinero recibido es menor que el total de la venta.");
-            return;
-        }
+    const totalGeneral = parseFloat(totalGeneralLbl.textContent.replace('Q ', '')) || 0;
+    const recibido = parseFloat(dineroRecibidoInput.value) || 0;
+    const cambio = parseFloat(cambioLbl.textContent.replace('Q ', '')) || 0;
+
+    if (metodoEfectivoRadio.checked && recibido < totalGeneral) {
+        alert("⚠️ El dinero recibido es menor que el total de la venta.");
+        return;
     }
 
+    if (!confirm(`¿Confirmar venta por ${formatoMoneda(totalGeneral)}?`)) return;
 
     btnVender.disabled = true;
     btnVender.innerHTML = '<i class="fas fa-sync-alt fa-spin"></i> Procesando...';
 
     try {
         // 1. Guardar la Venta
-        const total = parseFloat(totalLbl.textContent.replace('Q ', '').replace(',', '')) || 0;
-        const recargo = parseFloat(recargoLbl.textContent.replace('Q ', '').replace(',', '')) || 0;
-        const totalGeneral = parseFloat(totalGeneralLbl.textContent.replace('Q ', '').replace(',', '')) || 0;
-        
         const venta = {
             fecha: new Date(), numeroVenta: Date.now(),
-            metodoPago: metodoEfectivoRadio.checked ? "efectivo" : "tarjeta",
+            metodoPago: metodoEfectivoRadio.checked ? "Efectivo" : "Tarjeta",
             productos: carrito.map(p => ({
                 nombre: p.nombre, codigo: p.codigo, cantidad: p.cantidad, precioUnitario: p.precioUnitario,
                 formatoVenta: p.formatoVenta, subtotal: p.subtotal, antibiotico: p.antibiotico, lotes: p.lotesVendidos
             })),
-            total: total, recargo: recargo, totalGeneral: totalGeneral,
+            total: parseFloat(totalLbl.textContent.replace('Q ', '')),
+            recargo: parseFloat(recargoLbl.textContent.replace('Q ', '')),
+            totalGeneral: totalGeneral,
+            dineroRecibido: metodoEfectivoRadio.checked ? recibido : totalGeneral,
+            cambio: cambio > 0 ? cambio : 0,
         };
         await addDoc(collection(db, "ventas"), venta);
 
         // 2. ACTUALIZAR STOCK EN LOTES
         const lotesAActualizar = new Map();
 
-        // 2a. Consolidar el descuento total en unidades por lote (agrupando si un lote se usó en múltiples ítems del carrito)
         for (const itemCarrito of carrito) {
             for (const loteVendido of itemCarrito.lotesVendidos) {
-                const { loteId, unidadesVendidas, stockAnteriorLote } = loteVendido;
+                const { loteId, unidadesVendidas } = loteVendido;
 
                 if (!lotesAActualizar.has(loteId)) {
                     lotesAActualizar.set(loteId, {
                         unidadesVendidasTotales: 0,
-                        stockAnteriorLote: stockAnteriorLote, 
-                        loteOriginal: lotesInventario.find(l => l.id === loteId)
                     });
                 }
                 lotesAActualizar.get(loteId).unidadesVendidasTotales += unidadesVendidas;
             }
         }
 
-        // 2b. Ejecutar la actualización en Firebase (usando reconvertirStock)
         for (const [loteId, dataUpdate] of lotesAActualizar.entries()) {
-            const loteOriginal = dataUpdate.loteOriginal;
+            const loteOriginal = lotesInventario.find(l => l.id === loteId);
             if (!loteOriginal) continue;
-            
-            // Calcular el NUEVO STOCK TOTAL de UNIDADES
+
             const nuevoStockTotal = loteOriginal.stock - dataUpdate.unidadesVendidasTotales;
 
-            // RECONVERTIR: Calcular los nuevos stocks físicos (caja, blister, tableta)
             const { stockCaja, stockBlister, stockTableta } = reconvertirStock(
-                nuevoStockTotal, 
-                loteOriginal.tabletasPorBlister, 
+                nuevoStockTotal,
+                loteOriginal.tabletasPorBlister,
                 loteOriginal.blistersPorCaja
             );
 
-            // Ejecutar la actualización ATÓMICA en Firebase
             const ref = doc(db, "inventario", loteId);
             const updateData = {
-                stock: Math.max(0, nuevoStockTotal), 
-                stockCaja: Math.max(0, stockCaja),     
-                stockBlister: Math.max(0, stockBlister), 
-                stockTableta: Math.max(0, stockTableta)  
+                stock: Math.max(0, nuevoStockTotal),
+                stockCaja: Math.max(0, stockCaja),
+                stockBlister: Math.max(0, stockBlister),
+                stockTableta: Math.max(0, stockTableta)
             };
-            
+
             await updateDoc(ref, updateData);
         }
 
         alert("✅ Venta registrada exitosamente. ¡Se ha actualizado el inventario!");
-        
+
         // --- RESTAURAR ESTADO DE LA UI ---
-        carrito = []; 
-        await cargarProductos(); // Recarga toda la caché
+        carrito = [];
+        await cargarProductos();
         renderTablaVenta();
         actualizarTotales();
         dineroRecibidoInput.value = "";
-        
+
     } catch (error) {
         console.error("Error al registrar la venta: ", error);
         alert("❌ Error al registrar la venta. Consulte la consola.");
@@ -624,13 +655,13 @@ function renderTablaVenta() {
     }
 
     btnVender.disabled = false;
-    
+
     carrito.forEach((p, i) => {
         const formatoDisplay = p.formatoVenta.toUpperCase().replace('CAJA', 'CAJA/FRASCO').replace('TABLETA', 'UNIDAD');
         const fila = `
         <tr>
             <td>${p.nombre}</td>
-            <td>${formatoDisplay}</td> 
+            <td>${formatoDisplay}</td>
             <td>
                 <div class="quantity-controls">
                     <button onclick="cambiarCantidad(${i}, -1)" disabled><i class="fas fa-minus"></i></button>
@@ -646,37 +677,48 @@ function renderTablaVenta() {
     });
 }
 
+// Se mantiene deshabilitada la edición de cantidad directamente en la tabla
 window.cambiarCantidad = (index, delta) => {
-    alert("Para productos que manejan lotes y diferentes formatos, por seguridad, por favor elimine el artículo y vuelva a añadir la cantidad correcta.");
+    alert("Para productos que manejan lotes y diferentes formatos, por favor elimine el artículo y vuelva a añadir la cantidad correcta.");
 };
 
-window.eliminarProducto = (index) => {
+// Función global para eliminar producto del carrito
+window.eliminarProducto = async (index) => {
+    if (!confirm("¿Está seguro de eliminar este producto de la venta?")) return;
+
     // 1. Eliminar del carrito
     const productoEliminado = carrito.splice(index, 1)[0];
-    
-    // 2. Intentar revertir el stock en caché (si el producto está visible en la búsqueda)
+
+    // 2. Revertir el stock en caché
     const productoCache = productosConsolidados.find(p => p.nombre === productoEliminado.nombre);
-    
+
     if (productoCache) {
         // Revertir el stock total de unidades base
-        productoCache.stockTotal += productoEliminado.unidadesBaseVendidas; 
+        productoCache.stockTotal += productoEliminado.unidadesBaseVendidas;
 
-        // Forzar la recarga de productos para actualizar los lotes correctamente
-        cargarProductos().then(() => {
-            if (productoSeleccionado && productoSeleccionado.nombre === productoEliminado.nombre) {
-                // Si era el producto seleccionado, refrescar la vista
-                const pUpdated = productosConsolidados.find(p => p.nombre === productoSeleccionado.nombre);
-                if (pUpdated) {
-                    productoSeleccionado = pUpdated;
-                    renderInfoProducto(productoSeleccionado, formatoVentaSelect.value);
-                    llenarSelectFormato(productoSeleccionado);
-                }
-            }
-        });
+        // Revertir el stock de cada lote en la caché lotesInventario
+        for (const detalleLote of productoEliminado.lotesVendidos) {
+             const loteOriginal = lotesInventario.find(l => l.id === detalleLote.loteId);
+             if (loteOriginal) {
+                 loteOriginal.stock += detalleLote.unidadesVendidas;
+             }
+        }
+
+        // Recargar el caché de productos consolidados para reflejar la reversión
+        productosConsolidados = agruparLotes(lotesInventario.filter(l => l.stock > 0 || l.nombre === productoCache.nombre));
     }
 
     renderTablaVenta();
     actualizarTotales();
+
+    // 3. Si el producto eliminado es el que está seleccionado, refrescar la UI de selección
+    if (productoSeleccionado && productoSeleccionado.nombre === productoEliminado.nombre) {
+        const pUpdated = productosConsolidados.find(p => p.nombre === productoSeleccionado.nombre);
+        if (pUpdated) {
+             productoSeleccionado = pUpdated;
+             llenarSelectFormato(productoSeleccionado);
+        }
+    }
 };
 
 metodoEfectivoRadio.addEventListener("change", actualizarTotales);
@@ -685,8 +727,8 @@ dineroRecibidoInput.addEventListener("input", actualizarTotales);
 
 function actualizarTotales() {
     let totalNeto = carrito.reduce((sum, p) => sum + p.subtotal, 0);
-    
-    let recargo = metodoTarjetaRadio.checked ? totalNeto * 0.05 : 0;
+
+    let recargo = metodoTarjetaRadio.checked ? totalNeto * RECARGO_TARJETA : 0;
     let totalGeneral = totalNeto + recargo;
 
     totalLbl.textContent = formatoMoneda(totalNeto);
@@ -700,10 +742,14 @@ function actualizarTotales() {
 
         if (cambio >= 0) {
             cambioLbl.textContent = formatoMoneda(cambio);
-            cambioDisplayDiv.className = "change-display"; 
+            cambioDisplayDiv.className = "change-display success";
+            cambioDisplayDiv.style.backgroundColor = '#e8f5e9'; // success-light
+            cambioDisplayDiv.style.color = '#388e3c'; // success-dark
         } else {
             cambioLbl.textContent = `Faltan ${formatoMoneda(Math.abs(cambio))}`;
             cambioDisplayDiv.className = "change-display negative";
+            cambioDisplayDiv.style.backgroundColor = '#ffebee'; // danger-light
+            cambioDisplayDiv.style.color = '#d32f2f'; // danger-dark
         }
     } else {
         cajaEfectivoSection.style.display = "none";
@@ -711,4 +757,15 @@ function actualizarTotales() {
     }
 }
 
-actualizarTotales();
+
+// --- INICIALIZACIÓN ---
+document.addEventListener("DOMContentLoaded", async () => {
+    await cargarProductos();
+    actualizarTotales();
+    renderTablaVenta();
+    // Inicializar UI
+    productoInfoBox.innerHTML = '<p style="padding: 10px 0;">Selecciona un producto de la lista.</p>';
+    cantidadInput.disabled = true;
+    formatoVentaSelect.disabled = true;
+    btnAgregar.disabled = true;
+});

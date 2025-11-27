@@ -1,702 +1,264 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Registro de Venta | Farmacia JERUSALÉN</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
-<style>
-/* ---------------------------------------------------------------- */
-/* --- ESTILOS CSS --- */
-/* ---------------------------------------------------------------- */
-:root {
-    --primary-blue: #007bff;
-    --primary-dark: #0056b3;
-    --light-blue: #e0f2ff;
-    --dark-gray: #343a40;
-    --medium-gray: #6c757d;
-    --light-gray: #f8f9fa;
-    --border-color: #dee2e6;
-    --shadow-light: 0 2px 10px rgba(0, 0, 0, 0.05);
-    --shadow-medium: 0 4px 15px rgba(0, 0, 0, 0.1);
-    --danger-color: #dc3545;
-    --success-color: #28a745;
-    --warning-color: #ffc107;
-}
-body {
-    font-family: 'Inter', sans-serif;
-    margin: 0;
-    background-color: var(--light-gray);
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
-    color: var(--dark-gray);
-}
-/* ---------------------------------------------------------------- */
-/* --- ESTILOS DEL MENÚ DE NAVEGACIÓN --- */
-/* ---------------------------------------------------------------- */
-.navbar {
-    background-color: var(--primary-blue);
-    color: white;
-    padding: 10px 30px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    box-shadow: var(--shadow-medium);
-    font-weight: 600;
-}
-.navbar .logo {
-    font-size: 1.5rem;
-    font-weight: bold;
-    color: white;
-    text-decoration: none;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-.nav-menu {
-    list-style: none;
-    display: flex;
-    margin: 0;
-    padding: 0;
-    align-items: center;
-}
-.nav-menu li {
-    margin-left: 25px;
-}
-.nav-menu a {
-    color: white;
-    text-decoration: none;
-    padding: 10px 15px;
-    display: block;
-    border-radius: 4px;
-    transition: background-color 0.3s;
-}
-.nav-menu a:hover {
-    background-color: var(--primary-dark);
-}
-/* Dropdown */
-.dropdown {
-    position: relative;
-}
-.dropbtn {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-}
-.dropdown-content {
-    display: none;
-    position: absolute;
-    background-color: #f9f9f9;
-    min-width: 220px;
-    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
-    z-index: 100;
-    right: 0;
-    border-radius: 4px;
-    overflow: hidden;
-    border: 1px solid var(--border-color);
-}
-.dropdown-content a {
-    color: var(--dark-gray);
-    padding: 12px 16px;
-    text-decoration: none;
-    display: block;
-    text-align: left;
-    font-weight: 500;
-}
-.dropdown-content a:hover {
-    background-color: var(--light-blue);
-}
-.dropdown:hover .dropdown-content {
-    display: block;
-}
-.nav-toggle {
-    display: none;
-}
-/* ---------------------------------------------------------------- */
-/* --- FIN ESTILOS DEL MENÚ DE NAVEGACIÓN --- */
-/* ---------------------------------------------------------------- */
-/* Estilos existentes de tu página */
-/* Main Content Container */
-.container {
-    flex-grow: 1;
-    display: flex;
-    justify-content: center;
-    padding: 30px;
-}
-.main-content {
-    background-color: white;
-    border-radius: 12px;
-    box-shadow: var(--shadow-medium);
-    width: 100%;
-    max-width: 1200px;
-    display: grid;
-    grid-template-columns: 3fr 2fr;
-    gap: 25px;
-    padding: 25px;
-}
-@media (max-width: 992px) {
-    .main-content {
-        grid-template-columns: 1fr;
-    }
-}
-/* Secciones Generales */
-.panel {
-    background-color: white;
-    border-radius: 8px;
-    padding: 20px;
-    border: 1px solid var(--border-color);
-    box-shadow: var(--shadow-light);
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-}
-.panel-left {
-    grid-column: 1 / 2;
-}
-.panel-right {
-    grid-column: 2 / 3;
-}
-h3 {
-    font-size: 1.3rem;
-    color: var(--dark-gray);
-    margin-top: 0;
-    margin-bottom: 15px;
-    border-bottom: 1px solid var(--border-color);
-    padding-bottom: 10px;
-    font-weight: 600;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-/* Input Group (Search) */
-.input-group {
-    display: flex;
-    border: 1px solid var(--border-color);
-    border-radius: 8px;
-    overflow: hidden;
-    box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);
-    margin-bottom: 15px;
-}
-.input-group input {
-    border: none;
-    padding: 12px 15px;
-    font-size: 1rem;
-    flex-grow: 1;
-    outline: none;
-}
-.input-group .btn-icon {
-    background-color: var(--primary-blue);
-    color: white;
-    border: none;
-    padding: 12px 15px;
-    cursor: pointer;
-    transition: background-color 0.2s ease;
-    font-size: 1rem;
-}
-.input-group .btn-icon:hover {
-    background-color: var(--primary-dark);
-}
-/* Product Suggestions List */
-#lista-productos {
-    list-style: none;
-    padding: 0;
-    margin-top: -10px;
-    border: 1px solid var(--border-color);
-    border-top: none;
-    border-radius: 0 0 8px 8px;
-    max-height: 180px;
-    overflow-y: auto;
-    background-color: white;
-    box-shadow: var(--shadow-light);
-    z-index: 10;
-    position: relative;
-}
-#lista-productos li {
-    padding: 10px 15px;
-    cursor: pointer;
-    transition: background-color 0.2s ease;
-    font-size: 0.95rem;
-    color: var(--dark-gray);
-    border-bottom: 1px solid #eee;
-}
-#lista-productos li:last-child {
-    border-bottom: none;
-}
-#lista-productos li:hover {
-    background-color: var(--light-blue);
-}
-/* Product Info Box */
-.producto-info-box {
-    background-color: var(--light-blue);
-    padding: 15px;
-    border-radius: 8px;
-    font-size: 0.9rem;
-    line-height: 1.5;
-    border-left: 5px solid var(--primary-blue);
-    margin-bottom: 20px;
-}
-.producto-info-box .antibiotico-warning {
-    color: var(--danger-color);
-    font-weight: 600;
-}
-/* Table Styles for inyected table (Crucial para misceláneos) */
-.info-table {
-    /* Estilos para la tabla que inyecta JS dentro de productoInfoBox */
-    width: 100%;
-    border-collapse: collapse;
-    margin: 8px 0;
-    font-size: 0.9em;
-}
-.info-table th, .info-table td {
-    padding: 6px; 
-    border: 1px solid #aaa;
-    text-align: left;
-}
-.info-table thead th {
-    background-color: #d8d8d8;
-}
-
-/* Add to Cart Controls (Ajustado) */
-.add-to-cart-controls {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-top: 15px;
-    padding-top: 15px;
-    border-top: 1px solid var(--border-color);
-    flex-wrap: wrap; 
-}
-
-/* Nuevo contenedor para Cantidad y Formato */
-.quantity-format-group {
-    display: flex;
-    gap: 10px;
-    align-items: center;
-    flex-grow: 1; 
-}
-
-.add-to-cart-controls label {
-    flex-shrink: 0;
-    margin-bottom: 0;
-    font-weight: 500;
-}
-.add-to-cart-controls input[type="number"],
-.add-to-cart-controls select { 
-    width: 80px;
-    padding: 8px 10px;
-    border-radius: 6px;
-    border: 1px solid var(--border-color);
-    font-size: 0.95rem;
-    text-align: center;
-}
-.add-to-cart-controls select {
-    width: 120px;
-    text-align: left;
-}
-
-.add-to-cart-controls .btn {
-    flex-grow: 1;
-    padding: 10px 15px;
-    font-size: 1rem;
-    border-radius: 8px;
-    background-color: var(--success-color); 
-    color: white;
-    transition: background-color 0.2s ease;
-}
-
-.add-to-cart-controls .btn:hover {
-    background-color: #1e7e34;
-}
-
-/* Table Styles (Products in Cart) */
-.cart-table-wrapper {
-    max-height: 350px;
-    overflow-y: auto;
-    border: 1px solid var(--border-color);
-    border-radius: 8px;
-}
-.tabla {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 0.95rem;
-}
-.tabla th, .tabla td {
-    padding: 12px 15px;
-    text-align: left;
-    border-bottom: 1px solid var(--border-color);
-}
-.tabla thead th {
-    background-color: var(--primary-blue);
-    color: white;
-    font-weight: 600;
-    position: sticky;
-    top: 0;
-    z-index: 5;
-}
-.tabla tbody tr:last-child td {
-    border-bottom: none;
-}
-.tabla tbody tr:nth-child(even) {
-    background-color: #f7f7f7;
-}
-.tabla tbody tr:hover {
-    background-color: #e9f2ff;
-}
-/* Quantity Controls in Table */
-.quantity-controls {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-}
-.quantity-controls button {
-    background: none;
-    border: 1px solid var(--border-color);
-    color: var(--dark-gray);
-    border-radius: 4px;
-    padding: 4px 8px;
-    cursor: pointer;
-    transition: background-color 0.2s ease, color 0.2s ease;
-}
-.quantity-controls button:hover {
-    background-color: var(--primary-blue);
-    color: white;
-    border-color: var(--primary-blue);
-}
-.quantity-controls span {
-    min-width: 25px;
-    text-align: center;
-    font-weight: 500;
-}
-.tabla .btn-remove {
-    background-color: var(--danger-color);
-    color: white;
-    border: none;
-    padding: 6px 10px;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 0.9rem;
-    transition: background-color 0.2s ease;
-}
-.tabla .btn-remove:hover {
-    background-color: #c82333;
-}
-/* Totals Summary */
-.totals-summary {
-    background-color: var(--light-gray);
-    padding: 15px;
-    border-radius: 8px;
-    border: 1px solid var(--border-color);
-    margin-bottom: 20px;
-}
-.totals-summary .row {
-    display: flex;
-    justify-content: space-between;
-    padding: 5px 0;
-    border-bottom: 1px dotted #ccc;
-}
-.totals-summary .row:last-of-type {
-    border-bottom: none;
-}
-.totals-summary .row span {
-    font-size: 0.95rem;
-    color: var(--medium-gray);
-}
-.totals-summary .row strong {
-    font-size: 1rem;
-    color: var(--dark-gray);
-    font-weight: 600;
-}
-.totals-summary .total-final {
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: var(--primary-blue);
-    text-align: center;
-    padding-top: 15px;
-    margin-top: 15px;
-    border-top: 2px solid var(--border-color);
-}
-/* Payment Method Radios */
-.payment-methods {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    margin-bottom: 20px;
-}
-.payment-methods label {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    cursor: pointer;
-    font-size: 1rem;
-    font-weight: 500;
-    color: var(--dark-gray);
-}
-.payment-methods input[type="radio"] {
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    appearance: none;
-    width: 18px;
-    height: 18px;
-    border: 2px solid var(--border-color);
-    border-radius: 50%;
-    outline: none;
-    cursor: pointer;
-    position: relative;
-    flex-shrink: 0;
-}
-.payment-methods input[type="radio"]:checked {
-    border-color: var(--primary-blue);
-}
-.payment-methods input[type="radio"]:checked::before {
-    content: '';
-    width: 10px;
-    height: 10px;
-    background-color: var(--primary-blue);
-    border-radius: 50%;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-}
-/* Cash Input & Change */
-.cash-payment-section {
-    background-color: #f0f7ff;
-    padding: 15px;
-    border-radius: 8px;
-    border: 1px solid var(--primary-blue);
-    margin-top: 15px;
-}
-.cash-payment-section label {
-    font-weight: 600;
-    margin-bottom: 8px;
-    display: block;
-    color: var(--primary-blue);
-}
-/* Nuevo contenedor para el input y la etiqueta de moneda */
-.cash-input-group {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 15px;
-}
-.cash-payment-section input {
-    flex-grow: 1;
-    padding: 10px;
-    border-radius: 6px;
-    border: 1px solid var(--primary-blue);
-    font-size: 1.1rem;
-    text-align: right;
-    box-sizing: border-box;
-    margin-bottom: 0;
-}
-.cash-payment-section .currency-label {
-    font-size: 1.1rem;
-    font-weight: 600;
-    color: var(--dark-gray);
-    flex-shrink: 0;
-}
-.change-display {
-    font-size: 1.3rem;
-    font-weight: 700;
-    text-align: center;
-    color: var(--success-color);
-    padding-top: 5px;
-}
-.change-display.negative {
-    color: var(--danger-color);
-}
-.change-display span {
-    font-size: 0.9rem;
-    font-weight: 500;
-    color: var(--dark-gray);
-    display: block;
-    margin-bottom: 5px;
-}
-/* ---------------------------------------------------------------- */
-/* --- ESTILOS DE BOTONES DE ACCIÓN --- */
-/* ---------------------------------------------------------------- */
-.action-buttons {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    margin-top: 25px;
-}
-/* Register Sale Button */
-.btn-register-sale {
-    width: 100%;
-    padding: 15px;
-    background-color: var(--primary-blue);
-    color: white;
-    border: none;
-    border-radius: 8px;
-    font-size: 1.2rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background-color 0.2s ease, box-shadow 0.2s ease;
-    box-shadow: var(--shadow-light);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-}
-.btn-register-sale:hover {
-    background-color: var(--primary-dark);
-    box-shadow: var(--shadow-medium);
-}
-.btn-register-sale:disabled {
-    background-color: var(--medium-gray);
-    cursor: not-allowed;
-}
-/* Cancel Sale Button */
-.btn-cancel-sale {
-    width: 100%;
-    padding: 10px;
-    background-color: var(--medium-gray);
-    color: white;
-    border: none;
-    border-radius: 8px;
-    font-size: 1rem;
-    font-weight: 500;
-    cursor: pointer;
-    text-align: center;
-    text-decoration: none;
-    transition: background-color 0.2s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-}
-.btn-cancel-sale:hover {
-    background-color: var(--dark-gray);
-}
-/* ---------------------------------------------------------------- */
-/* --- FIN ESTILOS DE BOTONES DE ACCIÓN --- */
-/* ---------------------------------------------------------------- */
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro de Venta | Farmacia JERUSALÉN</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <style>
+        :root {
+            --primary-blue: #007bff;
+            --primary-dark: #0056b3;
+            --light-blue: #e0f2ff;
+            --dark-gray: #343a40;
+            --medium-gray: #6c757d;
+            --light-gray: #f8f9fa;
+            --border-color: #dee2e6;
+            --shadow-light: 0 2px 10px rgba(0, 0, 0, 0.05);
+            --shadow-medium: 0 4px 15px rgba(0, 0, 0, 0.1);
+            --danger-color: #dc3545;
+            --success-color: #28a745;
+            --warning-color: #ffc107;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            background-color: var(--light-gray);
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            color: var(--dark-gray);
+        }
+        /* --- ESTILOS DEL MENÚ DE NAVEGACIÓN OMITIDOS PARA BREVEDAD --- */
+        .navbar { background-color: var(--primary-blue); color: white; padding: 10px 30px; display: flex; justify-content: space-between; align-items: center; box-shadow: var(--shadow-medium); font-weight: 600; }
+        .navbar .logo { font-size: 1.5rem; font-weight: bold; color: white; text-decoration: none; display: flex; align-items: center; gap: 10px; }
+        .nav-menu { list-style: none; display: flex; margin: 0; padding: 0; align-items: center; }
+        .nav-menu li { margin-left: 25px; }
+        .nav-menu a { color: white; text-decoration: none; padding: 10px 15px; display: block; border-radius: 4px; transition: background-color 0.3s; }
+        .nav-menu a:hover { background-color: var(--primary-dark); }
+        .dropdown { position: relative; }
+        .dropbtn { display: flex; align-items: center; gap: 5px; }
+        .dropdown-content { display: none; position: absolute; background-color: #f9f9f9; min-width: 220px; box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2); z-index: 100; right: 0; border-radius: 4px; overflow: hidden; border: 1px solid var(--border-color); }
+        .dropdown-content a { color: var(--dark-gray); padding: 12px 16px; text-decoration: none; display: block; text-align: left; font-weight: 500; }
+        .dropdown-content a:hover { background-color: var(--light-blue); }
+        .dropdown:hover .dropdown-content { display: block; }
+        .nav-toggle { display: none; }
+        /* Main Content Container */
+        .container { flex-grow: 1; display: flex; justify-content: center; padding: 30px; }
+        .main-content { background-color: white; border-radius: 12px; box-shadow: var(--shadow-medium); width: 100%; max-width: 1200px; display: grid; grid-template-columns: 3fr 2fr; gap: 25px; padding: 25px; }
+        @media (max-width: 992px) { .main-content { grid-template-columns: 1fr; } }
+        /* Secciones Generales */
+        .panel { background-color: white; border-radius: 8px; padding: 20px; border: 1px solid var(--border-color); box-shadow: var(--shadow-light); display: flex; flex-direction: column; gap: 15px; }
+        .panel-left { grid-column: 1 / 2; }
+        .panel-right { grid-column: 2 / 3; }
+        h3 { font-size: 1.3rem; color: var(--dark-gray); margin-top: 0; margin-bottom: 15px; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; font-weight: 600; display: flex; align-items: center; gap: 10px; }
+        /* Input Group (Search) */
+        .input-group { display: flex; border: 1px solid var(--border-color); border-radius: 8px; overflow: hidden; box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05); }
+        .input-group input { border: none; padding: 12px 15px; font-size: 1rem; flex-grow: 1; outline: none; }
+        .input-group .btn-icon { background-color: var(--primary-blue); color: white; border: none; padding: 12px 15px; cursor: pointer; transition: background-color 0.2s ease; font-size: 1rem; }
+        .input-group .btn-icon:hover { background-color: var(--primary-dark); }
+        /* Product Suggestions List (CORREGIDO) */
+        #lista-productos {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            position: absolute; 
+            top: 60px; 
+            left: 0;
+            width: 100%;
+            z-index: 100; 
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            max-height: 180px;
+            overflow-y: auto;
+            background-color: white;
+            box-shadow: var(--shadow-light);
+        }
+        #lista-productos li { padding: 10px 15px; cursor: pointer; transition: background-color 0.2s ease; font-size: 0.95rem; color: var(--dark-gray); border-bottom: 1px solid #eee; }
+        #lista-productos li:last-child { border-bottom: none; }
+        #lista-productos li:hover { background-color: var(--light-blue); }
+        /* Product Info Box */
+        .producto-info-box { background-color: var(--light-blue); padding: 15px; border-radius: 8px; font-size: 0.9rem; line-height: 1.5; border-left: 5px solid var(--primary-blue); margin-bottom: 20px; margin-top: 15px; }
+        .producto-info-box .antibiotico-warning { color: var(--danger-color); font-weight: 600; }
+        /* Add to Cart Controls (Ajustado) */
+        .add-to-cart-controls { display: flex; align-items: center; gap: 10px; margin-top: 15px; padding-top: 15px; border-top: 1px solid var(--border-color); flex-wrap: wrap; }
+        .quantity-format-group { display: flex; gap: 10px; align-items: center; flex-grow: 1; }
+        .add-to-cart-controls label { flex-shrink: 0; margin-bottom: 0; font-weight: 500; }
+        .add-to-cart-controls input[type="number"], .add-to-cart-controls select { width: 80px; padding: 8px 10px; border-radius: 6px; border: 1px solid var(--border-color); font-size: 0.95rem; text-align: center; }
+        .add-to-cart-controls select { width: 120px; text-align: left; }
+        .add-to-cart-controls .btn { flex-grow: 1; padding: 10px 15px; font-size: 1rem; border-radius: 8px; background-color: var(--success-color); color: white; transition: background-color 0.2s ease; }
+        .add-to-cart-controls .btn:hover { background-color: #1e7e34; }
+        .add-to-cart-controls .btn:disabled { background-color: var(--medium-gray); cursor: not-allowed; }
+        /* Table Styles (Products in Cart) */
+        .cart-table-wrapper { max-height: 350px; overflow-y: auto; border: 1px solid var(--border-color); border-radius: 8px; }
+        .tabla { width: 100%; border-collapse: collapse; font-size: 0.95rem; }
+        .tabla th, .tabla td { padding: 12px 15px; text-align: left; border-bottom: 1px solid var(--border-color); }
+        .tabla thead th { background-color: var(--primary-blue); color: white; font-weight: 600; position: sticky; top: 0; z-index: 5; }
+        .tabla tbody tr:last-child td { border-bottom: none; }
+        .tabla tbody tr:nth-child(even) { background-color: #f7f7f7; }
+        .tabla tbody tr:hover { background-color: #e9f2ff; }
+        /* Quantity Controls in Table */
+        .quantity-controls { display: flex; align-items: center; gap: 5px; }
+        .quantity-controls button { background: none; border: 1px solid var(--border-color); color: var(--dark-gray); border-radius: 4px; padding: 4px 8px; cursor: pointer; transition: background-color 0.2s ease, color 0.2s ease; }
+        .quantity-controls button:hover { background-color: var(--primary-blue); color: white; border-color: var(--primary-blue); }
+        .quantity-controls span { min-width: 25px; text-align: center; font-weight: 500; }
+        .tabla .btn-remove { background-color: var(--danger-color); color: white; border: none; padding: 6px 10px; border-radius: 6px; cursor: pointer; font-size: 0.9rem; transition: background-color 0.2s ease; }
+        .tabla .btn-remove:hover { background-color: #c82333; }
+        /* Totals Summary */
+        .totals-summary { background-color: var(--light-gray); padding: 15px; border-radius: 8px; border: 1px solid var(--border-color); margin-bottom: 20px; }
+        .totals-summary .row { display: flex; justify-content: space-between; padding: 5px 0; border-bottom: 1px dotted #ccc; }
+        .totals-summary .row:last-of-type { border-bottom: none; }
+        .totals-summary .row span { font-size: 0.95rem; color: var(--medium-gray); }
+        .totals-summary .row strong { font-size: 1rem; color: var(--dark-gray); font-weight: 600; }
+        .totals-summary .total-final { font-size: 1.5rem; font-weight: 700; color: var(--primary-blue); text-align: center; padding-top: 15px; margin-top: 15px; border-top: 2px solid var(--border-color); }
+        /* Payment Method Radios */
+        .payment-methods { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
+        .payment-methods label { display: flex; align-items: center; gap: 10px; cursor: pointer; font-size: 1rem; font-weight: 500; color: var(--dark-gray); }
+        .payment-methods input[type="radio"] { -webkit-appearance: none; -moz-appearance: none; appearance: none; width: 18px; height: 18px; border: 2px solid var(--border-color); border-radius: 50%; outline: none; cursor: pointer; position: relative; flex-shrink: 0; }
+        .payment-methods input[type="radio"]:checked { border-color: var(--primary-blue); }
+        .payment-methods input[type="radio"]:checked::before { content: ''; width: 10px; height: 10px; background-color: var(--primary-blue); border-radius: 50%; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); }
+        /* Cash Input & Change */
+        .cash-payment-section { background-color: #f0f7ff; padding: 15px; border-radius: 8px; border: 1px solid var(--primary-blue); margin-top: 15px; }
+        .cash-payment-section label { font-weight: 600; margin-bottom: 8px; display: block; color: var(--primary-blue); }
+        .cash-input-group { display: flex; align-items: center; gap: 10px; margin-bottom: 15px; }
+        .cash-payment-section input { flex-grow: 1; padding: 10px; border-radius: 6px; border: 1px solid var(--primary-blue); font-size: 1.1rem; text-align: right; box-sizing: border-box; margin-bottom: 0; }
+        .cash-payment-section .currency-label { font-size: 1.1rem; font-weight: 600; color: var(--dark-gray); flex-shrink: 0; }
+        .change-display { font-size: 1.3rem; font-weight: 700; text-align: center; color: var(--success-color); padding-top: 5px; }
+        .change-display.negative { color: var(--danger-color); }
+        .change-display span { font-size: 0.9rem; font-weight: 500; color: var(--dark-gray); display: block; margin-bottom: 5px; }
+        /* --- ESTILOS DE BOTONES DE ACCIÓN --- */
+        .action-buttons { display: flex; flex-direction: column; gap: 10px; margin-top: 25px; }
+        .btn-register-sale { width: 100%; padding: 15px; background-color: var(--primary-blue); color: white; border: none; border-radius: 8px; font-size: 1.2rem; font-weight: 600; cursor: pointer; transition: background-color 0.2s ease, box-shadow 0.2s ease; box-shadow: var(--shadow-light); display: flex; align-items: center; justify-content: center; gap: 10px; }
+        .btn-register-sale:hover { background-color: var(--primary-dark); box-shadow: var(--shadow-medium); }
+        .btn-register-sale:disabled { background-color: var(--medium-gray); cursor: not-allowed; }
+        .btn-cancel-sale { width: 100%; padding: 10px; background-color: var(--medium-gray); color: white; border: none; border-radius: 8px; font-size: 1rem; font-weight: 500; cursor: pointer; text-align: center; text-decoration: none; transition: background-color 0.2s ease; display: flex; align-items: center; justify-content: center; gap: 10px; }
+        .btn-cancel-sale:hover { background-color: var(--dark-gray); }
+    </style>
 </head>
 <body>
-<header>
-<nav class="navbar">
-<a href="index.html" class="logo"><i class="fas fa-prescription-bottle-alt"></i> FARMACIA JERUSALÉN</a>
-<ul class="nav-menu">
-<li><a href="index.html">Inicio</a></li>
-<li><a href="ventas_dashboard.html">Dashboard</a></li>
-<li class="dropdown">
-<a href="#" class="dropbtn">Módulos <i class="fas fa-caret-down"></i></a>
-<div class="dropdown-content">
-<a href="ventas.html">Ventas <i class="fas fa-cash-register" style="float: right;"></i></a>
-<a href="inventario.html">Inventario <i class="fas fa-boxes" style="float: right;"></i></a>
-<a href="facturas.html">Facturas por Pagar <i class="fas fa-file-invoice-dollar" style="float: right;"></i></a>
-<a href="vencimientos.html">Alerta Vencimientos <i class="fas fa-calendar-times" style="float: right;"></i></a>
-</div>
-</li>
-<li><a href="#" aria-label="Usuario"><i class="fas fa-user-circle"></i></a></li>
-</ul>
-</nav>
-</header>
-<div class="container">
-<div class="main-content">
-<div class="panel panel-left">
-<h3><i class="fas fa-search"></i> Buscar y Añadir Producto</h3>
-<div>
-<label for="buscar">Nombre o Código del Producto</label>
-<div class="input-group">
-<input type="text" id="buscar" placeholder="Escribe para buscar..." autocomplete="off">
-<button class="btn-icon" id="btnSearch" disabled><i class="fas fa-search"></i></button>
-</div>
-<ul id="lista-productos"></ul>
-</div>
+    <header>
+        <nav class="navbar">
+            <a href="index.html" class="logo"><i class="fas fa-prescription-bottle-alt"></i> FARMACIA JERUSALÉN</a>
+            <ul class="nav-menu">
+                <li><a href="index.html">Inicio</a></li>
+                <li><a href="ventas_dashboard.html">Dashboard</a></li>
+                <li class="dropdown">
+                    <a href="#" class="dropbtn">Módulos <i class="fas fa-caret-down"></i></a>
+                    <div class="dropdown-content">
+                        <a href="ventas.html">Ventas <i class="fas fa-cash-register" style="float: right;"></i></a>
+                        <a href="inventario.html">Inventario <i class="fas fa-boxes" style="float: right;"></i></a>
+                        <a href="facturas.html">Facturas por Pagar <i class="fas fa-file-invoice-dollar" style="float: right;"></i></a>
+                        <a href="vencimientos.html">Alerta Vencimientos <i class="fas fa-calendar-times" style="float: right;"></i></a>
+                    </div>
+                </li>
+                <li><a href="#" aria-label="Usuario"><i class="fas fa-user-circle"></i></a></li>
+            </ul>
+        </nav>
+    </header>
+    <div class="container">
+        <div class="main-content">
+            <div class="panel panel-left">
+                <h3><i class="fas fa-search"></i> Buscar y Añadir Producto</h3>
 
-<div class="producto-info-box" id="productoInfo">
-Selecciona un producto de la lista.
-</div>
+                <div class="search-container" style="position: relative;">
+                    <label for="buscar">Nombre o Código del Producto</label>
+                    <div class="input-group">
+                        <input type="text" id="buscar" placeholder="Escribe para buscar..." autocomplete="off">
+                        <button class="btn-icon" id="btnSearch"><i class="fas fa-search"></i></button>
+                    </div>
+                    <ul id="lista-productos"></ul>
+                </div>
 
-<div class="add-to-cart-controls">
-    
-    <div class="quantity-format-group">
-        <label for="cantidad">Cant:</label>
-        <input type="number" id="cantidad" value="1" min="1" step="1">
+                <div class="producto-info-box" id="productoInfo">
+                    Selecciona un producto de la lista.
+                </div>
 
-        <label for="formatoVenta">Formato:</label>
-        <select id="formatoVenta" disabled>
-            <option value="">-- Seleccione --</option> 
-        </select>
+                <div class="add-to-cart-controls">
+
+                    <div class="quantity-format-group">
+                        <label for="cantidad">Cant:</label>
+                        <input type="number" id="cantidad" value="1" min="1" step="1" disabled>
+
+                        <label for="formatoVenta">Formato:</label>
+                        <select id="formatoVenta" disabled>
+                            <option value="unidad">Unidad</option>
+                            <option value="caja">Caja/Envase</option>
+                        </select>
+                    </div>
+
+                    <button class="btn" id="btnAgregar" disabled><i class="fas fa-plus"></i> Añadir a Venta</button>
+                </div>
+
+                <h3><i class="fas fa-clipboard-list"></i> Productos en Venta</h3>
+                <div class="cart-table-wrapper">
+                    <table class="tabla" id="tablaVenta">
+                        <thead>
+                            <tr>
+                                <th>Producto</th>
+                                <th>Formato</th>
+                                <th>Cant.</th>
+                                <th>Precio Unit.</th>
+                                <th>Subt.</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tablaVentaBody">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="panel panel-right">
+                <h3><i class="fas fa-dollar-sign"></i> Resumen de Pago</h3>
+                <div class="totals-summary">
+                    <div class="row"><span>Subtotal Neto:</span> <strong id="total">Q 0.00</strong></div>
+                    <div class="row"><span>Recargo por Tarjeta:</span> <strong id="recargo">Q 0.00</strong></div>
+                    <div class="total-final">
+                        <span>TOTAL A PAGAR:</span> <strong id="totalGeneral">Q 0.00</strong>
+                    </div>
+                </div>
+                <div>
+                    <label style="font-weight: 600; margin-bottom: 10px;">Selecciona Método de Pago:</label>
+                    <div class="payment-methods">
+                        <label>
+                            <input type="radio" name="metodoPago" id="metodoEfectivo" value="efectivo" checked>
+                            Efectivo
+                        </label>
+                        <label>
+                            <input type="radio" name="metodoPago" id="metodoTarjeta" value="tarjeta">
+                            Tarjeta (+5% Recargo)
+                        </label>
+                    </div>
+                </div>
+                <div id="cajaEfectivo" class="cash-payment-section" style="display:block;">
+                    <label for="dineroRecibido"><i class="fas fa-money-bill-wave"></i> Dinero Recibido del Cliente</label>
+                    <div class="cash-input-group">
+                        <input type="number" id="dineroRecibido" placeholder="0.00" min="0">
+                        <span class="currency-label">Q</span>
+                    </div>
+                    <div class="change-display" id="cambioDisplay">
+                        <span>VUELTO / CAMBIO:</span> <strong id="cambio">Q 0.00</strong>
+                    </div>
+                </div>
+                <div class="action-buttons">
+                    <button class="btn-register-sale" id="btnVender" disabled>
+                        <i class="fas fa-check-circle"></i> Registrar Venta
+                    </button>
+                    <a href="index.html" class="btn-cancel-sale">
+                        <i class="fas fa-times-circle"></i> Regresar al Inicio (Cancelar Venta)
+                    </a>
+                </div>
+            </div>
+        </div>
     </div>
-    
-    <button class="btn" id="btnAgregar" disabled><i class="fas fa-plus"></i> Añadir a Venta</button>
-</div>
 
-<h3><i class="fas fa-clipboard-list"></i> Productos en Venta</h3>
-<div class="cart-table-wrapper">
-<table class="tabla" id="tablaVenta">
-<thead>
-<tr>
-<th>Producto</th>
-<th>Formato</th> <th>Cant.</th>
-<th>Precio Unit.</th>
-<th>Subt.</th>
-<th>Acciones</th>
-</tr>
-</thead>
-<tbody>
-</tbody>
-</table>
-</div>
-</div>
-<div class="panel panel-right">
-<h3><i class="fas fa-dollar-sign"></i> Resumen de Pago</h3>
-<div class="totals-summary">
-<div class="row"><span>Subtotal Neto:</span> <strong id="total">Q 0.00</strong></div>
-<div class="row"><span>Recargo por Tarjeta:</span> <strong id="recargo">Q 0.00</strong></div>
-<div class="total-final">
-<span>TOTAL A PAGAR:</span> <strong id="totalGeneral">Q 0.00</strong>
-</div>
-</div>
-<div>
-<label style="font-weight: 600; margin-bottom: 10px;">Selecciona Método de Pago:</label>
-<div class="payment-methods">
-<label>
-<input type="radio" name="metodoPago" id="metodoEfectivo" value="efectivo" checked>
-Efectivo
-</label>
-<label>
-<input type="radio" name="metodoPago" id="metodoTarjeta" value="tarjeta">
-Tarjeta (+5% Recargo)
-</label>
-</div>
-</div>
-<div id="cajaEfectivo" class="cash-payment-section" style="display:block;">
-<label for="dineroRecibido"><i class="fas fa-money-bill-wave"></i> Dinero Recibido del Cliente</label>
-<div class="cash-input-group">
-<input type="number" id="dineroRecibido" placeholder="0.00">
-<span class="currency-label">Q</span>
-</div>
-<div class="change-display" id="cambioDisplay">
-<span>VUELTO / CAMBIO:</span> <strong id="cambio">Q 0.00</strong>
-</div>
-</div>
-<div class="action-buttons">
-<button class="btn-register-sale" id="btnVender">
-<i class="fas fa-check-circle"></i> Registrar Venta
-</button>
-<a href="index.html" class="btn-cancel-sale">
-<i class="fas fa-times-circle"></i> Regresar al Inicio (Cancelar Venta)
-</a>
-</div>
-</div>
-</div>
-</div>
-<script type="module" src="firebase-config.js"></script>
-<script type="module" src="ventas.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js" type="module"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js" type="module"></script>
+
+    <script src="firebase-config.js" type="module"></script>
+
+    <script src="ventas.js" type="module"></script>
 </body>
 </html>
-
-
-
-
-
-
 
