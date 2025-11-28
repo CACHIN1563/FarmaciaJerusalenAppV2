@@ -9,7 +9,7 @@ import {
 const { jsPDF } = window.jspdf;
 const { XLSX } = window; 
 
-// --- CONSTANTES Y REFERENCIAS DEL DOM (Mantenidas) ---
+// --- CONSTANTES Y REFERENCIAS DEL DOM ---
 const DIAS_OFFSET = 25569; 
 const CORRECCION_BISI = 1; 
 const MILLIS_PER_DAY = 24 * 60 * 60 * 1000;
@@ -19,13 +19,18 @@ const filtroReporteSelect = document.getElementById("filtroReporte");
 const btnExportar = document.getElementById("btnExportar");
 const btnExportarPdf = document.getElementById("btnExportarPdf");
 const loadingMessage = document.getElementById("loadingMessage");
+// Referencias para el MODAL de auditoría
+const auditModal = document.getElementById("auditModal");
+const modalTitle = document.getElementById("modalTitle");
+const modalBody = document.getElementById("modalBody");
+
 
 // --- ESTADO ---
 let antibioticosInventario = []; 
 let ventasAntibioticos = [];      
 let lotesFiltradosActualmente = []; 
 
-// --- FUNCIONES DE UTILIDAD (Mantenidas) ---
+// --- FUNCIONES DE UTILIDAD ---
 function convertirAFecha(fechaVencimiento) {
     if (!fechaVencimiento) return null;
     if (fechaVencimiento.toDate) return fechaVencimiento.toDate(); 
@@ -72,7 +77,6 @@ function formatearFechaHora(dateObj) {
     return '-';
 }
 
-
 function calcularDiasRestantes(fechaVencimiento) {
     if (!fechaVencimiento) return Infinity;
     const fechaVencimientoClonada = new Date(fechaVencimiento.getTime()); 
@@ -80,11 +84,35 @@ function calcularDiasRestantes(fechaVencimiento) {
     hoy.setHours(0, 0, 0, 0); 
     fechaVencimientoClonada.setHours(0, 0, 0, 0); 
     const diffTime = fechaVencimientoClonada.getTime() - hoy.getTime();
-    return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return Math.ceil(diffTime / MILLIS_PER_DAY);
+}
+
+/**
+ * Calcula la fecha de inicio (medianoche) para el filtro de tiempo.
+ * @param {string} filtroValor - El valor del filtro (ej: 'vendidosDia', 'vendidosMes').
+ * @returns {Date | null} La fecha de inicio del período.
+ */
+function getFechaInicio(filtroValor) {
+    const hoy = new Date();
+    hoy.setHours(0, 0, 0, 0); 
+
+    switch (filtroValor) {
+        case 'vendidosDia':
+            // Se usa el inicio de hoy
+            return hoy; 
+        case 'vendidosSemana':
+            return new Date(hoy.getTime() - (7 * MILLIS_PER_DAY));
+        case 'vendidosMes':
+            return new Date(hoy.getTime() - (30 * MILLIS_PER_DAY));
+        case 'vendidosAnio':
+            return new Date(hoy.getTime() - (365 * MILLIS_PER_DAY));
+        default:
+            return null;
+    }
 }
 
 
-// --- CARGA DE DATOS CENTRAL (MODIFICADA PARA DETALLES DE AUDITORÍA) ---
+// --- CARGA DE DATOS CENTRAL ---
 
 async function cargarDatosCentral() {
     loadingMessage.style.display = 'block'; 
@@ -92,7 +120,7 @@ async function cargarDatosCentral() {
     ventasAntibioticos = [];
 
     try {
-        // 1. Cargar la colección 'inventario' y crear un mapa de info y stock actual
+        // 1. Cargar la colección 'inventario'
         const inventarioSnapshot = await getDocs(query(collection(db, "inventario")));
         const inventarioMap = new Map();
 
@@ -144,33 +172,40 @@ async function cargarDatosCentral() {
                         const infoBase = inventarioMap.get(loteId); 
 
                         if (infoBase) {
-                            // Detalle de la cantidad vendida por tipo de empaque (para auditoría)
                             const cantCaja = parseInt(loteVendido.cajasVendidas) || 0;
-                            const cantBlister = parseInt(loteVendido.blisteresVendidos) || 0;
-                            const cantTableta = parseInt(loteVendido.unidadesVendidas) || 0; // Se asume que 'unidadesVendidas' es la cantidad de tabletas/unidades sueltas
-                            const totalUnidadesVendidas = parseInt(loteVendido.cantidad) || 0;
+                            const cantBlister = parseInt(loteVendido.blisteresVendidas) || 0;
+                            // Usaremos 'unidadesVendidas' como el valor más detallado (ej. tabletas)
+                            const cantUnidad = parseInt(loteVendido.unidadesVendidas) || 0;
+                            
+                            // Campo 'cantidad' del lote vendido: se espera que sea la cantidad total vendida.
+                            let totalUnidadesVendidas = parseInt(loteVendido.cantidad) || 0;
+                            
+                            // *** CORRECCIÓN CLAVE ***
+                            // Si 'cantidad' es 0, usamos 'cantUnidad' (el detalle de las tabletas/unidades vendidas) como fallback.
+                            if (totalUnidadesVendidas === 0 && cantUnidad > 0) {
+                                totalUnidadesVendidas = cantUnidad;
+                            }
+                            // *************************
                             
                             ventasAntibioticos.push({
                                 id: loteId,
                                 nombre: infoBase.nombre,
                                 detalle: infoBase.detalle,
                                 marca: infoBase.marca,
-                                ubicacion: infoBase.ubicacion, // Mantenemos internamente, solo se quita en exportación
+                                ubicacion: infoBase.ubicacion, 
                                 vencimiento: infoBase.vencimiento,
                                 
-                                // Datos de la venta para auditoría
-                                cantidadVendida: totalUnidadesVendidas,
+                                cantidadVendida: totalUnidadesVendidas, // Ahora con el valor ajustado
                                 stockRestante: infoBase.stock, 
                                 fechaVenta: fechaVentaObjeto, 
                                 
-                                // Campos de auditoría específicos solicitados
                                 ventaId: docVenta.id, 
                                 numeroVenta: numeroVenta,
                                 metodoPago: metodoPago,
                                 totalVenta: totalVenta,
                                 cantCaja: cantCaja,
                                 cantBlister: cantBlister,
-                                cantTableta: cantTableta
+                                cantTableta: cantUnidad // Usamos 'cantUnidad' para la tabla de auditoría.
                             });
                         }
                     });
@@ -181,17 +216,16 @@ async function cargarDatosCentral() {
         manejarFiltroReporte();
 
     } catch (error) {
-        console.error("Error al cargar datos. Revise la estructura de 'ventas' y 'inventario':", error);
+        console.error("Error al cargar datos. Revise la conexión y estructura de 'ventas' y 'inventario':", error);
         productosGrid.innerHTML = `<div class="no-products-message" style="color: red;">
-                                    <i class="fas fa-exclamation-circle"></i> Error en la conexión o estructura de datos.
-                                   </div>`;
+                                         <i class="fas fa-exclamation-circle"></i> Error en la conexión o estructura de datos.
+                                        </div>`;
     } finally {
         loadingMessage.style.display = 'none';
     }
 }
 
-// --- FILTRADO Y RENDERIZADO DEL GRID (Mantenidas) ---
-// ... (manejarFiltroReporte y renderizarGrid sin cambios significativos) ...
+// --- FILTRADO Y RENDERIZADO DEL GRID ---
 
 function manejarFiltroReporte() {
     const filtroValor = filtroReporteSelect.value;
@@ -199,22 +233,52 @@ function manejarFiltroReporte() {
     productosGrid.innerHTML = ""; 
 
     if (filtroValor === 'inventario') { 
+        // Lógica de Inventario
         lotesFiltradosActualmente = antibioticosInventario
             .sort((a, b) => a.diasRestantes - b.diasRestantes); 
-            
-    } else if (filtroValor === 'vendidosMes') {
-        const ventasAgrupadas = new Map();
-        ventasAntibioticos.forEach(venta => {
-            if (ventasAgrupadas.has(venta.id)) {
-                ventasAgrupadas.get(venta.id).cantidadVendida += venta.cantidadVendida;
-                // No necesitamos agrupar los campos de auditoría detallados en el grid, solo el total
-            } else {
-                ventasAgrupadas.set(venta.id, { ...venta });
-            }
-        });
+        
+    } else if (filtroValor.startsWith('vendidos')) { 
+        
+        const fechaInicio = getFechaInicio(filtroValor);
+        let ventasFiltradas = ventasAntibioticos;
 
-        lotesFiltradosActualmente = Array.from(ventasAgrupadas.values())
-            .sort((a, b) => b.fechaVenta - a.fechaVenta); 
+        // 1. Aplicar filtro de fecha
+        if (fechaInicio) {
+            const fechaInicioTime = fechaInicio.getTime();
+            
+            ventasFiltradas = ventasAntibioticos.filter(venta => {
+                if (!venta.fechaVenta) return false;
+                
+                const fechaVentaTime = venta.fechaVenta.getTime();
+                
+                return fechaVentaTime >= fechaInicioTime;
+            });
+        }
+        
+        // 2. Determinar si se Agrupa o se Muestra Detallado
+        if (filtroValor === 'vendidosDia') {
+            // Reporte Diario (Detallado)
+            lotesFiltradosActualmente = ventasFiltradas
+                .sort((a, b) => b.fechaVenta.getTime() - a.fechaVenta.getTime()); 
+            
+        } else {
+            // Reportes Agrupados (Semana, Mes, Año)
+            const ventasAgrupadas = new Map();
+            
+            ventasFiltradas.forEach(venta => {
+                // La clave de agrupación es el ID del lote
+                if (ventasAgrupadas.has(venta.id)) {
+                    // Si ya existe, sumar la cantidad vendida
+                    ventasAgrupadas.get(venta.id).cantidadVendida += venta.cantidadVendida;
+                } else {
+                    // Si no existe, crear una nueva entrada (copiando el objeto venta)
+                    ventasAgrupadas.set(venta.id, { ...venta });
+                }
+            });
+
+            lotesFiltradosActualmente = Array.from(ventasAgrupadas.values())
+                .sort((a, b) => b.fechaVenta.getTime() - a.fechaVenta.getTime()); 
+        }
     }
     
     renderizarGrid();
@@ -223,14 +287,15 @@ function manejarFiltroReporte() {
 function renderizarGrid() {
     if (lotesFiltradosActualmente.length === 0) {
         productosGrid.innerHTML = `<div class="no-products-message">
-                                     <i class="fas fa-box-open"></i> No se encontraron lotes para el reporte seleccionado.
-                                    </div>`;
+                                           <i class="fas fa-box-open"></i> No se encontraron lotes para el reporte seleccionado.
+                                         </div>`;
         return;
     }
 
-    const esReporteVentas = filtroReporteSelect.value === 'vendidosMes';
+    const esReporteVentas = filtroReporteSelect.value.startsWith('vendidos');
+    const esReporteDetallado = filtroReporteSelect.value === 'vendidosDia';
 
-    lotesFiltradosActualmente.forEach(lote => {
+    productosGrid.innerHTML = lotesFiltradosActualmente.map(lote => {
         let claseCard = 'stock-normal'; 
         let cardContent = '';
         
@@ -244,10 +309,8 @@ function renderizarGrid() {
             else if (dias <= 180) { claseCard = 'proximo-6m'; } 
             
             const etiquetaDias = `<span class="dias-restantes-tag ${claseCard}">
-                                    ${alertaTexto} 
-                                    ${dias > 0 && dias <= 90 ? '(3 meses)' : ''}
-                                    ${dias > 90 && dias <= 180 ? '(6 meses)' : ''}
-                                 </span>`;
+                                     ${alertaTexto} 
+                                   </span>`;
             
             cardContent = `
                 <div class="card-title">${lote.nombre}</div>
@@ -264,80 +327,121 @@ function renderizarGrid() {
             
         } else {
             // --- VENTAS ---
-            claseCard = 'stock-normal'; 
+            claseCard = 'venta-card'; 
+            
+            const cantidadDisplay = esReporteDetallado 
+                ? `${lote.cantidadVendida} unidades (Venta ${lote.numeroVenta})`
+                : `${lote.cantidadVendida} unidades`;
+            
+            const fechaDisplay = esReporteDetallado 
+                ? formatearFechaHora(lote.fechaVenta) 
+                : filtroReporteSelect.options[filtroReporteSelect.selectedIndex].text; 
+                
+            const botonDetalle = esReporteDetallado 
+                ? '' 
+                : `<button class="btn-ver-detalles" data-id="${lote.id}">
+                    <i class="fas fa-chart-bar"></i> Ver Auditoría del Lote
+                   </button>`;
+
             cardContent = `
                 <div class="card-title">${lote.nombre}</div>
                 <div class="card-subtitle">${lote.detalle}</div> 
                 <p><strong>Marca:</strong> ${lote.marca}</p>
-                <p><strong>Ubicación:</strong> ${lote.ubicacion}</p>
+                <p><strong>Stock Restante Lote:</strong> ${lote.stockRestante} unidades</p>
                 <div class="lote-details">
-                    <p><strong>Vendidas:</strong> ${lote.cantidadVendida} unidades</p>
-                    <p><strong>Restante:</strong> ${lote.stockRestante} unidades</p>
-                    <p><strong>Fecha Venta:</strong> ${lote.fechaVenta ? formatearFecha(lote.fechaVenta) : '-'}</p>
+                    <p><strong>Fecha/Período:</strong> ${fechaDisplay}</p>
+                    <p><strong>Total Vendido:</strong> ${cantidadDisplay}</p>
                     <p class="lote-id-display"><strong>ID Lote:</strong> ${lote.id}</p>
                 </div>
-                <button class="btn-ver-lotes" data-id="${lote.id}">
-                    <i class="fas fa-chart-bar"></i> Ver Detalles
-                </button>
+                ${botonDetalle}
             `;
         }
-
-        const card = `<div class="product-card ${claseCard}">${cardContent}</div>`;
-        productosGrid.innerHTML += card;
-    });
+        return `<div class="product-card ${claseCard}">${cardContent}</div>`;
+    }).join('');
     
-    productosGrid.querySelectorAll('.btn-ver-lotes').forEach(button => {
+    // Adjuntar eventos para el modal (solo para reportes agrupados)
+    productosGrid.querySelectorAll('.btn-ver-detalles').forEach(button => {
         button.addEventListener('click', (e) => {
             const loteId = e.currentTarget.getAttribute('data-id');
-            mostrarDetalles(loteId);
+            mostrarDetalles(loteId); 
         });
     });
 }
 
 
-// --- FUNCIÓN DE VER DETALLES (Mantenida) ---
+// --- FUNCIÓN DE VER DETALLES (MODAL) ---
+
 window.mostrarDetalles = function(loteId) {
-    const lote = lotesFiltradosActualmente.find(l => l.id === loteId);
-    if (!lote) {
-        alert("Detalles del lote no encontrados.");
+    const registrosDeVenta = ventasAntibioticos.filter(v => v.id === loteId);
+    
+    if (registrosDeVenta.length === 0) {
+        alert("Detalles del lote no encontrados o no vendidos.");
         return;
     }
     
-    let encabezado = `*** DETALLES DEL LOTE ${lote.id} ***\n\n`;
-    let infoGeneral = `Producto: ${lote.nombre} (${lote.detalle})\nMarca: ${lote.marca}\nUbicación: ${lote.ubicacion}\n`;
-    let detallesEspecificos = '';
+    const infoBase = registrosDeVenta[0]; 
+
+    modalTitle.textContent = `Auditoría de Ventas para Lote: ${loteId}`;
     
-    const esVenta = filtroReporteSelect.value === 'vendidosMes';
+    let infoGeneralHTML = `
+        <p><strong>Producto:</strong> ${infoBase.nombre} (${infoBase.detalle})</p>
+        <p><strong>Marca:</strong> ${infoBase.marca}</p>
+        <p><strong>Ubicación (Lote):</strong> ${infoBase.ubicacion}</p>
+        <p><strong>Stock Actual del Lote:</strong> ${infoBase.stockRestante} unidades</p>
+        <hr>
+        <h4>Historial de Ventas Detallado:</h4>
+    `;
 
-    if (esVenta) {
-        const registrosDeVenta = ventasAntibioticos.filter(v => v.id === loteId);
+    let tablaHTML = `
+        <table class="audit-table">
+            <thead>
+                <tr>
+                    <th>No. Venta</th>
+                    <th>Fecha/Hora</th>
+                    <th>Vendidas (Und)</th>
+                    <th>Cajas</th>
+                    <th>Blísteres</th>
+                    <th>Tabletas</th>
+                    <th>Método Pago</th>
+                    <th>Total Venta</th>
+                </tr>
+            </thead>
+            <tbody>
+    `;
+
+    registrosDeVenta
+        .sort((a, b) => b.fechaVenta.getTime() - a.fechaVenta.getTime()) 
+        .forEach(r => {
+            tablaHTML += `
+                <tr>
+                    <td>${r.numeroVenta}</td>
+                    <td>${formatearFechaHora(r.fechaVenta)}</td>
+                    <td>${r.cantidadVendida}</td>
+                    <td>${r.cantCaja}</td>
+                    <td>${r.cantBlister}</td>
+                    <td>${r.cantTableta}</td>
+                    <td>${r.metodoPago}</td>
+                    <td>Q ${r.totalVenta.toFixed(2)}</td>
+                </tr>
+            `;
+        });
         
-        let listaVentas = registrosDeVenta.map(r => 
-            // Usamos formato de fecha y hora para la venta individual
-            `| ${r.numeroVenta.padEnd(8)} | ${formatearFechaHora(r.fechaVenta).padEnd(16)} | ${String(r.cantidadVendida).padEnd(8)} | ${r.cantCaja.padEnd(6)} | ${r.cantBlister.padEnd(6)} | ${r.metodoPago}`
-        ).join('\n');
-        
-        detallesEspecificos = `
-Cantidad Total Vendida: ${lote.cantidadVendida} unidades
-Stock Actual del Lote: ${lote.stockRestante} unidades
-
-*** HISTORIAL DE VENTAS INDIVIDUALES (Auditoría) ***
-| No. Venta | Fecha/Hora     | Vendidas | Cajas | Blister | Pago
-| --------- | ---------------- | -------- | ----- | ------- | ----
-${listaVentas}
-`;
-    } else {
-        detallesEspecificos = `
-Stock Total: ${lote.stock} unidades
-Fecha de Vencimiento: ${formatearFecha(lote.vencimiento)}
-Días Restantes: ${lote.diasRestantes}
-`;
-    }
-
-    alert(encabezado + infoGeneral + detallesEspecificos);
+    tablaHTML += `</tbody></table>`;
+    
+    modalBody.innerHTML = infoGeneralHTML + tablaHTML;
+    openModal();
 };
 
-// --- FUNCIONES DE EXPORTACIÓN (MODIFICADAS PARA AUDITORÍA) ---
+window.openModal = function() {
+    auditModal.classList.add('open');
+}
+
+window.closeModal = function() {
+    auditModal.classList.remove('open');
+}
+
+
+// --- FUNCIONES DE EXPORTACIÓN ---
 
 function exportarAExcel() {
     if (lotesFiltradosActualmente.length === 0) {
@@ -346,15 +450,18 @@ function exportarAExcel() {
     }
     
     const filtroActualTexto = filtroReporteSelect.options[filtroReporteSelect.selectedIndex].text;
-    const esReporteVentas = filtroReporteSelect.value === 'vendidosMes';
+    const esReporteVentas = filtroReporteSelect.value.startsWith('vendidos');
 
-    const datosParaExportar = lotesFiltradosActualmente.map(lote => {
+    let datosParaExportar;
+    if (esReporteVentas) {
+        // Para Excel, siempre exportamos los datos detallados de ventas del período
+        const fechaInicio = getFechaInicio(filtroReporteSelect.value);
         
-        if (esReporteVentas) {
-            // EXPORTACIÓN DE VENTAS (Campos de Auditoría y empaque)
-            return {
+        datosParaExportar = ventasAntibioticos
+            .filter(v => v.fechaVenta.getTime() >= fechaInicio.getTime()) 
+            .map(lote => ({
                 No_Venta: lote.numeroVenta,
-                Fecha_Venta: formatearFechaHora(lote.fechaVenta), // Hora para auditoría
+                Fecha_Hora_Venta: formatearFechaHora(lote.fechaVenta), 
                 Producto: lote.nombre,
                 Formato: lote.detalle,
                 Marca: lote.marca,
@@ -365,22 +472,23 @@ function exportarAExcel() {
                 Stock_Restante_Lote: lote.stockRestante,
                 Metodo_Pago: lote.metodoPago,
                 Total_Venta: lote.totalVenta,
-                ID_Lote: lote.id
-            };
-        } else {
-            // EXPORTACIÓN DE INVENTARIO (Sin cambios)
-            return {
-                Producto: lote.nombre,
-                Formato: lote.detalle,
-                Marca: lote.marca,
-                Ubicacion: lote.ubicacion,
-                Stock_Actual: lote.stock,
-                Fecha_Vencimiento: formatearFecha(lote.vencimiento),
-                Dias_Restantes: lote.diasRestantes,
-                ID_Lote: lote.id
-            };
-        }
-    });
+                ID_Lote: lote.id,
+                ID_Venta_Interno: lote.ventaId
+            }));
+
+    } else {
+        // EXPORTACIÓN DE INVENTARIO
+        datosParaExportar = lotesFiltradosActualmente.map(lote => ({
+            Producto: lote.nombre,
+            Formato: lote.detalle,
+            Marca: lote.marca,
+            Ubicacion: lote.ubicacion,
+            Stock_Actual: lote.stock,
+            Fecha_Vencimiento: formatearFecha(lote.vencimiento),
+            Dias_Restantes: lote.diasRestantes,
+            ID_Lote: lote.id
+        }));
+    }
 
     try {
         const ws = XLSX.utils.json_to_sheet(datosParaExportar);
@@ -402,31 +510,46 @@ function exportarAPDF() {
     }
 
     try {
-        const doc = new jsPDF({ orientation: 'landscape', format: 'a4' }); // Cambiado a landscape para más columnas
+        // Inicializar el documento PDF en orientación horizontal
+        const doc = new jsPDF({ orientation: 'landscape', format: 'a4' }); 
         const filtroActualTexto = filtroReporteSelect.options[filtroReporteSelect.selectedIndex].text;
-        const esReporteVentas = filtroReporteSelect.value === 'vendidosMes';
+        const esReporteVentas = filtroReporteSelect.value.startsWith('vendidos');
+        const esReporteDetallado = filtroReporteSelect.value === 'vendidosDia'; // Filtro 'Ventas: Hoy'
 
         let head;
         let datosTabla;
         
         if (esReporteVentas) {
-            // PDF DE VENTAS (Campos de Auditoría y empaque)
-            head = [['No. Venta', 'Fecha/Hora', 'Producto', 'Total (Und)', 'Cajas', 'Blister', 'Tabletas', 'Método Pago', 'Total Venta', 'ID Lote']];
-            
-            datosTabla = lotesFiltradosActualmente.map(lote => [
-                lote.numeroVenta,
-                formatearFechaHora(lote.fechaVenta),
-                lote.nombre,
-                lote.cantidadVendida, 
-                lote.cantCaja,
-                lote.cantBlister,
-                lote.cantTableta,
-                lote.metodoPago,
-                `Q ${lote.totalVenta.toFixed(2)}`,
-                lote.id
-            ]);
+            if (esReporteDetallado) {
+                // PDF DE VENTA DETALLADA (Filtro: Ventas Hoy)
+                head = [['No. Venta', 'Producto', 'Formato', 'Vendidas (Und)', 'Stock Restante', 'Fecha/Hora Venta', 'ID Lote']];
+                
+                datosTabla = lotesFiltradosActualmente.map(lote => [
+                    lote.numeroVenta,
+                    lote.nombre,
+                    lote.detalle,
+                    lote.cantidadVendida, // ¡Corregido para mostrar el valor correcto!
+                    lote.stockRestante,
+                    formatearFechaHora(lote.fechaVenta),
+                    lote.id
+                ]);
+
+            } else {
+                // PDF DE VENTA AGRUPADA (Filtros: Semana, Mes, Año)
+                head = [['Producto', 'Formato', 'Vendidas (Und)', 'Stock Restante', 'Vencimiento', 'Período', 'ID Lote']];
+                
+                datosTabla = lotesFiltradosActualmente.map(lote => [
+                    lote.nombre,
+                    lote.detalle,
+                    lote.cantidadVendida, // ¡Corregido para mostrar el valor correcto!
+                    lote.stockRestante,
+                    formatearFecha(lote.vencimiento), 
+                    filtroActualTexto, 
+                    lote.id
+                ]);
+            }
         } else {
-            // PDF DE INVENTARIO (Sin cambios)
+            // PDF DE INVENTARIO 
             head = [['Producto', 'Formato', 'Stock Actual', 'Ubicación', 'Fecha Vencimiento', 'Días Restantes', 'ID Lote']];
             datosTabla = lotesFiltradosActualmente.map(lote => [
                 lote.nombre,

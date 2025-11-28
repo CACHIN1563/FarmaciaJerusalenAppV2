@@ -5,26 +5,32 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Alerta de Vencimientos - Farmacia</title>
     
-    <link rel="stylesheet" href="estilos.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet">
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
     
     <style>
-        /* Variables y estilos generales */
+        /* Variables y estilos generales (ajustados ligeramente) */
         :root {
             --primary-blue: #007bff;
             --primary-dark: #0056b3;
             --dark-gray: #343a40;
             --medium-gray: #6c757d;
-            --light-gray: #f8f9fa;
-            --border-color: #dee2e6;
-            --shadow-light: 0 2px 10px rgba(0, 0, 0, 0.05);
-            --shadow-medium: 0 4px 15px rgba(0, 0, 0, 0.1);
+            --light-gray: #f4f6f9; /* Fondo principal suave */
+            --border-color: #e9ecef; /* Borde más claro */
+            --shadow-light: 0 4px 12px rgba(0, 0, 0, 0.08); /* Sombra más limpia */
+            --shadow-medium: 0 8px 25px rgba(0, 0, 0, 0.1);
             --danger-color: #dc3545;
             --warning-color: #ffc107;
             --success-color: #28a745;
-            --pdf-color: #dc3545;
-            --light-blue: #e0f2ff; /* Añadida para dropdown: */
+            --audit-color: #28a745;
+            --pdf-venta-color: #dc3545;
+            --light-blue-bg: #e0f2ff; /* Fondo para secciones destacadas */
+            --card-bg-light: #ffffff; /* Fondo claro para las tarjetas */
+            --card-border-radius: 12px; /* Radio de borde uniforme para tarjetas */
+            --section-purple: #8a2be2; /* Color morado para títulos de sección y botones de auditoría */
         }
 
         body {
@@ -37,10 +43,7 @@
             color: var(--dark-gray);
         }
 
-        /* ---------------------------------------------------------------- */
-        /* --- ESTILOS DEL MENÚ DE NAVEGACIÓN --- */
-        /* ---------------------------------------------------------------- */
-        
+        /* --- ESTILOS DEL MENÚ DE NAVEGACIÓN (Se mantiene) --- */
         .navbar {
             background-color: var(--primary-blue);
             color: white;
@@ -51,88 +54,19 @@
             box-shadow: var(--shadow-medium);
             font-weight: 600;
         }
-
-        .navbar .logo {
-            font-size: 1.5rem;
-            font-weight: bold;
-            color: white;
-            text-decoration: none;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .nav-menu {
-            list-style: none;
-            display: flex;
-            margin: 0;
-            padding: 0;
-            align-items: center;
-        }
-
-        .nav-menu li {
-            margin-left: 25px;
-        }
-
-        .nav-menu a {
-            color: white;
-            text-decoration: none;
-            padding: 10px 15px;
-            display: block;
-            border-radius: 4px;
-            transition: background-color 0.3s;
-        }
-
-        .nav-menu a:hover {
-            background-color: var(--primary-dark);
-        }
-        
-        /* Dropdown */
-        .dropdown {
-            position: relative;
-        }
-
-        .dropbtn {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-
-        .dropdown-content {
-            display: none;
-            position: absolute;
-            background-color: #f9f9f9;
-            min-width: 220px;
-            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
-            z-index: 100;
-            right: 0;
-            border-radius: 4px;
-            overflow: hidden;
-            border: 1px solid var(--border-color);
-        }
-
-        .dropdown-content a {
-            color: var(--dark-gray);
-            padding: 12px 16px;
-            text-decoration: none;
-            display: block;
-            text-align: left;
-            font-weight: 500;
-        }
-
-        .dropdown-content a:hover {
-            background-color: var(--light-blue);
-        }
-
-        .dropdown:hover .dropdown-content {
-            display: block;
-        }
-        
-        /* ---------------------------------------------------------------- */
-        /* --- FIN ESTILOS DEL MENÚ DE NAVEGACIÓN --- */
+        .navbar .logo { font-size: 1.5rem; font-weight: bold; color: white; text-decoration: none; display: flex; align-items: center; gap: 10px; }
+        .nav-menu { list-style: none; display: flex; margin: 0; padding: 0; align-items: center; }
+        .nav-menu li { margin-left: 25px; }
+        .nav-menu a { color: white; text-decoration: none; padding: 10px 15px; display: block; border-radius: 4px; transition: background-color 0.3s; }
+        .nav-menu a:hover { background-color: var(--primary-dark); }
+        .dropdown { position: relative; }
+        .dropbtn { display: flex; align-items: center; gap: 5px; }
+        .dropdown-content { display: none; position: absolute; background-color: #f9f9f9; min-width: 220px; box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2); z-index: 100; right: 0; border-radius: 4px; overflow: hidden; border: 1px solid var(--border-color); }
+        .dropdown-content a { color: var(--dark-gray); padding: 12px 16px; text-decoration: none; display: block; text-align: left; font-weight: 500; }
+        .dropdown-content a:hover { background-color: var(--light-blue-bg); }
+        .dropdown:hover .dropdown-content { display: block; }
         /* ---------------------------------------------------------------- */
 
-        /* Contenedor principal */
         .main-container {
             flex-grow: 1;
             padding: 30px;
@@ -141,8 +75,8 @@
 
         .content-panel {
             background-color: white;
-            border-radius: 12px;
-            box-shadow: var(--shadow-medium);
+            border-radius: var(--card-border-radius);
+            box-shadow: var(--shadow-light);
             max-width: 1200px;
             margin: 0 auto;
             padding: 25px;
@@ -151,27 +85,32 @@
             gap: 20px;
         }
 
+        /* Título Principal */
         h1 {
-            font-size: 1.8rem;
-            color: var(--dark-gray);
+            font-size: 2rem;
+            color: var(--primary-blue);
             margin-top: 0;
-            margin-bottom: 15px;
-            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 20px;
             padding-bottom: 10px;
             font-weight: 700;
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 15px;
         }
 
-        /* Controles de filtro y exportar */
+        /* Controles de filtro y exportar - Diseño de Tarjeta Elevada */
         .controls-row {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 20px;
-            gap: 15px;
+            gap: 20px;
             flex-wrap: wrap;
+            padding: 20px;
+            background-color: var(--card-bg-light); 
+            border-radius: var(--card-border-radius);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            border: 1px solid var(--border-color);
         }
 
         .filter-group {
@@ -184,130 +123,221 @@
         .filter-group label {
             font-weight: 600;
             color: var(--dark-gray);
-            font-size: 0.95rem;
+            font-size: 1rem;
         }
 
         .filter-group select {
-            padding: 10px 12px;
+            padding: 10px 15px;
             border-radius: 8px;
             border: 1px solid var(--border-color);
             background-color: white;
-            font-size: 0.95rem;
-            min-width: 180px;
+            font-size: 1rem;
+            min-width: 200px;
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2212%22%20height%3D%2212%22%20viewBox%3D%220%200%2012%2012%22%3E%3Cpath%20d%3D%22M10%204L6%208%202%204z%22%20fill%3D%22%236c757d%22%2F%3E%3C%2Fsvg%3E");
+            background-repeat: no-repeat;
+            background-position: right 15px center;
+            padding-right: 35px;
+            cursor: pointer;
+            transition: border-color 0.3s;
+        }
+        .filter-group select:focus {
+            outline: none;
+            border-color: var(--primary-blue);
         }
 
         .export-buttons {
             display: flex;
-            gap: 10px;
+            gap: 15px;
         }
         
+        /* Estilos de botones de exportación con Gradiente y Hover */
         .btn-export {
             color: white;
             border: none;
-            padding: 10px 20px;
+            padding: 10px 22px;
             border-radius: 8px;
-            font-size: 0.95rem;
+            font-size: 1rem;
             font-weight: 600;
             cursor: pointer;
-            transition: opacity 0.2s ease, box-shadow 0.2s ease;
+            transition: all 0.3s ease;
             display: flex;
             align-items: center;
             gap: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            text-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
         }
 
-        .btn-export:hover {
-            opacity: 0.9;
-            box-shadow: var(--shadow-light);
-        }
-        
-        #btnExportar { background-color: var(--success-color); }
-        #btnExportarPdf { background-color: var(--pdf-color); }
+        #btnExportar { background: linear-gradient(145deg, var(--audit-color), #208e3a); border: 1px solid #1e7e34; }
+        #btnExportar:hover { transform: translateY(-2px); box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2); opacity: 0.95; }
 
-        /* Títulos de sección */
+        #btnExportarPdf { background: linear-gradient(145deg, var(--pdf-venta-color), #b82d3b); border: 1px solid #a71d2a; }
+        #btnExportarPdf:hover { transform: translateY(-2px); box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2); opacity: 0.95; }
+
+        /* Títulos de sección (En color morado) */
         .section-title {
-            font-size: 1.3rem;
-            font-weight: 600;
-            color: var(--dark-gray);
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--section-purple);
             margin-top: 20px;
             margin-bottom: 15px;
             padding-bottom: 8px;
-            border-bottom: 1px solid var(--border-color);
+            border-bottom: 2px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
 
         /* Contenedor de las tarjetas de productos */
         #productosGrid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 20px;
-            margin-top: 20px;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); 
+            gap: 25px;
+            margin-top: 15px;
         }
 
-        /* Estilo de cada tarjeta de producto */
+        /* Estilo de cada tarjeta de producto (Detallada y enfocada) */
         .product-card {
             border: 1px solid var(--border-color);
-            border-radius: 10px;
-            box-shadow: var(--shadow-light);
-            padding: 15px;
+            border-radius: var(--card-border-radius);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            padding: 0; 
             display: flex;
             flex-direction: column;
-            gap: 10px;
             position: relative;
-            transition: transform 0.2s ease;
+            transition: all 0.3s ease;
+            overflow: hidden;
+            background-color: var(--card-bg-light);
+            cursor: default;
         }
 
-        .product-card .product-image {
-            width: 50px;
-            height: 50px;
-            border-radius: 6px;
-            object-fit: cover;
-            border: 1px solid #eee;
-            flex-shrink: 0;
+        /* Efecto hover para las tarjetas */
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
         }
-        
-        .product-card .card-header {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 5px;
+
+        /* Pseudo-elemento para el borde superior de color */
+        .product-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 8px; 
+            border-top-left-radius: var(--card-border-radius);
+            border-top-right-radius: var(--card-border-radius);
+            z-index: 1; 
+        }
+
+        .card-danger::before { background-color: var(--danger-color); }
+        .card-warning::before { background-color: var(--warning-color); }
+        .card-info::before { background-color: var(--primary-blue); }
+
+
+        .card-header {
+            padding: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border-color);
+            border-top-left-radius: var(--card-border-radius);
+            border-top-right-radius: var(--card-border-radius);
+            position: relative;
         }
 
         .product-card .product-name {
             font-weight: 700;
-            font-size: 1.1rem;
-            flex-grow: 1;
+            font-size: 1.25rem; 
+            color: var(--dark-gray); 
+            margin-bottom: 3px;
+            line-height: 1.3;
         }
-        
-        /* Nuevo estilo para el detalle/formato */
+
         .product-card .product-detail {
-            font-size: 0.9rem;
+            font-size: 0.95rem; 
             color: var(--medium-gray);
-            font-style: italic;
-            margin-top: -5px;
+            font-style: normal; 
+            margin-bottom: 10px;
         }
 
+        /* Contenedor de Alerta y Vencimiento */
+        .alert-container {
+            padding: 15px;
+            padding-top: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            flex-grow: 1;
+            background-color: transparent;
+            border-left: none;
+        }
 
-        .product-card .badge {
-            display: inline-block;
-            padding: 4px 8px;
-            border-radius: 5px;
-            font-size: 0.8rem;
+        /* Info box */
+        .info-box {
+            background-color: var(--light-gray);
+            padding: 12px 15px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .info-box p {
+            margin: 0;
+            font-size: 0.95rem;
+            color: var(--dark-gray);
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .info-box strong {
+            font-weight: 700;
+            color: var(--dark-gray);
+        }
+
+        /* Detalle de Vencimiento */
+        .vencimiento-detail {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 1rem; 
             font-weight: 600;
-            margin-left: 5px;
-            color: white;
+            color: var(--dark-gray);
+            margin-top: 5px;
         }
 
-        /* Clases de alerta */
-        .card-danger { border-left: 5px solid var(--danger-color); background-color: #fff4f4;}
-        .card-danger .product-name { color: var(--danger-color); }
+        /* Etiqueta de Días Restantes (Píldora más prominente) */
+        .badge {
+            display: inline-block;
+            padding: 7px 14px;
+            border-radius: 25px;
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: white;
+            min-width: 90px;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            text-transform: uppercase;
+        }
+
+        /* Colores de Badges */
         .card-danger .badge { background-color: var(--danger-color); }
-
-        .card-warning { border-left: 5px solid var(--warning-color); background-color: #fffde7; }
-        .card-warning .product-name { color: #d69800; }
-        .card-warning .badge { background-color: #d69800; }
-
-        .card-info { border-left: 5px solid var(--primary-blue); background-color: #e6f7ff; }
-        .card-info .product-name { color: var(--primary-blue); }
+        .card-warning .badge { background-color: var(--warning-color); }
         .card-info .badge { background-color: var(--primary-blue); }
+
+        /* ID Lote (Más discreto y alineado) */
+        .lote-id-footer {
+            padding: 10px 15px;
+            background-color: #f1f3f5;
+            font-size: 0.8rem;
+            color: var(--medium-gray);
+            border-top: 1px solid var(--border-color);
+            border-bottom-left-radius: var(--card-border-radius);
+            border-bottom-right-radius: var(--card-border-radius);
+            display: flex;
+            justify-content: flex-end;
+            font-weight: 500;
+        }
 
         /* Mensaje de carga */
         .no-products-message {
@@ -315,10 +345,32 @@
             padding: 40px;
             font-size: 1.1rem;
             color: var(--medium-gray);
-            background-color: white;
-            border-radius: 8px;
+            background-color: var(--card-bg-light);
+            border-radius: var(--card-border-radius);
             box-shadow: var(--shadow-light);
             grid-column: 1 / -1;
+        }
+
+        /* Media Query para responsividad de los botones en pantallas pequeñas */
+        @media (max-width: 600px) {
+            .controls-row {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .export-buttons {
+                width: 100%;
+                justify-content: space-between;
+            }
+            .btn-export {
+                flex: 1;
+                justify-content: center;
+                padding: 10px 15px;
+                font-size: 0.9rem;
+            }
+            .filter-group select {
+                min-width: unset;
+                width: 100%;
+            }
         }
     </style>
 </head>
@@ -327,7 +379,7 @@
     <header>
         <nav class="navbar">
             <a href="ventas_dashboard.html" class="logo">
-                <i class="fas fa-prescription-bottle-alt"></i> FARMACIA JERUSALÉN
+                <i class="fas fa-prescription-bottle-alt"></i> **FARMACIA JERUSALÉN**
             </a>
             
             <ul class="nav-menu">
@@ -348,33 +400,102 @@
             </ul>
         </nav>
     </header>
+
     <div class="main-container">
         <div class="content-panel">
-            <h1>Lotes Próximos a Vencer</h1>
+            
+            <h1><i class="fas fa-calendar-times"></i> Alerta de Lotes Próximos a Vencer</h1>
 
             <div class="controls-row">
                 <div class="filter-group">
-                    <label for="filtroMeses"><i class="fas fa-filter"></i> Mostrar lotes:</label>
+                    <label for="filtroMeses"><i class="fas fa-filter"></i> **Filtrar por:**</label>
                     <select id="filtroMeses">
                         <option value="-1">Mostrar todos</option>
                         <option value="0">Solo Vencidos</option>
-                        <option value="+90" selected>Solo Próximos (3 meses)</option>
-                        <option value="+180">Solo Próximos (6 meses)</option>
+                        <option value="+90" selected>Próximos 90 Días</option>
+                        <option value="+180">Próximos 180 Días</option>
                     </select>
                 </div>
                 
                 <div class="export-buttons">
-                    <button class="btn-export" id="btnExportar"><i class="fas fa-file-excel"></i> Exportar Excel</button>
-                    <button class="btn-export" id="btnExportarPdf"><i class="fas fa-file-pdf"></i> Exportar PDF</button>
+                    <button class="btn-export" id="btnExportar"><i class="fas fa-file-excel"></i> Exportar **Excel**</button>
+                    <button class="btn-export" id="btnExportarPdf"><i class="fas fa-file-pdf"></i> Exportar **PDF**</button>
                 </div>
             </div>
 
-            <h2 class="section-title"><i class="fas fa-list-alt"></i> Listado de Productos</h2>
+            <h2 class="section-title"><i class="fas fa-boxes"></i> Productos con Vencimiento Crítico</h2>
             
             <div id="productosGrid">
                 <div class="no-products-message" id="loadingMessage">
                     <i class="fas fa-spinner fa-spin"></i> Cargando productos...
                 </div>
+                
+                <div class="product-card card-danger">
+                    <div class="card-header">
+                        <span class="product-name">SENSIVIT D NF resfriado y gripe</span>
+                        <p class="product-detail">Formato: Unidad/Lote</p> 
+                    </div>
+
+                    <div class="alert-container">
+                        <div class="info-box">
+                            <p>Precio Unitario: <strong>Q 145.00</strong></p>
+                            <p>Stock Total: <strong>12 unidades</strong></p>
+                        </div>
+
+                        <div class="vencimiento-detail">
+                            <span>**Fecha Vencimiento:** 2025-11-30</span> 
+                            <span class="badge">¡Vencido!</span>
+                        </div>
+                    </div>
+                    <div class="lote-id-footer">
+                        ID Lote: Uc0uwlPXv7r8os14OHNQ
+                    </div>
+                </div>
+
+                <div class="product-card card-warning">
+                    <div class="card-header">
+                        <span class="product-name">ATOROLIP Atorvastatina 20 mg</span>
+                        <p class="product-detail">Formato: Caja/Blíster</p> 
+                    </div>
+
+                    <div class="alert-container">
+                        <div class="info-box">
+                            <p>Precio Unitario: <strong>Q 14.25</strong></p>
+                            <p>Stock Total: <strong>28 unidades</strong></p>
+                        </div>
+
+                        <div class="vencimiento-detail">
+                            <span>**Fecha Vencimiento:** 2026-03-15</span> 
+                            <span class="badge">4 meses</span>
+                        </div>
+                    </div>
+                    <div class="lote-id-footer">
+                        ID Lote: cqrRWZMzHoheQVJYl7ws
+                    </div>
+                </div>
+
+                <div class="product-card card-info">
+                    <div class="card-header">
+                        <span class="product-name">VAPORUB Pomada Vicks 12 gr</span>
+                        <p class="product-detail">Formato: Unidad</p> 
+                    </div>
+
+                    <div class="alert-container">
+                        <div class="info-box">
+                            <p>Precio Unitario: <strong>Q 18.50</strong></p>
+                            <p>Stock Total: <strong>45 unidades</strong></p>
+                        </div>
+
+                        <div class="vencimiento-detail">
+                            <span>**Fecha Vencimiento:** 2026-08-01</span> 
+                            <span class="badge">9 meses</span>
+                        </div>
+                    </div>
+                    <div class="lote-id-footer">
+                        ID Lote: hJ6tYv8pA2sLzQbGxR7d
+                    </div>
+                </div>
+
             </div>
             
         </div>

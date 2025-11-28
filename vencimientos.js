@@ -5,6 +5,7 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 // Acceso a las librerías globales (cargadas en el HTML)
+// Asegúrate de que los scripts de jspdf y autotable estén cargados antes
 const { jsPDF } = window.jspdf;
 const { XLSX } = window; 
 
@@ -27,8 +28,14 @@ let lotesFiltradosActualmente = [];
  * @returns {string} El texto formateado.
  */
 function convertirDiasAMesesYDias(totalDias) {
+    // Si ya está vencido, devolvemos un mensaje especial
+    if (totalDias <= 0) {
+        const diasVencido = Math.abs(totalDias);
+        return diasVencido === 0 ? 'VENCE HOY' : `VENCIDO (${diasVencido} DÍAS)`;
+    }
+
     if (totalDias < 30) {
-        return `${totalDias} días`;
+        return `${totalDias} DÍAS`;
     }
     
     const meses = Math.floor(totalDias / 30);
@@ -48,7 +55,7 @@ function convertirDiasAMesesYDias(totalDias) {
         resultado += `${dias} día${dias !== 1 ? 's' : ''}`;
     }
     
-    return resultado.trim();
+    return resultado.trim().toUpperCase();
 }
 
 
@@ -71,7 +78,6 @@ function calcularDiasRestantes(fechaVencimiento) {
 
 /**
  * Asigna una clase CSS y texto descriptivo basado en los días restantes.
- * **ACTUALIZADA** para usar 'convertirDiasAMesesYDias' y eliminar texto estático.
  * @param {number} dias - Días restantes.
  * @returns {{clase: string, texto: string}} Objeto con la clase CSS y el texto a mostrar.
  */
@@ -79,9 +85,7 @@ function obtenerInfoAlerta(dias) {
     const textoFormateado = convertirDiasAMesesYDias(dias);
 
     if (dias <= 0) {
-        const diasVencido = Math.abs(dias);
-        const textoVencido = diasVencido === 0 ? '¡HOY!' : `(${diasVencido} días)`;
-        return { clase: "card-danger", texto: `¡VENCIDO! ${textoVencido}` };
+        return { clase: "card-danger", texto: textoFormateado }; // VENCIDO
     } else if (dias <= 90) { // Menos de 3 meses
         return { clase: "card-danger", texto: textoFormateado }; 
     } else if (dias <= 180) { // Menos de 6 meses
@@ -96,7 +100,9 @@ async function cargarLotes() {
     loadingMessage.style.display = 'block'; 
     productosGrid.innerHTML = ''; 
 
-    // Constantes para la conversión del número de serie de fecha de Excel/Sheets:
+    // ... (Lógica de carga y parseo de fechas mantenida) ...
+    // Se asume que esta lógica funciona correctamente.
+    
     const DIAS_OFFSET = 25569; 
     const CORRECCION_BISI = 1; 
     const MILLIS_PER_DAY = 24 * 60 * 60 * 1000;
@@ -111,7 +117,6 @@ async function cargarLotes() {
             let precioUnitario = parseFloat(data.precioUnidad) || parseFloat(data.precioPublico) || 0;
             let detalleUnidad = data.detalle || data.presentacion || 'Unidad/Lote'; 
 
-            // 1. Caso Timestamp de Firebase (Ideal)
             if (fechaVencimiento && fechaVencimiento.toDate) {
                 fechaVencimiento = fechaVencimiento.toDate();
             } else if (typeof fechaVencimiento === 'string' || typeof fechaVencimiento === 'number') {
@@ -124,7 +129,6 @@ async function cargarLotes() {
                     return; 
                 }
 
-                // LÓGICA DE CONVERSIÓN DE NÚMERO DE SERIE DE EXCEL
                 if (serialNumber > 1) { 
                     const diasDesdeEpoch = serialNumber - DIAS_OFFSET - CORRECCION_BISI; 
                     const millisDesdeEpoch = diasDesdeEpoch * MILLIS_PER_DAY;
@@ -138,7 +142,6 @@ async function cargarLotes() {
                 return; 
             }
             
-            // Verificación final de validez
             if (isNaN(fechaVencimiento.getTime())) {
                 console.warn(`Lote ignorado: Fecha inválida (NaN). Producto: ${data.nombre} (${docu.id})`);
                 return;
@@ -154,6 +157,7 @@ async function cargarLotes() {
                 detalle: detalleUnidad,
                 vencimiento: fechaVencimiento,
                 diasRestantes: diasRestantes,
+                marca: data.marca || 'N/A', 
                 imagen: data.imagen || 'https://via.placeholder.com/50' 
             });
         });
@@ -166,13 +170,14 @@ async function cargarLotes() {
         console.error("Error al cargar lotes:", error);
         productosGrid.innerHTML = `<div class="no-products-message" style="color: red;">
                                          <i class="fas fa-exclamation-circle"></i> Error al cargar el inventario.
-                                        </div>`;
+                                         </div>`;
     } finally {
         loadingMessage.style.display = 'none';
     }
 }
 
-// --- FILTRADO Y RENDERIZADO DEL GRID (Mantenida) ---
+
+// --- FILTRADO Y RENDERIZADO DEL GRID (CORREGIDA LA ESTRUCTURA HTML DE LA TARJETA) ---
 function filtrarYLlenarGrid() {
     const filtroValor = filtroMesesSelect.value;
     
@@ -189,13 +194,13 @@ function filtrarYLlenarGrid() {
             return dias <= 0;
         }
         
-        // +90: Solo Próximos (3 meses) - Excluye vencidos (dias > 0)
+        // +90: Próximos 90 Días (excluye vencidos)
         if (filtroValor === '+90') { 
             const limiteDias = 90;
             return dias > 0 && dias <= limiteDias;
         }
         
-        // +180: Solo Próximos (6 meses) - Excluye vencidos (dias > 0)
+        // +180: Próximos 180 Días (excluye vencidos)
         if (filtroValor === '+180') { 
             const limiteDias = 180;
             return dias > 0 && dias <= limiteDias;
@@ -209,28 +214,37 @@ function filtrarYLlenarGrid() {
     if (lotesFiltradosActualmente.length === 0) {
         productosGrid.innerHTML = `<div class="no-products-message">
                                          <i class="fas fa-box-open"></i> No se encontraron lotes con las condiciones de vencimiento seleccionadas.
-                                        </div>`;
+                                         </div>`;
         return;
     }
 
     // Renderizado de las tarjetas
     lotesFiltradosActualmente.forEach(lote => {
-        // La variable 'texto' ya contendrá el formato "X meses y Y días" o "X días"
         const { clase, texto } = obtenerInfoAlerta(lote.diasRestantes);
+        const fechaVencimientoStr = lote.vencimiento.toISOString().split('T')[0];
         
+        // **IMPORTANTE**: La estructura de la tarjeta se ajusta a los nuevos estilos CSS
         const card = `
             <div class="product-card ${clase}">
                 <div class="card-header">
                     <span class="product-name">${lote.nombre}</span>
+                    <p class="product-detail">${lote.detalle}</p> 
                 </div>
-                <p class="product-detail">${lote.detalle}</p> 
 
-                <div class="product-details">
-                    <p><strong>Stock:</strong> ${lote.stock} unidades</p>
-                    <p><strong>P. Unidad:</strong> Q ${lote.precio.toFixed(2)}</p> 
-                    <p><strong>Vencimiento:</strong> ${lote.vencimiento.toISOString().split('T')[0]}</p>
-                    <p><strong>Quedan:</strong> <span class="badge">${texto}</span></p>
-                    <p><strong>ID Lote:</strong> ${lote.id}</p>
+                <div class="alert-container">
+                    <div class="info-box">
+                        <p>Marca: <strong>${lote.marca}</strong></p>
+                        <p>Precio Unitario: <strong>Q ${lote.precio.toFixed(2)}</strong></p>
+                        <p>Stock Total: <strong>${lote.stock} unidades</strong></p>
+                    </div>
+
+                    <div class="vencimiento-detail">
+                        <span>**Fecha Vencimiento:** ${fechaVencimientoStr}</span> 
+                        <span class="badge">${texto}</span>
+                    </div>
+                </div>
+                <div class="lote-id-footer">
+                    ID Lote: ${lote.id}
                 </div>
             </div>
         `;
@@ -238,7 +252,8 @@ function filtrarYLlenarGrid() {
     });
 }
 
-// --- FUNCIONES DE EXPORTACIÓN (Actualizada para usar el nuevo formato en Estado_Vencimiento) ---
+// --- FUNCIONES DE EXPORTACIÓN ---
+
 function exportarAExcel() {
     if (lotesFiltradosActualmente.length === 0) {
         alert("No hay datos filtrados para exportar.");
@@ -248,11 +263,11 @@ function exportarAExcel() {
     const datosParaExportar = lotesFiltradosActualmente.map(lote => ({
         Producto: lote.nombre,
         Formato: lote.detalle,
+        Marca: lote.marca, 
         Stock_Lote: lote.stock,
         Precio_Unitario: lote.precio,
         Fecha_Vencimiento: lote.vencimiento.toISOString().split('T')[0],
         Dias_Restantes: lote.diasRestantes,
-        // Usamos la nueva función para que el reporte sea consistente
         Estado_Vencimiento: convertirDiasAMesesYDias(lote.diasRestantes), 
         ID_Lote: lote.id
     }));
@@ -269,10 +284,87 @@ function exportarAExcel() {
     }
 }
 
-// --- EVENT LISTENERS (Mantenidos) ---
+/**
+ * Genera el reporte en formato PDF usando jsPDF y autoTable.
+ * @returns {void}
+ */
+function exportarAPDF() {
+    if (lotesFiltradosActualmente.length === 0) {
+        alert("No hay datos filtrados para exportar a PDF.");
+        return;
+    }
+
+    // Inicializar jsPDF
+    const doc = new jsPDF({
+        orientation: "landscape", // Horizontal
+        unit: "mm",
+        format: "a4"
+    });
+    
+    // Preparar los datos de la tabla
+    const headers = [
+        ['Producto', 'Marca', 'Stock', 'P. Unitario', 'Fecha Venc.', 'Días Restantes', 'Estado', 'ID Lote']
+    ];
+
+    const body = lotesFiltradosActualmente.map(lote => [
+        `${lote.nombre} (${lote.detalle})`,
+        lote.marca,
+        lote.stock,
+        `Q ${lote.precio.toFixed(2)}`,
+        lote.vencimiento.toISOString().split('T')[0],
+        lote.diasRestantes,
+        convertirDiasAMesesYDias(lote.diasRestantes),
+        lote.id
+    ]);
+
+    // Información de filtrado para el título
+    const filtroTexto = filtroMesesSelect.options[filtroMesesSelect.selectedIndex].text;
+    const date = new Date().toLocaleDateString('es-GT', { timeZone: 'America/Guatemala' });
+    
+    // Título
+    doc.setFontSize(18);
+    doc.setTextColor(52, 58, 64); // Dark Gray
+    doc.text("Reporte de Alerta de Lotes Próximos a Vencer", 14, 20);
+    
+    // Subtítulo y fecha
+    doc.setFontSize(10);
+    doc.setTextColor(108, 117, 125); // Medium Gray
+    doc.text(`Filtro Aplicado: ${filtroTexto}`, 14, 26);
+    doc.text(`Generado el: ${date}`, 14, 32);
+
+    // Generar la tabla con autoTable
+    doc.autoTable({
+        startY: 38,
+        head: headers,
+        body: body,
+        theme: 'striped',
+        styles: { 
+            fontSize: 8, 
+            cellPadding: 2
+        },
+        headStyles: {
+            fillColor: [0, 123, 255], // primary-blue
+            textColor: 255,
+            fontStyle: 'bold'
+        },
+        columnStyles: {
+            0: { cellWidth: 55 }, // Producto
+            4: { cellWidth: 20 }, // Fecha Vencimiento
+            5: { cellWidth: 20, halign: 'center' }, // Días Restantes
+            6: { cellWidth: 30, fontStyle: 'bold' }, // Estado
+            7: { cellWidth: 55 } // ID Lote
+        }
+    });
+
+    // Guardar el PDF
+    doc.save("Reporte_Vencimientos.pdf");
+    alert("✅ Reporte PDF generado exitosamente.");
+}
+
+// --- EVENT LISTENERS (CORREGIDO Y COMPLETO) ---
 filtroMesesSelect.addEventListener("change", filtrarYLlenarGrid);
 btnExportar.addEventListener("click", exportarAExcel);
-// btnExportarPdf.addEventListener("click", exportarAPDF); // Esta función no fue incluida en tu último código, así que la dejo comentada
+btnExportarPdf.addEventListener("click", exportarAPDF); // <-- PDF listener añadido
 
-// --- INICIALIZACIÓN (Mantenida) ---
+// --- INICIALIZACIÓN ---
 cargarLotes();

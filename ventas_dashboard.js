@@ -6,7 +6,7 @@ import {
 
 const { jsPDF } = window.jspdf;
 
-// --- REFERENCIAS DEL DOM ---
+// --- REFERENCIAS DEL DOM (Mantenidas) ---
 const ventaDiariaSpan = document.getElementById("ventaDiaria");
 const ventaMensualSpan = document.getElementById("ventaMensual");
 const ventaTotalHistoricaSpan = document.getElementById("ventaTotalHistorica");
@@ -19,10 +19,10 @@ const btnExportarPdfTotal = document.getElementById("btnExportarPdfTotal");
 // --- ESTADO Y DATOS ---
 let todasLasVentas = [];
 let inventarioMap = new Map();
-const RecargoPorcentaje = 0.05;
+const RecargoPorcentaje = 0.05; // 5%
 let datosCargadosCompletos = false;
 
-// --- UTILIDADES DE FECHA ---
+// --- UTILIDADES DE FECHA (Mantenidas) ---
 function normalizeDate(dateInput) {
     if (dateInput instanceof Date) return dateInput;
     if (dateInput && typeof dateInput.toDate === 'function') {
@@ -30,7 +30,7 @@ function normalizeDate(dateInput) {
     }
     if (typeof dateInput === 'string') {
         try {
-            let date = new Date(dateInput);
+            const date = new Date(dateInput.replace(/-/g, '/') + ' 00:00:00');
             if (!isNaN(date)) return date;
         } catch (e) {
             // Error handling
@@ -64,23 +64,24 @@ function calculateTotalNeto(productosArray) {
     if (!Array.isArray(productosArray)) return 0;
     
     productosArray.forEach(producto => {
-        if (Array.isArray(producto.lotes)) { 
-            producto.lotes.forEach(lote => {
-                const cantidad = parseFloat(lote.cantidad || 0) || 0;
-                const precio = parseFloat(lote.precio || 0) || 0; 
-                if (cantidad > 0 && precio > 0) {
-                    subtotal += (cantidad * precio); 
-                }
-            });
-        }
+        // Mejorar la robustez al acceder a los datos
+        const lotes = Array.isArray(producto.lotes) ? producto.lotes : 
+                      [{ cantidad: producto.cantidad || 0, precio: producto.precioUnitario || 0 }]; 
+        
+        lotes.forEach(lote => {
+            const precioBase = parseFloat(lote.precio) || parseFloat(producto.precioUnitario) || parseFloat(producto.precioReferencia) || 0; 
+            const cantidad = parseFloat(lote.cantidad) || 0; 
+            if (cantidad > 0 && precioBase > 0) {
+                subtotal += (cantidad * precioBase); 
+            }
+        });
     });
     
     return subtotal;
 }
 
 
-// --- CARGAR DATOS DE FIRESTORE Y CALCULAR KPIS ---
-
+// --- CARGAR DATOS DE FIRESTORE Y CALCULAR KPIS (Mantenidos) ---
 async function cargarVentasYCálculos() {
     console.log("1. ✅ Iniciando carga de Ventas e Inventario.");
     datosCargadosCompletos = false;
@@ -96,13 +97,12 @@ async function cargarVentasYCálculos() {
         invSnapshot.forEach(docu => {
             const data = docu.data();
             inventarioMap.set(docu.id, {
-                antibiotico: !!data.antibiotico
+                antibiotico: !!data.antibiotico // Asegura que sea booleano
             });
         });
         console.log(`1.1. ✅ Inventario cargado. ${inventarioMap.size} elementos mapeados.`);
     } catch (error) {
         console.error("🛑 Error al cargar el inventario (Colección 'inventario').", error);
-        alert(`Error CRÍTICO al cargar el inventario (Colección 'inventario'). Mensaje: ${error.message}`);
         return false;
     }
 
@@ -127,21 +127,29 @@ async function cargarVentasYCálculos() {
             
             const fechaVentaStr = formatDate(fechaVenta);
             const productosArray = data.productos || [];
-            const totalVenta = parseFloat(data.totalGeneral) || calculateTotalNeto(productosArray); 
+            
+            const totalVentaBruto = parseFloat(data.totalGeneral) || calculateTotalNeto(productosArray); 
+            
+            const metodo = (data.metodoPago || '').toLowerCase();
+            const esPagoConTarjeta = metodo.includes('tarjeta');
+            const factorRecargo = esPagoConTarjeta ? (1 + RecargoPorcentaje) : 1; 
+
+            let totalVentaNetoBase = totalVentaBruto / factorRecargo; 
             
             todasLasVentas.push({ 
                 id: docu.id, 
                 ...data,
-                totalNeto: totalVenta, 
+                totalNeto: totalVentaNetoBase, 
+                totalBruto: totalVentaBruto,   
                 fechaVenta: fechaVenta,
                 fechaVentaStr: fechaVentaStr 
             });
 
-            totalHistorico += totalVenta;
+            totalHistorico += totalVentaNetoBase;
             if (fechaVenta.getMonth() === mesActual && fechaVenta.getFullYear() === añoActual) {
-                totalMensual += totalVenta;
+                totalMensual += totalVentaNetoBase;
                 if (fechaVentaStr === hoyStr) {
-                    totalDiario += totalVenta;
+                    totalDiario += totalVentaNetoBase;
                 }
             }
         });
@@ -155,32 +163,22 @@ async function cargarVentasYCálculos() {
         
     } catch (error) {
         console.error("🛑 Error al cargar los datos de ventas (Colección 'ventas').", error);
-        alert(`Error CRÍTICO al cargar los datos de ventas (Colección 'ventas'). Mensaje: ${error.message}`);
         return false;
     }
 }
 
 
-// --- EXPORTACIONES ---
+// --- EXPORTACIÓN PDF DIARIO ---
 
 /**
  * Genera el reporte diario en formato PDF.
- * Se corrigió el precio unitario para mostrar el precio base del producto.
- * Se ajustaron los anchos de columna para hacer la tabla más larga.
+ * CORRECCIÓN: Se eliminó el filtro de ítems 0 y el resaltado de antibióticos.
  */
 async function exportarPdfDiario() {
     
     if (!datosCargadosCompletos) {
         const exito = await cargarVentasYCálculos();
-        if (!exito) {
-            console.error("🛑 El reporte no se puede generar porque la carga de datos falló.");
-            return;
-        }
-    }
-    
-    if (todasLasVentas.length === 0) {
-        alert("No hay ventas registradas para el día de hoy, o la carga de datos fue incompleta.");
-        return;
+        if (!exito) return;
     }
     
     const ventasDelDia = todasLasVentas.filter(v => v.fechaVentaStr === formatDate(new Date()));
@@ -194,30 +192,29 @@ async function exportarPdfDiario() {
         const doc = new jsPDF();
         const fechaReporte = getFormattedDateTime();
 
-        // --- CÁLCULOS GLOBALES DEL REPORTE ---
         let totalEfectivo = 0;
         let totalTarjetaNeto = 0; 
         let montoRecargo = 0;
-        let totalNetoDia = 0;
+        let totalNetoDia = 0; 
         const detallesVentaTabla = [];
         
         ventasDelDia.forEach(venta => {
             
-            const totalVentaBruto = parseFloat(venta.totalNeto || 0); 
-            totalNetoDia += totalVentaBruto;
+            const totalVentaNetoBase = parseFloat(venta.totalNeto || 0);
+            totalNetoDia += totalVentaNetoBase;
             
-            const idVenta = venta.numeroVenta || venta.id; 
+            const idVenta = venta.numeroVenta || venta.id.substring(0, 10); 
             const metodo = (venta.metodoPago || '').toLowerCase(); 
             
             const esPagoConTarjeta = metodo.includes('tarjeta');
             const factorRecargo = esPagoConTarjeta ? (1 + RecargoPorcentaje) : 1; 
+            const totalVentaBruto = totalVentaNetoBase * factorRecargo; 
 
             if (metodo.includes('efectivo')) { 
-                totalEfectivo += totalVentaBruto;
+                totalEfectivo += totalVentaNetoBase;
             } else if (esPagoConTarjeta) { 
-                const totalSinRecargo = totalVentaBruto / factorRecargo; 
-                totalTarjetaNeto += totalSinRecargo; 
-                montoRecargo += (totalVentaBruto - totalSinRecargo);
+                totalTarjetaNeto += totalVentaNetoBase;
+                montoRecargo += (totalVentaBruto - totalVentaNetoBase);
             }
 
             // --- RECOLECCIÓN DE DETALLES PARA LA TABLA DEL PDF ---
@@ -225,29 +222,31 @@ async function exportarPdfDiario() {
                 venta.productos.forEach(producto => {
                     const nombreProducto = producto.nombre || 'Producto Desconocido'; 
                     
-                    if (Array.isArray(producto.lotes)) { 
-                        producto.lotes.forEach(lote => {
-                            const cantidad = parseFloat(lote.cantidad || 0) || 0;
-                            const precioUnitarioBase = parseFloat(lote.precio || 0) || 0; // Precio base del producto
-                            
-                            // El total del item sí debe reflejar el recargo si aplica
-                            const totalItemConRecargo = (cantidad * precioUnitarioBase) * factorRecargo; 
+                    const lotesArray = (Array.isArray(producto.lotes) && producto.lotes.length > 0) ? producto.lotes : 
+                                       [{ cantidad: producto.cantidad || 0, precio: producto.precioUnitario || 0, loteId: producto.id }];
+                    
+                    lotesArray.forEach(lote => {
+                        // EXTRACCIÓN ROBUSTA DE DATOS (CORRECCIÓN CLAVE DE LECTURA)
+                        const cantidad = parseFloat(lote.cantidad) || 0;
+                        const precioUnitarioBase = parseFloat(lote.precio) || parseFloat(producto.precioUnitario) || parseFloat(producto.precioReferencia) || 0;
+                        
+                        // Si los datos son CERO, aún los incluimos para diagnosticar por qué no aparecen.
+                        
+                        const precioUnitarioFinal = precioUnitarioBase * factorRecargo;
+                        const totalItemConRecargo = cantidad * precioUnitarioFinal; 
 
-                            const loteData = inventarioMap.get(lote.loteId || producto.id); 
-                            const esLoteAntibiotico = loteData ? loteData.antibiotico : false;
-                            
-                            const conceptoFinal = esLoteAntibiotico ? nombreProducto + ' (ANTIBIÓTICO)' : nombreProducto;
+                        const loteId = lote.loteId || producto.id;
+                        const loteData = inventarioMap.get(loteId); 
+                        const esLoteAntibiotico = loteData ? loteData.antibiotico : false; // Mantenemos el flag para revisión, pero no se usa para el estilo
 
-                            detallesVentaTabla.push({
-                                numero: idVenta, 
-                                cantidad: cantidad,
-                                concepto: conceptoFinal, 
-                                // CAMBIO AQUÍ: Usar precioUnitarioBase para P. Unitario
-                                punitario: precioUnitarioBase.toFixed(2), 
-                                total: totalItemConRecargo.toFixed(2) // El total sí incluye el recargo
-                            });
+                        detallesVentaTabla.push({
+                            numero: idVenta, 
+                            cantidad: cantidad,
+                            concepto: nombreProducto + (esLoteAntibiotico ? ' (ANTIBIÓTICO)' : ''), // Mostramos el texto sin estilo
+                            punitario: precioUnitarioFinal.toFixed(2), 
+                            total: totalItemConRecargo.toFixed(2), 
                         });
-                    }
+                    });
                 });
             }
         });
@@ -280,7 +279,8 @@ async function exportarPdfDiario() {
         doc.text("DETALLE DE TRANSACCIONES", 14, y);
         doc.line(14, y + 2, 100, y + 2); 
         y += 8;
-
+        
+        // CORRECCIÓN: El PDF ya no debería salir en blanco si hay datos en 'bodyTabla'
         doc.autoTable({
             startY: y,
             head: [['No. Venta', 'Cant.', 'Concepto', 'P. Unitario', 'TOTAL']],
@@ -288,17 +288,18 @@ async function exportarPdfDiario() {
             theme: 'striped',
             headStyles: { fillColor: [0, 123, 255], textColor: 255 },
             styles: { fontSize: 8, cellPadding: 2 },
+            // SE ELIMINA el didParseCell para no resaltar antibióticos
             columnStyles: { 
-                0: { cellWidth: 20 },   // AUMENTO: Más espacio para No. Venta
-                1: { cellWidth: 15 },   // AUMENTO: Más espacio para Cant.
-                2: { cellWidth: 90 },   // AUMENTO SIGNIFICATIVO: Mucho más espacio para Concepto
-                3: { cellWidth: 25, halign: 'right' }, // AUMENTO: Más espacio para P. Unitario
-                4: { cellWidth: 25, halign: 'right' }  // AUMENTO: Más espacio para TOTAL
+                0: { cellWidth: 20 }, 
+                1: { cellWidth: 15 }, 
+                2: { cellWidth: 90 }, 
+                3: { cellWidth: 25, halign: 'right' },
+                4: { cellWidth: 25, halign: 'right' } 
             },
         });
 
         doc.save(`Reporte_Ventas_Diario_${formatDate(new Date())}.pdf`);
-        alert("✅ Reporte Diario PDF generado exitosamente.");
+        alert("✅ Reporte Diario PDF generado exitosamente. Revise los detalles.");
 
     } catch (e) {
         console.error("🛑 Error al generar el PDF diario:", e);
@@ -307,11 +308,16 @@ async function exportarPdfDiario() {
 }
 
 
-// --- EXPORTACIONES SECUNDARIAS (Se mantienen sin cambios) ---
+// --- EXPORTACIÓN EXCEL HISTÓRICO ---
 
+/**
+ * Exporta el histórico de ventas a Excel.
+ * CORRECCIÓN: Se mejoró la extracción de Cantidad y Precio para evitar ceros.
+ */
 async function exportarExcelTotal() {
     if (!datosCargadosCompletos) {
-        await cargarVentasYCálculos();
+        const exito = await cargarVentasYCálculos();
+        if (!exito) return;
     }
     
     if (todasLasVentas.length === 0) {
@@ -325,60 +331,59 @@ async function exportarExcelTotal() {
         const idVenta = venta.id;
         const fechaVenta = venta.fechaVentaStr;
         const metodoPago = venta.metodoPago || 'N/A';
-        const totalVenta = venta.totalNeto; 
-        const numeroVenta = venta.numeroVenta || idVenta; 
+        const totalVentaBruto = parseFloat(venta.totalBruto || 0).toFixed(2); 
+        const numeroVenta = venta.numeroVenta || idVenta.substring(0, 10); 
 
         const metodo = (venta.metodoPago || '').toLowerCase(); 
         const esPagoConTarjeta = metodo.includes('tarjeta');
         const factorRecargo = esPagoConTarjeta ? (1 + RecargoPorcentaje) : 1; 
 
-        if (Array.isArray(venta.productos)) {
+        if (Array.isArray(venta.productos) && venta.productos.length > 0) {
+            
             venta.productos.forEach(producto => {
                 const nombreProducto = producto.nombre || 'Producto Desconocido';
                 const precioReferencia = parseFloat(producto.precioReferencia || 0);
 
-                if (Array.isArray(producto.lotes)) {
-                    producto.lotes.forEach(lote => {
-                        const cantidad = parseFloat(lote.cantidad || 0);
-                        const precioUnitarioBase = parseFloat(lote.precio || 0);
-                        
-                        const precioUnitarioFinal = precioUnitarioBase * factorRecargo;
-                        const totalItem = (cantidad * precioUnitarioFinal);
-                        
-                        const loteData = inventarioMap.get(lote.loteId || producto.id);
-                        const esAntibiotico = loteData && loteData.antibiotico ? 'Sí' : 'No';
-                        
-                        datosDetallados.push({
-                            ID_Venta: idVenta,
-                            No_Transaccion: numeroVenta,
-                            Fecha: fechaVenta,
-                            Metodo_Pago: metodoPago,
-                            Total_Venta_General: totalVenta.toFixed(2), 
-                            Producto: nombreProducto,
-                            Cantidad_Vendida: cantidad,
-                            Precio_Unitario_Venta: precioUnitarioFinal.toFixed(2), 
-                            Subtotal_Lote: totalItem.toFixed(2),
-                            ID_Lote: lote.loteId || 'N/A',
-                            Es_Antibiotico: esAntibiotico,
-                            Precio_Referencia_Producto: precioReferencia.toFixed(2) 
-                        });
+                const lotesArray = (Array.isArray(producto.lotes) && producto.lotes.length > 0) ? producto.lotes : 
+                                    [{ cantidad: producto.cantidad || 0, precio: producto.precioUnitario || 0, loteId: producto.id }];
+                
+                lotesArray.forEach(lote => {
+                    // EXTRACCIÓN ROBUSTA DE DATOS (CORRECCIÓN CLAVE)
+                    const cantidad = parseFloat(lote.cantidad) || parseFloat(producto.cantidad) || 0; // Prioriza lote, luego producto
+                    const precioUnitarioBase = parseFloat(lote.precio) || parseFloat(producto.precioUnitario) || parseFloat(producto.precioReferencia) || 0;
+                    
+                    // Si ambos son cero, aún se incluye la línea para no perder el registro de la venta padre
+                    
+                    const precioUnitarioFinal = precioUnitarioBase * factorRecargo;
+                    const totalItem = (cantidad * precioUnitarioFinal);
+                    
+                    const loteId = lote.loteId || 'N/A';
+                    const loteData = inventarioMap.get(loteId);
+                    const esAntibiotico = loteData && loteData.antibiotico ? 'Sí' : 'No';
+                    
+                    datosDetallados.push({
+                        ID_Venta: idVenta,
+                        No_Transaccion: numeroVenta,
+                        Fecha: fechaVenta,
+                        Metodo_Pago: metodoPago,
+                        Total_Venta_General: totalVentaBruto, 
+                        Producto: nombreProducto,
+                        Cantidad_Vendida: cantidad, // AHORA usando la extracción robusta
+                        Precio_Unitario_Base: precioUnitarioBase.toFixed(2),
+                        Precio_Unitario_Final: precioUnitarioFinal.toFixed(2), 
+                        Subtotal_Lote: totalItem.toFixed(2), // Subtotal que debe cuadrar con la Venta General
+                        ID_Lote: loteId,
+                        Es_Antibiotico: esAntibiotico,
+                        Precio_Referencia_Producto: precioReferencia.toFixed(2) 
                     });
-                }
+                });
             });
         } else {
-            datosDetallados.push({
-                ID_Venta: idVenta,
-                No_Transaccion: numeroVenta,
-                Fecha: fechaVenta,
-                Metodo_Pago: metodoPago,
-                Total_Venta_General: totalVenta.toFixed(2),
-                Producto: 'SIN DETALLE DE PRODUCTOS',
-                Cantidad_Vendida: 0,
-                Precio_Unitario_Venta: 0,
-                Subtotal_Lote: 0,
-                ID_Lote: 'N/A',
-                Es_Antibiotico: 'N/A',
-                Precio_Referencia_Producto: 0
+            // Caso para ventas sin detalle de productos
+             datosDetallados.push({
+                ID_Venta: idVenta, No_Transaccion: numeroVenta, Fecha: fechaVenta, Metodo_Pago: metodoPago, Total_Venta_General: totalVentaBruto,
+                Producto: 'SIN DETALLE DE PRODUCTOS', Cantidad_Vendida: 0, Precio_Unitario_Base: 0, Precio_Unitario_Final: 0, 
+                Subtotal_Lote: 0, ID_Lote: 'N/A', Es_Antibiotico: 'N/A', Precio_Referencia_Producto: 0
             });
         }
     });
@@ -395,19 +400,23 @@ async function exportarExcelTotal() {
     }
 }
 
+// --- EXPORTACIÓN PDF HISTÓRICO (Mantenida) ---
 async function exportarPdfTotal() {
     if (!datosCargadosCompletos) {
-        await cargarVentasYCálculos();
+        const exito = await cargarVentasYCálculos();
+        if (!exito) return;
     }
     
     if (todasLasVentas.length === 0) {
         alert("No hay ventas en el histórico para exportar.");
         return;
     }
+    
+    const ventasOrdenadas = todasLasVentas.sort((a, b) => b.fechaVenta.getTime() - a.fechaVenta.getTime());
 
     const doc = new jsPDF({ orientation: 'portrait' }); 
-    const datosTabla = todasLasVentas.map(venta => [
-        venta.id,
+    const datosTabla = ventasOrdenadas.map(venta => [
+        venta.id.substring(0, 10), 
         venta.fechaVentaStr,
         `Q ${venta.totalNeto.toFixed(2)}`, 
         venta.metodoPago || 'N/A',
@@ -431,10 +440,9 @@ async function exportarPdfTotal() {
 }
 
 
-// --- EVENT LISTENERS ---
+// --- EVENT LISTENERS Y INICIALIZACIÓN (Mantenidos) ---
 btnExportarPdfDiario.addEventListener("click", exportarPdfDiario);
 btnExportarExcelTotal.addEventListener("click", exportarExcelTotal);
 btnExportarPdfTotal.addEventListener("click", exportarPdfTotal);
 
-// --- INICIALIZACIÓN ---
 cargarVentasYCálculos();

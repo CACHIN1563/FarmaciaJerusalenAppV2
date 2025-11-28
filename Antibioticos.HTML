@@ -10,114 +10,392 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     
-    <link rel="stylesheet" href="styles.css"> 
-    
     <style>
-        /* --- Base y Contenedor --- */
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f7f9fc; margin: 0; padding: 0; }
-        .container { max-width: 1280px; margin: 30px auto; padding: 30px; background-color: #ffffff; border-radius: 12px; box-shadow: 0 8px 16px rgba(0, 0, 0, 0.08); }
-        
-        /* --- Navbar (Mantenido, asegurando que el diseño sea consistente) --- */
-        .navbar { background-color: #007bff; color: white; padding: 10px 20px; display: flex; justify-content: space-between; align-items: center; }
-        .logo { color: white; text-decoration: none; font-size: 1.5em; font-weight: bold; }
-        .nav-menu { list-style: none; display: flex; margin: 0; padding: 0; }
-        .nav-menu li { margin-left: 20px; }
-        .nav-menu a { color: white; text-decoration: none; padding: 10px 0; display: block; transition: color 0.3s; }
-        .dropdown { position: relative; }
-        .dropdown-content { display: none; position: absolute; background-color: #f9f9f9; min-width: 200px; box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2); z-index: 10; right: 0; border-radius: 4px; overflow: hidden; }
-        .dropdown-content a { color: #333; padding: 12px 16px; text-decoration: none; display: block; text-align: left; }
-        .dropdown-content a:hover { background-color: #e9ecef; }
-        .dropdown:hover .dropdown-content { display: block; }
+        /* Tipografía y Fondo */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background-color: #eef2f7; 
+            margin: 0; 
+            padding: 0; 
+            color: #333;
+        }
 
-        /* --- Título y Controles --- */
-        h1 { color: #1f77d3; font-size: 1.8em; margin-bottom: 20px; display: flex; align-items: center; }
-        h1 i { margin-right: 15px; font-size: 1.2em; }
+        /* --- ESTILOS DE NAVEGACIÓN --- */
+        .navbar { 
+            background: linear-gradient(90deg, #0056b3 0%, #007bff 100%); 
+            color: white; 
+            padding: 15px 40px; 
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .logo { 
+            color: white; 
+            text-decoration: none; 
+            font-size: 1.5em;
+            font-weight: 700;
+        }
+        .logo i { margin-right: 10px; }
+
+        .nav-menu {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            align-items: center;
+        }
+        .nav-menu li {
+            position: relative;
+            margin-left: 20px;
+        }
+        .nav-menu a { 
+            color: white; 
+            text-decoration: none; 
+            padding: 10px 15px;
+            display: block;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+        .nav-menu a:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+
+        /* Dropdown */
+        .dropdown {
+            position: relative;
+        }
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: #f9f9f9;
+            min-width: 200px;
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+            z-index: 10;
+            border-radius: 8px;
+            overflow: hidden;
+            top: 100%; 
+            left: 0;
+        }
+        .dropdown-content a {
+            color: #333;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.95em;
+        }
+        .dropdown-content a:hover {
+            background-color: #e2f0ff;
+            color: #007bff;
+        }
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
+        /* --- FIN ESTILOS DE NAVEGACIÓN --- */
+
+        /* Contenedor Principal */
+        .container { 
+            max-width: 1400px; 
+            margin: 40px auto; 
+            padding: 30px; 
+            background-color: #ffffff; 
+            border-radius: 16px; 
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1); 
+        }
         
+        /* Encabezado y Títulos */
+        h1 { 
+            color: #1f77d3; 
+            font-size: 2.2em; 
+            margin-bottom: 25px; 
+            display: flex; 
+            align-items: center; 
+            border-bottom: 3px solid #e0e0e0;
+            padding-bottom: 10px;
+        }
+        h1 i { 
+            margin-right: 15px; 
+            color: #007bff; 
+        }
+        
+        /* Panel de Control (Filtros y Botones) */
         .control-panel { 
             display: flex; 
             justify-content: space-between; 
             align-items: center; 
-            padding: 15px 0; 
-            margin-bottom: 20px; 
-            border-bottom: 2px solid #e0e0e0; 
+            padding: 20px 0; 
+            margin-bottom: 30px; 
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: inset 0 0 8px rgba(0, 0, 0, 0.05);
         }
-        .filter-group label { font-weight: 600; color: #555; margin-right: 10px; }
-        .filter-group select { padding: 10px; border-radius: 6px; border: 1px solid #ccc; font-size: 1em; min-width: 280px; }
+        .filter-group label { 
+            font-weight: 700; 
+            color: #555; 
+            margin-right: 15px; 
+        }
+        .filter-group select { 
+            padding: 12px; 
+            border-radius: 8px; 
+            border: 1px solid #ced4da; 
+            font-size: 1em; 
+            min-width: 300px; 
+            background-color: white;
+            transition: border-color 0.3s;
+        }
+        .filter-group select:focus {
+            border-color: #007bff;
+            box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+            outline: none;
+        }
 
-        /* --- Botones de Exportación --- */
+        /* Botones de Exportación */
         .export-buttons button { 
-            padding: 10px 20px; 
+            padding: 12px 25px; 
             border: none; 
-            border-radius: 6px; 
+            border-radius: 8px; 
             cursor: pointer; 
-            font-weight: bold; 
-            margin-left: 10px; 
-            transition: background-color 0.3s; 
+            font-weight: 600; 
+            margin-left: 15px; 
+            transition: all 0.3s ease; 
             display: inline-flex;
             align-items: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
         .export-buttons button i { margin-right: 8px; }
         #btnExportar { background-color: #28a745; color: white; }
-        #btnExportar:hover { background-color: #1e7e34; }
+        #btnExportar:hover { background-color: #218838; transform: translateY(-2px); box-shadow: 0 6px 10px rgba(40, 167, 69, 0.3); }
         #btnExportarPdf { background-color: #dc3545; color: white; }
-        #btnExportarPdf:hover { background-color: #c82333; }
+        #btnExportarPdf:hover { background-color: #c82333; transform: translateY(-2px); box-shadow: 0 6px 10px rgba(220, 53, 69, 0.3); }
 
-        /* --- Listado y Grid --- */
-        h2 { font-size: 1.3em; color: #333; margin-bottom: 15px; border-left: 4px solid #007bff; padding-left: 10px; }
-        #productosGrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 25px; margin-top: 20px; }
-        
-        /* --- Tarjetas de Producto (Diseño Minimalista de Lotes) --- */
-        .product-card { 
-            background-color: #fcfcfc; 
-            border-radius: 8px; 
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05); 
-            padding: 20px; 
-            border-top: 4px solid; /* Usado por las clases de estado */
-            transition: box-shadow 0.3s;
+        /* Grid de Productos */
+        #productosGrid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); 
+            gap: 30px; 
+            margin-top: 20px; 
         }
-        .product-card:hover { box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1); }
+        
+        /* Tarjetas de Producto */
+        .product-card { 
+            background-color: #ffffff; 
+            border-radius: 12px; 
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1); 
+            padding: 25px; 
+            border-top: 6px solid; 
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            position: relative;
+        }
+        .product-card:hover { 
+            transform: translateY(-5px); 
+            box-shadow: 0 12px 25px rgba(0, 0, 0, 0.15); 
+        }
         
         /* Colores de Borde */
         .product-card.vencido { border-color: #dc3545; }
         .product-card.proximo-3m { border-color: #ffc107; }
         .product-card.proximo-6m { border-color: #17a2b8; }
         .product-card.stock-normal { border-color: #28a745; }
+        .product-card.venta-card { border-color: #9c27b0; } 
+
+        /* Contenido de la Tarjeta */
+        .card-title { 
+            font-size: 1.5em; 
+            font-weight: 700; 
+            color: #007bff; 
+            margin-bottom: 5px; 
+        }
+        .card-subtitle { 
+            font-size: 0.95em; 
+            color: #6c757d; 
+            margin-bottom: 15px; 
+            border-bottom: 1px dotted #e9ecef;
+            padding-bottom: 10px;
+        }
+        .product-card p { 
+            margin: 10px 0; 
+            font-size: 0.95em; 
+            color: #333; 
+        }
+        .product-card strong { 
+            font-weight: 600; 
+            color: #000; 
+        }
         
-        .card-title { font-size: 1.3em; font-weight: 700; color: #007bff; margin-bottom: 5px; }
-        .card-subtitle { font-size: 0.9em; color: #6c757d; margin-bottom: 15px; }
-        .product-card p { margin: 8px 0; font-size: 0.95em; color: #333; }
-        .product-card strong { font-weight: 600; color: #000; }
-        
-        /* Etiqueta de Días Restantes (Mejor integrada) */
+        /* Etiqueta de Días Restantes (Mejorada) */
         .dias-restantes-tag {
-            padding: 4px 8px;
-            border-radius: 4px;
+            padding: 5px 10px;
+            border-radius: 20px;
             color: white;
-            font-size: 0.9em;
+            font-size: 0.85em;
             font-weight: bold;
             display: inline-block;
-            margin-top: 5px;
+            margin-left: 10px;
         }
         .dias-restantes-tag.vencido { background-color: #dc3545; }
         .dias-restantes-tag.proximo-3m { background-color: #ffc107; color: #333; }
         .dias-restantes-tag.proximo-6m { background-color: #17a2b8; }
         .dias-restantes-tag.stock-normal { background-color: #28a745; }
         
-        .lote-details { border-top: 1px dashed #e0e0e0; margin-top: 15px; padding-top: 15px; }
-        .lote-id-display, .lote-location { font-size: 0.85em; color: #999; }
+        /* Detalles de Lote y Botón de Venta */
+        .lote-details { 
+            margin-top: 15px; 
+            padding-top: 15px; 
+            border-top: 1px solid #f0f0f0; 
+        }
+        .lote-id-display { 
+            font-size: 0.8em; 
+            color: #999; 
+            margin-top: 15px;
+            display: block;
+        }
+        .btn-ver-detalles {
+            width: 100%;
+            padding: 10px;
+            background-color: #9c27b0;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-top: 15px;
+            font-weight: 600;
+            transition: background-color 0.3s;
+        }
+        .btn-ver-detalles:hover {
+            background-color: #7b1fa2;
+        }
+
+        /* Mensajes de Estado */
+        .loading-message, .no-products-message { 
+            text-align: center; 
+            padding: 60px; 
+            color: #6c757d; 
+            font-size: 1.2em; 
+            background-color: #f0f3f6; 
+            border-radius: 12px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        }
+        .loading-message i, .no-products-message i { 
+            margin-right: 10px; 
+        }
         
-        .loading-message, .no-products-message { text-align: center; padding: 60px; color: #6c757d; font-size: 1.2em; background-color: #f0f3f6; border-radius: 8px; }
-        .loading-message i, .no-products-message i { margin-right: 10px; }
+        /* Media Queries para Responsividad */
+        @media (max-width: 900px) {
+            .navbar { flex-direction: column; align-items: flex-start; }
+            .nav-menu { flex-direction: column; width: 100%; align-items: flex-start; margin-top: 10px; }
+            .nav-menu li { margin: 5px 0; width: 100%; }
+            .nav-menu a { padding: 10px; width: calc(100% - 20px); }
+            .dropdown-content { position: static; box-shadow: none; border-radius: 0; background-color: #004494; width: 100%; }
+            .dropdown-content a { color: white; padding-left: 30px; }
+            
+            .container { margin: 20px; padding: 20px; }
+            h1 { font-size: 1.8em; }
+            .control-panel { 
+                flex-direction: column; 
+                align-items: stretch; 
+                gap: 20px;
+            }
+            .filter-group select { min-width: 100%; }
+            .export-buttons { display: flex; flex-direction: column; gap: 10px; }
+            .export-buttons button { margin-left: 0; }
+            #productosGrid { grid-template-columns: 1fr; }
+        }
+
+        /* Estilos del Modal de Auditoría */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            display: none; 
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal.open {
+            display: flex;
+            opacity: 1;
+        }
+
+        .modal-content {
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 900px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            transform: scale(0.9);
+            transition: transform 0.3s ease;
+        }
+
+        .modal.open .modal-content {
+            transform: scale(1);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #e0e0e0;
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+        }
+
+        .modal-header h2 {
+            color: #007bff;
+            margin: 0;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 1.5em;
+            cursor: pointer;
+            color: #6c757d;
+        }
+
+        .audit-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        .audit-table th, .audit-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 0.9em; 
+        }
+
+        .audit-table th {
+            background-color: #f8f9fa;
+            color: #333;
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: 0.8em;
+        }
+
+        .audit-table tr:hover {
+            background-color: #f5f5f5;
+        }
     </style>
 </head>
 <body>
-
     <header>
         <nav class="navbar">
             <a href="index.html" class="logo"><i class="fas fa-prescription-bottle-alt"></i> FARMACIA JERUSALÉN</a>
             <ul class="nav-menu">
-                <li><a href="index.html"><i class="fas fa-home"></i> Inicio</a></li>
-                <li><a href="ventas_dashboard.html"><i class="fas fa-chart-line"></i> Dashboard</a></li>
+                <li><a href="index.html">Inicio</a></li>
+                <li><a href="ventas_dashboard.html">Dashboard</a></li>
                 <li class="dropdown">
                     <a href="#" class="dropbtn">Módulos <i class="fas fa-caret-down"></i></a>
                     <div class="dropdown-content">
@@ -134,33 +412,47 @@
 
     <div class="container">
         
-        <h1><i class="fas fa-microscope"></i> Control de Antibióticos</h1>
+        <h1><i class="fas fa-microscope"></i> Control y Reporte de Antibióticos</h1>
 
         <div class="control-panel">
             <div class="filter-group">
-                <label for="filtroReporte">Mostrar Reporte:</label>
+                <label for="filtroReporte">Seleccionar Reporte:</label>
                 <select id="filtroReporte">
-                    <option value="inventario">Inventario de Antibióticos</option>
-                    <option value="vendidosMes">Reporte de Ventas</option>
+                    <option value="inventario">Inventario (Stock y Vencimiento)</option>
+                    <option value="vendidosDia">Ventas: Hoy</option>
+                    <option value="vendidosSemana">Ventas: Última Semana</option>
+                    <option value="vendidosMes" selected>Ventas: Último Mes</option>
+                    <option value="vendidosAnio">Ventas: Último Año</option>
                 </select>
             </div>
             <div class="export-buttons">
-                <button id="btnExportar"><i class="fas fa-file-excel"></i> Descargar Excel</button>
-                <button id="btnExportarPdf"><i class="fas fa-file-pdf"></i> Descargar PDF</button>
+                <button id="btnExportar"><i class="fas fa-file-excel"></i> Descargar Excel (Auditoría)</button>
+                <button id="btnExportarPdf"><i class="fas fa-file-pdf"></i> Descargar PDF (Venta Neta)</button>
             </div>
         </div>
         
-        <h2><i class="fas fa-clipboard-list"></i> Listado de Lotes</h2>
+        <h2 style="color: #4a5568; font-size: 1.5em; margin-bottom: 20px;"><i class="fas fa-chart-bar"></i> Resultado del Reporte</h2>
 
-        <div id="loadingMessage" class="loading-message" style="display: none;">
+        <div id="loadingMessage" class="loading-message">
             <i class="fas fa-spinner fa-spin"></i> Cargando datos de Firebase...
         </div>
 
         <div id="productosGrid">
-            </div>
+        </div>
         
     </div>
 
+    <div id="auditModal" class="modal" onclick="if(event.target.id === 'auditModal') closeModal()">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">Detalle de Auditoría</h2>
+                <button class="close-btn" onclick="closeModal()"><i class="fas fa-times"></i></button>
+            </div>
+            <div id="modalBody">
+                <p>Cargando detalles...</p>
+            </div>
+        </div>
+    </div>
     <script type="module" src="./antibioticos.js"></script>
 
 </body>
