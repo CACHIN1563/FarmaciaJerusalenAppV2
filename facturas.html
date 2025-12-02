@@ -8,14 +8,18 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+
     <style>
         /* --- ESTILOS CSS INCLUIDOS AQUÍ --- */
 
         /* --- VARIABLES Y RESET BÁSICO --- */
         :root {
             --primary-blue: #007bff;
-            --primary-dark: #0056b3; /* Nueva variable para el hover del navbar */
-            --light-blue: #e0f2ff; /* Nueva variable para el hover del dropdown */
+            --primary-dark: #0056b3; 
+            --light-blue: #e0f2ff; 
             --success-color: #28a745;
             --danger-color: #dc3545;
             --warning-color: #ffc107;
@@ -23,8 +27,8 @@
             --medium-gray: #ccc;
             --dark-gray: #343a40;
             --box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            --border-color: #dee2e6; /* Nueva variable para el dropdown */
-            --shadow-medium: 0 4px 15px rgba(0, 0, 0, 0.1); /* Nueva variable para el navbar */
+            --border-color: #dee2e6; 
+            --shadow-medium: 0 4px 15px rgba(0, 0, 0, 0.1); 
         }
 
         * {
@@ -38,12 +42,11 @@
             background-color: var(--light-gray);
             color: var(--dark-gray);
             line-height: 1.6;
-            /* Ajuste para el navbar fijo */
             padding-top: 70px; 
         }
 
         /* ---------------------------------------------------------------- */
-        /* --- ESTILOS DEL MENÚ DE NAVEGACIÓN (NUEVOS ESTILOS) --- */
+        /* --- ESTILOS DEL MENÚ DE NAVEGACIÓN --- */
         /* ---------------------------------------------------------------- */
         
         .navbar {
@@ -142,28 +145,6 @@
         /* ---------------------------------------------------------------- */
 
 
-        /* --- ENCABEZADO SUPERIOR (top-bar original, ahora sin usar pero mantenido) --- */
-        .top-bar {
-            background-color: var(--primary-blue);
-            color: white;
-            padding: 15px 30px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-            display: none; /* Ocultamos el viejo top-bar */
-        }
-
-        .top-bar h1 {
-            font-size: 1.5rem;
-            font-weight: 600;
-        }
-
-        .top-bar i {
-            font-size: 1.2rem;
-            cursor: pointer;
-        }
-
         /* --- LAYOUT PRINCIPAL (2 COLUMNAS) --- */
         .container {
             display: flex;
@@ -179,6 +160,9 @@
             padding: 25px;
             border-radius: 8px;
             box-shadow: var(--box-shadow);
+            display: flex;
+            flex-direction: column;
+            gap: 25px; /* Espacio entre secciones del formulario */
         }
 
         .list-section {
@@ -200,19 +184,19 @@
         }
 
         h3 {
-            color: var(--primary-dark); /* Usamos primary-dark para los h3 */
+            color: var(--primary-dark); 
             font-size: 1.1rem;
-            margin-top: 15px;
+            margin-top: 0;
             margin-bottom: 10px;
             border-bottom: 1px solid var(--light-gray);
             padding-bottom: 5px;
         }
 
         /* --- GRUPO DE FORMULARIO --- */
-        .form-group-grid {
-            display: grid; 
-            grid-template-columns: 1fr;
-            gap: 20px;
+        .form-column {
+            display: flex;
+            flex-direction: column;
+            gap: 5px; /* Espacio entre campos */
         }
 
         label {
@@ -227,15 +211,15 @@
         input[type="number"],
         input[type="date"],
         select,
-        textarea { /* AÑADIDO: Estilo para textarea */
+        textarea { 
             width: 100%;
             padding: 10px;
             margin-bottom: 10px;
             border: 1px solid var(--medium-gray);
             border-radius: 4px;
             font-size: 1rem;
-            resize: vertical; /* Permite redimensionar verticalmente */
-            min-height: 40px; /* Altura mínima para la descripción */
+            resize: vertical; 
+            min-height: 40px; 
         }
 
         /* Botón Guardar Factura */
@@ -257,11 +241,51 @@
 
         .btn-large {
             width: 100%;
-            margin-top: 25px;
+            margin-top: 15px; 
             padding: 15px 0;
             font-size: 1.1rem;
         }
         
+        /* --- ESTILOS DE CARGA MASIVA (NUEVOS) --- */
+        .carga-masiva-section {
+            border-top: 1px solid var(--border-color);
+            padding-top: 20px;
+        }
+
+        #inputArchivo {
+            margin-bottom: 10px;
+        }
+
+        .btn-carga-masiva {
+            background-color: var(--primary-blue);
+            color: white;
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .btn-carga-masiva:hover:not(:disabled) {
+            background-color: var(--primary-dark);
+        }
+
+        #mensajeCarga {
+            text-align: center;
+            margin-top: 10px;
+            font-size: 0.9rem;
+            color: var(--primary-dark);
+            min-height: 20px;
+        }
+        /* --- FIN ESTILOS CARGA MASIVA --- */
+
+
         /* --- LISTADO DE FACTURAS (Derecha) --- */
         .filter-controls {
             display: flex;
@@ -303,7 +327,7 @@
             border-left: 3px solid #007bff;
             padding-left: 10px;
             margin-top: 8px;
-            white-space: pre-wrap; /* Mantiene saltos de línea y espacios */
+            white-space: pre-wrap; 
         }
 
         /* Estado de la Factura */
@@ -383,6 +407,7 @@
         .export-dropdown-container {
             position: relative;
             display: inline-block;
+            margin-bottom: 15px; /* Espacio debajo del botón de exportar */
         }
 
         .btn-export {
@@ -439,10 +464,6 @@
         .export-dropdown a.pdf i { color: #dc3545; }
 
     </style>
-    
-    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.17.0/dist/xlsx.full.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
 </head>
 <body>
 
@@ -472,13 +493,11 @@
     </header>
     <div class="container">
         <div class="input-form">
-            <h2><i class="fas fa-plus-circle"></i> Ingreso de Nueva Factura</h2>
             
-            <div class="form-group-grid">
+            <div class="ingreso-individual-section">
+                <h2><i class="fas fa-plus-circle"></i> Ingreso de Nueva Factura</h2>
                 
                 <div class="form-column">
-                    <h3>Datos Generales de la Factura</h3>
-                    
                     <label for="numFactura">Número de factura:</label>
                     <input type="text" id="numFactura" placeholder="Ej: 001-2025-12345" required>
                     
@@ -502,14 +521,27 @@
 
                     <label for="descripcion">Descripción / Notas:</label>
                     <textarea id="descripcion" placeholder="Añade una breve descripción o notas importantes sobre esta factura."></textarea>
-
                 </div>
                 
+                <button id="guardarFactura" class="btn-success btn-large">
+                    <i class="fas fa-save"></i> Guardar Factura
+                </button>
             </div>
             
-            <button id="guardarFactura" class="btn-success btn-large">
-                Guardar Factura
-            </button>
+            <div class="carga-masiva-section">
+                <h3><i class="fas fa-file-upload"></i> Carga Masiva de Reporte</h3>
+                <p style="font-size: 0.85rem; margin-bottom: 10px;">Sube el archivo **XLSX** de facturas descargado del portal SAT.</p>
+                
+                <label for="inputArchivo">Seleccionar Archivo:</label>
+                <input type="file" id="inputArchivo" accept=".xls,.xlsx">
+                
+                <button id="btnCargaMasiva" class="btn-carga-masiva">
+                    <i class="fas fa-cloud-upload-alt"></i> Procesar y Subir
+                </button>
+                
+                <div id="mensajeCarga" style="text-align: center;"></div>
+            </div>
+
         </div>
 
         <div class="list-section">
@@ -539,15 +571,13 @@
             </div>
 
             <div id="paginacion" class="pagination">
-                </div>
+            </div>
         </div>
 
     </div>
 
     <script type="module" src="firebase-config.js"></script>
-    <script type="module" src="facturas.js"></script>
+    <script type="module" src="facturas.js?v=20251201_2355"></script>
     
 </body>
 </html>
-
-

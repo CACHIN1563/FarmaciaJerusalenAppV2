@@ -18,8 +18,8 @@
             --light-gray: #f8f9fa;
             --success-color: #28a745; 
             --danger-color: #dc3545; 
-            --warning-color: #ffc107;
-            --info-color: #17a2b8;
+            --warning-color: #ffc107; /* Amarillo para Retiro/Cierre Mañana */
+            --info-color: #17a2b8; /* Azul claro para Cierres Excel */
             --shadow-medium: 0 4px 15px rgba(0, 0, 0, 0.1);
             --border-color: #dee2e6;
             --light-blue: #e0f2ff;
@@ -216,21 +216,23 @@
         .kpi-daily { border-left-color: var(--success-color); }
         .kpi-monthly { border-left-color: var(--primary-blue); }
         .kpi-total { border-left-color: var(--info-color); }
+        .kpi-warning { border-left-color: var(--warning-color); } /* Para Retiro */
         
         .kpi-daily .value { color: var(--success-color); }
         .kpi-monthly .value { color: var(--primary-blue); }
         .kpi-total .value { color: var(--info-color); }
+        .kpi-warning .value { color: var(--warning-color); } /* Para Retiro */
 
 
         /* Controles y Botones de Exportación */
-        .export-section {
+        .export-section, .cierre-section {
             padding: 20px;
             background-color: var(--light-gray);
             border-radius: 10px;
             margin-bottom: 25px;
         }
 
-        .export-section h2 {
+        .export-section h2, .cierre-section h2 {
             font-size: 1.4rem;
             font-weight: 600;
             margin-top: 0;
@@ -245,7 +247,7 @@
             align-items: center;
         }
 
-        /* Estilo general del botón de exportación */
+        /* Estilo general del botón de exportación/cierre */
         .btn-export {
             color: white;
             border: none;
@@ -259,6 +261,7 @@
             align-items: center;
             gap: 8px;
             text-decoration: none;
+            text-align: center;
         }
 
         .btn-export:hover {
@@ -276,6 +279,22 @@
         /* Botones de Excel y PDF General */
         #btnExportarExcelTotal { background-color: var(--success-color); }
         #btnExportarPdfTotal { background-color: var(--primary-dark); }
+        #btnExportarExcelCierres { background-color: var(--info-color); } /* Color para Cierres Excel */
+        
+        /* Estilo específico para inputs de cierre */
+        #cierreMananaInput input {
+            padding: 10px;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            width: 150px;
+            margin-right: 10px;
+            font-size: 1rem;
+        }
+        #cierreMananaInput button {
+            padding: 10px 20px;
+            font-weight: 600;
+        }
+
     </style>
 </head>
 <body>
@@ -306,7 +325,7 @@
     </header>
     <div class="main-container">
         <div class="content-panel">
-            <h1>Resumen de Transacciones de Venta</h1>
+            <h1><i class="fas fa-chart-line"></i> Resumen de Transacciones de Venta</h1>
             
             <div class="kpi-container">
                 <div class="kpi-card kpi-daily">
@@ -318,7 +337,13 @@
                 <div class="kpi-card kpi-monthly">
                     <h3>Venta Acumulada del Mes</h3>
                     <div class="value" id="ventaMensual">Q 0.00</div>
-                    <small>Acumulado de Noviembre 2025</small>
+                    <small>Acumulado mensual</small>
+                </div>
+                
+                <div class="kpi-card kpi-warning">
+                    <h3>Retiro Acumulado Dra. (Hoy)</h3>
+                    <div class="value" id="retiroDraDia">Q 0.00</div>
+                    <small>Monto total retirado hasta ahora.</small>
                 </div>
                 
                 <div class="kpi-card kpi-total">
@@ -328,12 +353,39 @@
                 </div>
             </div>
 
+            <hr>
+            
+            <div class="cierre-section">
+                <h2><i class="fas fa-cash-register"></i> Control de Cierre de Caja</h2>
+                <div class="button-group">
+                    <button class="btn-export btn-cierre-manana" id="btnCierreManana" style="background-color: var(--warning-color); color: var(--dark-gray);">
+                        <i class="fas fa-sun"></i> Cierre de Mañana
+                    </button>
+                    
+                    <button class="btn-export btn-cierre-tarde" id="btnCierreTarde" style="background-color: var(--primary-blue); display: none;">
+                        <i class="fas fa-moon"></i> Cierre Final del Día
+                    </button>
+                </div>
+
+                <div id="cierreMananaInput" style="display: none; margin-top: 15px; padding: 15px; border: 1px solid #ffc107; border-radius: 8px; background-color: #fffaf0;">
+                    <label for="montoRetiroDra" style="font-weight: 600;">DRA se lleva (Efectivo): Q</label>
+                    <input type="number" id="montoRetiroDra" placeholder="Ej: 500.00" min="0">
+                    <button class="btn-export" id="btnConfirmarRetiro" style="background-color: var(--success-color);">Confirmar Retiro</button>
+                </div>
+            </div>
+
+            <hr>
+
             <div class="export-section">
-                <h2>Opciones de Reportes y Exportación</h2>
+                <h2><i class="fas fa-download"></i> Opciones de Reportes y Exportación</h2>
                 <div class="button-group">
                     
                     <button class="btn-export" id="btnExportarPdfDiario">
                         <i class="fas fa-file-pdf"></i> Descargar Reporte Diario (PDF)
+                    </button>
+
+                    <button class="btn-export" id="btnExportarExcelCierres" style="background-color: var(--info-color);">
+                        <i class="fas fa-file-excel"></i> Exportar Reporte de Cierres
                     </button>
 
                     <button class="btn-export" id="btnExportarExcelTotal">
