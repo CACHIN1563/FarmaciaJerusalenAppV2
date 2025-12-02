@@ -4,7 +4,10 @@ import {
     getDocs,
     doc,
     updateDoc,
-    addDoc
+    addDoc,
+    // CORRECCIÓN: Agregar writeBatch y serverTimestamp
+    writeBatch, 
+    serverTimestamp 
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 // --- REFERENCIAS DEL DOM ---
@@ -526,11 +529,9 @@ btnAgregar.addEventListener("click", () => {
     let unidadesPendientes = unidadesBaseVendidas;
     const lotesVendidosDetallado = [];
 
-    const lotesTemp = JSON.parse(JSON.stringify(productoActualizado.lotes));
-
     // Descontar del inventario en caché (lotesInventario) por lote más próximo a vencer (FIFO/LIFO)
     const lotesDisponibles = lotesInventario.filter(l => l.nombre === productoActualizado.nombre)
-                                            .sort((a, b) => new Date(a.vencimiento) - new Date(b.vencimiento));
+                                             .sort((a, b) => new Date(a.vencimiento) - new Date(b.vencimiento));
 
 
     for (const lote of lotesDisponibles) {
@@ -571,8 +572,7 @@ btnAgregar.addEventListener("click", () => {
 
     if (index > -1) {
         alert(`⚠️ Ya existe un producto con el formato ${formato.toUpperCase()} en el carrito. Por favor, elimínelo y vuelva a añadir la cantidad correcta.`);
-        // Revertir el descuento si no se añade al carrito
-        // Nota: Esta reversión es un poco compleja aquí. Por ahora, nos basamos en el mensaje.
+        // Nota: Idealmente se revertiría el stock aquí, pero simplificamos indicando al usuario.
         return; 
     } else {
         carrito.push({
@@ -630,7 +630,9 @@ btnVender.addEventListener("click", async () => {
     try {
         // 1. Guardar la Venta
         const venta = {
-            fecha: new Date(), numeroVenta: Date.now(),
+            // CORRECCIÓN: Usar serverTimestamp() para la fecha
+            fecha: serverTimestamp(), 
+            numeroVenta: Date.now(),
             metodoPago: metodoEfectivoRadio.checked ? "Efectivo" : "Tarjeta",
             productos: carrito.map(p => ({
                 nombre: p.nombre, codigo: p.codigo, cantidad: p.cantidad, precioUnitario: p.precioUnitario,
@@ -645,7 +647,8 @@ btnVender.addEventListener("click", async () => {
         await addDoc(collection(db, "ventas"), venta);
 
         // 2. ACTUALIZAR STOCK EN LOTES DE FIREBASE
-        const batch = db.batch();
+        // CORRECCIÓN: Usar writeBatch(db) en lugar de db.batch()
+        const batch = writeBatch(db); 
 
         for (const itemCarrito of carrito) {
             for (const loteVendido of itemCarrito.lotesVendidos) {
@@ -654,7 +657,8 @@ btnVender.addEventListener("click", async () => {
                 const loteOriginal = lotesInventario.find(l => l.id === loteId);
                 if (!loteOriginal) continue;
 
-                const nuevoStockTotal = loteOriginal.stock; // Ya fue descontado en lotesInventario al agregar al carrito
+                // El nuevoStockTotal ya está actualizado en lotesInventario
+                const nuevoStockTotal = loteOriginal.stock; 
 
                 const { stockCaja, stockBlister, stockTableta } = reconvertirStock(
                     nuevoStockTotal,
@@ -664,7 +668,7 @@ btnVender.addEventListener("click", async () => {
 
                 const ref = doc(db, "inventario", loteId);
                 const updateData = {
-                    stock: Math.max(0, nuevoStockTotal),
+                    stock: Math.max(0, nuevoStockTotal), // Stock en unidades
                     stockCaja: Math.max(0, stockCaja),
                     stockBlister: Math.max(0, stockBlister),
                     stockTableta: Math.max(0, stockTableta)
@@ -772,14 +776,17 @@ window.cambiarCantidad = (index, delta) => {
     
     const stockTotalUnidadesActual = productoActualizado.stockTotal;
     
-    if (nuevasUnidadesBaseVendidas > stockTotalUnidadesActual) {
-        alert(`⚠️ No hay suficiente stock disponible para ${nuevaCantidad} ${itemCarrito.formatoVenta.toUpperCase()}. Stock actual en unidades: ${stockTotalUnidadesActual}.`);
+    const stockDisponibleFormato = (stockTotalUnidadesActual / factorConversion); // Calcular el stock real disponible en el formato
+    
+    if (nuevaCantidad > stockDisponibleFormato) { // Usamos stockDisponibleFormato para comparar la nueva cantidad
+        alert(`⚠️ No hay suficiente stock disponible para ${nuevaCantidad} ${itemCarrito.formatoVenta.toUpperCase()}. Disponible: ${Math.floor(stockDisponibleFormato)}.`);
         
-        // Si no hay stock, debemos RE-ASIGNAR los lotes originales para mantener la integridad
+        // Si no hay stock, debemos RE-ASIGNAR los lotes originales (revertir la reversión inicial)
         for (const detalleLote of itemCarrito.lotesVendidos) {
             const loteOriginal = lotesInventario.find(l => l.id === detalleLote.loteId);
             if (loteOriginal) {
-                loteOriginal.stock -= detalleLote.unidadesVendidas;
+                 // Volver a descontar lo que se revirtió (dejarlo como estaba)
+                loteOriginal.stock -= detalleLote.unidadesVendidas; 
             }
         }
         
@@ -795,7 +802,7 @@ window.cambiarCantidad = (index, delta) => {
 
     // Lotes disponibles para este producto (ordenados por vencimiento)
     const lotesDisponibles = lotesInventario.filter(l => l.nombre === productoActualizado.nombre)
-                                            .sort((a, b) => new Date(a.vencimiento) - new Date(b.vencimiento));
+                                             .sort((a, b) => new Date(a.vencimiento) - new Date(b.vencimiento));
     
     for (const lote of lotesDisponibles) {
         if (unidadesPendientes <= 0) break;
@@ -817,7 +824,6 @@ window.cambiarCantidad = (index, delta) => {
 
     if (unidadesPendientes > 0) {
         alert("⚠️ Error crítico al reasignar lotes. Por favor, elimine y vuelva a añadir el producto.");
-        // Se recomienda una recarga completa del inventario en un caso crítico.
         return; 
     }
     
