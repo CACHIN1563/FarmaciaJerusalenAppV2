@@ -5,12 +5,12 @@ import {
     addDoc 
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-// Acceso a las librerías globales (cargadas en el HTML)
+// Acceso a las librerías globales (asumidas en tu HTML: jspdf, autotable, y xlsx)
 const { jsPDF } = window.jspdf;
 const { XLSX } = window; 
 
-// --- CONSTANTE GLOBAL ---
-const BASE_CAJA_INICIAL = 500.00; // <<< --- AJUSTA ESTA BASE SEGÚN TU NECESIDAD
+// --- CONSTANTE POR DEFECTO ---
+const BASE_CAJA_DEFAULT = 500.00; 
 
 // --- UTILIDAD DE FORMATO ---
 function formatoMoneda(monto) {
@@ -32,19 +32,28 @@ const formatTimeWithAmPm = (timestamp) => {
     return `${hours}:${minutes} ${ampm}`;
 };
 
+// ** FUNCIÓN PARA SEGMENTACIÓN AM/PM **
+const getSegmentoDia = (timestamp) => {
+    const date = normalizeDate(timestamp);
+    if (!date) return 'N/A';
+    // Definimos el corte a las 12:00 PM (hora 12)
+    return date.getHours() < 12 ? 'AM' : 'PM';
+};
 
-// --- REFERENCIAS DEL DOM (EXISTENTES) ---
+
+// --- REFERENCIAS DEL DOM (ASUMIDAS) ---
 const ventaDiariaSpan = document.getElementById("ventaDiaria");
 const ventaMensualSpan = document.getElementById("ventaMensual");
 const ventaTotalHistoricaSpan = document.getElementById("ventaTotalHistorica");
 const fechaActualSpan = document.getElementById("fechaActual");
+const baseCajaInicialSpan = document.getElementById("baseCajaInicial"); 
 
 const btnExportarPdfDiario = document.getElementById("btnExportarPdfDiario");
 const btnExportarExcelTotal = document.getElementById("btnExportarExcelTotal");
 const btnExportarPdfTotal = document.getElementById("btnExportarPdfTotal");
 const btnExportarExcelCierres = document.getElementById("btnExportarExcelCierres"); 
 
-// --- REFERENCIAS DEL DOM PARA CIERRE (EXISTENTES) ---
+// --- REFERENCIAS DEL DOM PARA CIERRE ---
 const retiroDraDiaSpan = document.getElementById("retiroDraDia");
 const btnCierreManana = document.getElementById("btnCierreManana");
 const btnCierreTarde = document.getElementById("btnCierreTarde");
@@ -52,12 +61,12 @@ const cierreMananaInputDiv = document.getElementById("cierreMananaInput");
 const montoRetiroDraInput = document.getElementById("montoRetiroDra");
 const btnConfirmarRetiro = document.getElementById("btnConfirmarRetiro");
 
-
-// --- REFERENCIAS DEL DOM ADICIONALES (NUEVAS) ---
+// --- REFERENCIAS DEL DOM ADICIONALES ---
 const kpiEfectivoRestante = document.getElementById("kpiEfectivoRestante"); 
 const efectivoRestanteLbl = document.getElementById("efectivoRestante");      
 const inyeccionesInputDiv = document.getElementById("inyeccionesInput");      
 const montoInyeccionesInput = document.getElementById("montoInyecciones");    
+
 
 // --- ESTADO Y DATOS ---
 let todasLasVentas = [];
@@ -66,16 +75,16 @@ const RecargoPorcentaje = 0.05; // 5%
 let datosCargadosCompletos = false;
 
 // ESTADOS DE CIERRE
-let todosLosCierres = []; // Guarda todos los cierres históricos
-let retirosDraHoy = []; // Guarda solo los cierres de hoy
+let todosLosCierres = [];
+let retirosDraHoy = [];
 let totalRetiradoDra = 0;
 let cierreMananaRealizado = false;
 let cierreTardeRealizado = false;
-let timestampPrimerCierreManana = null; 
 
-// --- NUEVOS ESTADOS DE CÁLCULO ---
-let efectivoRestanteMañana = 0; // Efectivo que queda en caja después del retiro
-let totalInyecciones = 0;       // Monto de las inyecciones del día (Se actualizará con el input)
+// --- ESTADOS DE CÁLCULO ---
+let baseCajaInicial = BASE_CAJA_DEFAULT; 
+let efectivoRestanteMañana = 0; 
+let totalInyecciones = 0;       
 
 
 // --- UTILIDADES DE FECHA ---
@@ -86,14 +95,12 @@ function normalizeDate(dateInput) {
     }
     if (typeof dateInput === 'string') {
         try {
-            // Asegura que la cadena de fecha se interprete como local (Guatemala - CST)
             const date = new Date(dateInput.replace(/-/g, '/') + ' 00:00:00'); 
             if (!isNaN(date.getTime())) return date;
         } catch (e) {
              // Ignorar error de normalización si falla.
         }
     }
-    // Si el input es un objeto Timestamp sin el método toDate() (como un objeto genérico de datos)
     if (dateInput && dateInput.seconds !== undefined) {
         return new Date(dateInput.seconds * 1000 + (dateInput.nanoseconds / 1000000));
     }
@@ -108,7 +115,7 @@ function formatDate(date) {
     const year = d.getFullYear();
 
     if (month.length < 2) month = '0' + month;
-    if (day.length < 2) day = '0' + day;
+    if (day.length < 2) month = '0' + month;
 
     return [year, month, day].join('-');
 }
@@ -130,7 +137,6 @@ function calculateTotalNeto(productosArray) {
                       [{ cantidad: producto.cantidad || 0, precio: producto.precioUnitario || 0 }]; 
         
         lotes.forEach(lote => {
-            // Usamos el precio del lote si existe, o del producto
             const precioBase = parseFloat(lote.precio) || parseFloat(producto.precioUnitario) || parseFloat(producto.precioReferencia) || 0; 
             const cantidad = parseFloat(lote.cantidad) || parseFloat(producto.cantidad) || 0;
             
@@ -152,7 +158,7 @@ async function cargarVentasYCálculos() {
     const hoy = new Date();
     fechaActualSpan.textContent = formatDate(hoy);
     
-    // --- PASO 1: Cargar Inventario (Sin cambios) ---
+    // --- PASO 1: Cargar Inventario ---
     try {
         const invSnapshot = await getDocs(collection(db, "inventario"));
         inventarioMap.clear();
@@ -169,8 +175,10 @@ async function cargarVentasYCálculos() {
         return false;
     }
 
-    // --- PASO 2: Cargar Retiros/Cierres del día y establecer el TIMESTAMP divisor AM/PM ---
+    // --- PASO 2: Cargar Retiros/Cierres del día y establecer la BASE DE CAJA ---
     const hoyStr = formatDate(hoy);
+    baseCajaInicial = BASE_CAJA_DEFAULT; 
+
     try {
         const cierresSnapshot = await getDocs(collection(db, "cierres_caja"));
         retirosDraHoy = [];
@@ -178,13 +186,16 @@ async function cargarVentasYCálculos() {
         totalRetiradoDra = 0;
         cierreMananaRealizado = false;
         cierreTardeRealizado = false;
-        timestampPrimerCierreManana = null;
+        
         // Reiniciar efectivo restante y ocultar el KPI de efectivo y el campo de inyecciones
         efectivoRestanteMañana = 0;
         kpiEfectivoRestante.style.display = 'none';
         inyeccionesInputDiv.style.display = 'none';
 
-
+        // 1. Encontrar el último cierre para establecer la BASE DE CAJA
+        let ultimoCierreTimestamp = 0;
+        let saldoDiaAnterior = BASE_CAJA_DEFAULT;
+        
         cierresSnapshot.forEach(docu => {
             const data = docu.data();
             const timestampDate = normalizeDate(data.timestamp);
@@ -198,37 +209,44 @@ async function cargarVentasYCálculos() {
                 ...data,
                 id: docu.id,
                 fecha: fechaCierreStr,
-                // Usar la nueva función para la hora con AM/PM en cierres
                 hora: formatTimeWithAmPm(timestampDate) 
             });
 
             if (fechaCierreStr === hoyStr) {
+                // Procesar cierres de HOY
                 if (data.tipo === 'manana') {
                     retirosDraHoy.push(data);
                     totalRetiradoDra += parseFloat(data.montoRetiro || 0);
                     cierreMananaRealizado = true;
-                    
-                    // Si es el primer cierre de mañana del día, guarda su timestamp
-                    if (!timestampPrimerCierreManana || timestampCierre < timestampPrimerCierreManana) {
-                        timestampPrimerCierreManana = timestampCierre;
-                        // Al cargar, asumimos que el último retiro es el que define el efectivo restante
-                        efectivoRestanteMañana = parseFloat(data.efectivoRestante || 0); 
-                    }
+                    // Al cargar, asumimos que el último retiro de mañana de hoy define el efectivo restante
+                    efectivoRestanteMañana = parseFloat(data.efectivoRestante || 0); 
                 }
                 if (data.tipo === 'tarde') {
                     cierreTardeRealizado = true;
                 }
+            } else {
+                // Procesar cierres ANTERIORES para encontrar la BASE
+                if (timestampCierre > ultimoCierreTimestamp) {
+                    ultimoCierreTimestamp = timestampCierre;
+                    // El campo 'efectivoRestante' del cierre de 'tarde' es la BASE de mañana (ya excluye inyecciones)
+                    saldoDiaAnterior = parseFloat(data.efectivoRestante || BASE_CAJA_DEFAULT); 
+                }
             }
         });
         
-        retiroDraDiaSpan.textContent = formatoMoneda(totalRetiradoDra);
-        console.log(`1.2. ✅ Cierres cargados. Total retirado: Q ${totalRetiradoDra.toFixed(2)}.`);
+        // Asignar el saldo final del día anterior como la base de caja de hoy
+        baseCajaInicial = saldoDiaAnterior;
+        
+        // Actualizar el span en el DOM (si existe)
+        if (baseCajaInicialSpan) {
+            baseCajaInicialSpan.textContent = formatoMoneda(baseCajaInicial);
+        }
 
-        // Actualizar el estado de los botones (Se llama después del PASO 3 para tener los datos de venta actualizados)
+        retiroDraDiaSpan.textContent = formatoMoneda(totalRetiradoDra);
+        console.log(`1.2. ✅ Cierres cargados. Base de Caja Inicial dinámica: Q ${baseCajaInicial.toFixed(2)}.`);
 
     } catch (error) {
         console.error("🛑 Error al cargar los cierres de caja (Colección 'cierres_caja').", error);
-        // Continuamos
     }
     
     // --- PASO 3: Cargar y Procesar Ventas ---
@@ -260,18 +278,14 @@ async function cargarVentasYCálculos() {
 
             let totalVentaNetoBase = totalVentaBruto / factorRecargo; 
             
-            // LÓGICA CLAVE DE SEGMENTACIÓN (Venta posterior al Cierre de Mañana = PM)
-            const segmentoDia = (fechaVentaStr === hoyStr && timestampPrimerCierreManana && fechaVenta.getTime() >= timestampPrimerCierreManana) 
-                                 ? 'PM' : 'AM';
-            
             todasLasVentas.push({ 
                 id: docu.id, 
                 ...data,
                 totalNeto: totalVentaNetoBase, 
                 totalBruto: totalVentaBruto,  
                 fechaVenta: fechaVenta,
-                fechaVentaStr: fechaVentaStr
-                
+                fechaVentaStr: fechaVentaStr,
+                segmento: getSegmentoDia(fechaVenta) // Añadir segmento de día
             });
 
             totalHistorico += totalVentaNetoBase;
@@ -293,15 +307,14 @@ async function cargarVentasYCálculos() {
             const ventasDelDia = todasLasVentas.filter(v => v.fechaVentaStr === hoyStr);
             const totalEfectivoVentas = calcularTotalesVentaDia(ventasDelDia).efectivoDia;
             
-            // Efectivo Restante = Ventas Efectivo NETO (hasta ahora) + Base - Total Retirado Dra
-            efectivoRestanteMañana = totalEfectivoVentas + BASE_CAJA_INICIAL - totalRetiradoDra;
+            // Efectivo Restante = Ventas Efectivo NETO + Base Dinámica - Total Retirado Dra + Inyecciones
+            efectivoRestanteMañana = totalEfectivoVentas + baseCajaInicial - totalRetiradoDra + totalInyecciones;
             
             efectivoRestanteLbl.textContent = formatoMoneda(efectivoRestanteMañana);
             kpiEfectivoRestante.style.display = 'flex'; // Muestra el KPI
             inyeccionesInputDiv.style.display = 'block'; // Muestra el campo de inyecciones
         }
 
-        // Finalmente, actualiza los botones con el estado de cierre recién cargado
         actualizarBotonesCierre();
         
         datosCargadosCompletos = true;
@@ -314,34 +327,61 @@ async function cargarVentasYCálculos() {
 }
 
 
-// --- NUEVA FUNCIÓN DE CÁLCULO DE TOTALES PARA REUTILIZACIÓN ---
+// --- FUNCIÓN DE CÁLCULO DE TOTALES PARA REUTILIZACIÓN (LÓGICA CORREGIDA) ---
 function calcularTotalesVentaDia(ventasDelDia) {
     let totalEfectivoDia = 0;
     let totalTarjetaNetoDia = 0;
     let totalNetoDia = 0;
+    
+    // Venta segmentada AM/PM
+    let efectivoAM = 0;
+    let tarjetaAM = 0;
+    let efectivoPM = 0;
+    let tarjetaPM = 0;
     
     ventasDelDia.forEach(venta => {
         const totalVentaNetoBase = parseFloat(venta.totalNeto || 0);
         totalNetoDia += totalVentaNetoBase;
         
         const metodo = (venta.metodoPago || '').toLowerCase(); 
+        const segmento = venta.segmento;
+        
+        // ** LÓGICA CLAVE PARA EL RESUMEN DE CAJA: 
+        // Si el cierre de mañana NO se ha realizado, TODO se considera AM para el resumen. **
+        const segmentoEfectivo = cierreMananaRealizado ? segmento : 'AM';
+
 
         if (metodo.includes('efectivo')) { 
             totalEfectivoDia += totalVentaNetoBase;
+            
+            if (segmentoEfectivo === 'AM') {
+                efectivoAM += totalVentaNetoBase;
+            } else if (segmentoEfectivo === 'PM') {
+                efectivoPM += totalVentaNetoBase;
+            }
         } else if (metodo.includes('tarjeta')) { 
             totalTarjetaNetoDia += totalVentaNetoBase;
+            
+            if (segmentoEfectivo === 'AM') {
+                tarjetaAM += totalVentaNetoBase;
+            } else if (segmentoEfectivo === 'PM') {
+                tarjetaPM += totalVentaNetoBase;
+            }
         }
     });
 
     return {
         efectivoDia: totalEfectivoDia,
         tarjetaDia: totalTarjetaNetoDia,
-        totalDia: totalNetoDia
+        totalDia: totalNetoDia,
+        efectivoAM, tarjetaAM,
+        efectivoPM, tarjetaPM
     };
 }
 
-
-// --- FUNCIONES DE CIERRE DE CAJA ---
+// ---------------------------------------------------------------------------------------------------
+// FUNCIONES DE CIERRE DE CAJA (Manejo de UI y lógica de guardado)
+// ---------------------------------------------------------------------------------------------------
 
 function actualizarBotonesCierre() {
     btnCierreManana.style.display = 'block';
@@ -358,7 +398,6 @@ function actualizarBotonesCierre() {
     const colorDisabled = '#6c757d'; // Gris
     const colorPrimary = '#007bff'; // Azul
 
-    // Si ya se hizo el cierre de la tarde, se deshabilitan todos los botones
     if (cierreTardeRealizado) {
         btnCierreManana.textContent = 'Cierre de Mañana COMPLETO';
         btnCierreManana.disabled = true;
@@ -369,7 +408,6 @@ function actualizarBotonesCierre() {
         btnCierreTarde.disabled = true;
         btnCierreTarde.style.backgroundColor = colorDisabled; 
         
-    // Si solo se hizo el cierre de la mañana, se habilita el cierre de la tarde
     } else if (cierreMananaRealizado) {
         btnCierreManana.textContent = `Cierre de Mañana REALIZADO (Retiro ${formatoMoneda(totalRetiradoDra)})`;
         btnCierreManana.disabled = true;
@@ -377,23 +415,23 @@ function actualizarBotonesCierre() {
         
         btnCierreTarde.style.display = 'block';
         btnCierreTarde.disabled = false;
-        btnCierreTarde.style.backgroundColor = colorPrimary; // Reestablece el color azul
+        btnCierreTarde.style.backgroundColor = colorPrimary; 
         
-        // MOSTRAR KPI DE EFECTIVO RESTANTE y CAMPO INYECCIONES
         kpiEfectivoRestante.style.display = 'flex';
         efectivoRestanteLbl.textContent = formatoMoneda(efectivoRestanteMañana);
         inyeccionesInputDiv.style.display = 'block';
         
-    // Si no hay cierres, se muestra el de la mañana
     } else {
         btnCierreManana.textContent = 'Cierre de Mañana';
         btnCierreManana.disabled = false;
-        btnCierreManana.style.backgroundColor = colorSuccess; // Amarillo
+        btnCierreManana.style.backgroundColor = colorSuccess; 
     }
 }
 
 
-// --- EXPORTACIÓN PDF DIARIO ---
+// ---------------------------------------------------------------------------------------------------
+// EXPORTACIÓN PDF DIARIO (Ajustado para el formato solicitado)
+// ---------------------------------------------------------------------------------------------------
 async function exportarPdfDiario() {
     
     if (!datosCargadosCompletos) {
@@ -412,36 +450,36 @@ async function exportarPdfDiario() {
         const doc = new jsPDF();
         const fechaReporte = getFormattedDateTime(new Date());
 
-        // Inicialización de totales (Ajustada para usar la nueva función)
-        let totalEfectivoAM = 0;
-        let totalEfectivoPM = 0;
-        let totalTarjetaNetoAM = 0;
-        let totalTarjetaNetoPM = 0; 
         let montoRecargoTotal = 0;
         let totalNetoDia = 0; 
         const detallesVentaTabla = [];
         
-        // Procesamiento de ventas
+        const { 
+            efectivoDia: totalEfectivoDia, 
+            tarjetaDia: totalTarjetaNetoDia, 
+            totalDia: totalNetoDiaCalculado,
+            efectivoAM, tarjetaAM,
+            efectivoPM, tarjetaPM
+        } = calcularTotalesVentaDia(ventasDelDia);
+        
+        totalNetoDia = totalNetoDiaCalculado;
+
+        // Procesamiento de ventas para detalle y recargo
         ventasDelDia.forEach(venta => {
             
             const totalVentaNetoBase = parseFloat(venta.totalNeto || 0);
-            totalNetoDia += totalVentaNetoBase;
             
             const idVenta = venta.numeroVenta || venta.id.substring(0, 10); 
             const metodo = (venta.metodoPago || '').toLowerCase(); 
-            const segmento = venta.segmentoDia || 'AM'; 
+            
+            // ** LÓGICA CORREGIDA PARA EL DETALLE DE TRANSACCIONES: **
+            // Si el cierre de mañana NO se ha realizado, TODAS las ventas se marcan como [AM] en el reporte de detalle.
+            const segmentoParaReporte = cierreMananaRealizado ? venta.segmento : 'AM';
             
             const esPagoConTarjeta = metodo.includes('tarjeta');
             const totalVentaBruto = parseFloat(venta.totalBruto) || (esPagoConTarjeta ? totalVentaNetoBase * (1 + RecargoPorcentaje) : totalVentaNetoBase); 
 
-            // Cálculo de totales segmentados (USANDO NETO)
-            if (metodo.includes('efectivo')) { 
-                if (segmento === 'AM') totalEfectivoAM += totalVentaNetoBase;
-                else totalEfectivoPM += totalVentaNetoBase;
-            } else if (esPagoConTarjeta) { 
-                if (segmento === 'AM') totalTarjetaNetoAM += totalVentaNetoBase;
-                else totalTarjetaNetoPM += totalVentaNetoBase; 
-                
+            if (esPagoConTarjeta) { 
                 montoRecargoTotal += (totalVentaBruto - totalVentaNetoBase);
             }
 
@@ -456,21 +494,22 @@ async function exportarPdfDiario() {
                     lotesArray.forEach(lote => {
                         const cantidad = parseFloat(lote.cantidad) || parseFloat(producto.cantidad) || 0; 
                         
-                        // Se toma el precio final/bruto de la base de datos (lote.precio o producto.precioUnitario).
                         const precioUnitarioFinal = parseFloat(lote.precio) || parseFloat(producto.precioUnitario) || parseFloat(producto.precioReferencia) || 0;
                         const totalItemConRecargo = cantidad * precioUnitarioFinal; 
 
                         const loteId = lote.loteId || producto.id;
                         const loteData = inventarioMap.get(loteId); 
                         const esLoteAntibiotico = loteData ? loteData.antibiotico : false; 
+                        
+                        // Añadir segmento CORREGIDO al concepto [AM] o [PM]
+                        const conceptoConSegmento = `[${segmentoParaReporte}] ${nombreProducto} ${esLoteAntibiotico ? '(ANTIBIÓTICO)' : ''}`;
 
                         detallesVentaTabla.push({
                             numero: idVenta, 
                             cantidad: cantidad, 
-                            concepto: nombreProducto + (esLoteAntibiotico ? ' (ANTIBIÓTICO)' : ''),
+                            concepto: conceptoConSegmento, // CONCEPTO CON [AM] o [PM] CORREGIDO
                             punitario: precioUnitarioFinal.toFixed(2), 
                             total: totalItemConRecargo.toFixed(2), 
-                            segmento: segmento,
                             ordenVenta: venta.fechaVenta.getTime(),
                             ordenProducto: indexProducto
                         });
@@ -480,10 +519,8 @@ async function exportarPdfDiario() {
         });
         
         // --- Cálculo de Totales y Resumen ---
-        const totalEfectivoDia = totalEfectivoAM + totalEfectivoPM;
-        const totalTarjetaNetoDia = totalTarjetaNetoAM + totalTarjetaNetoPM;
-        // Efectivo en caja = Efectivo Neto (productos) + Inyecciones + Base - Total Retirado Dra
-        const efectivoEnCaja = totalEfectivoDia + totalInyecciones + BASE_CAJA_INICIAL - totalRetiradoDra;
+        // Efectivo en caja = Efectivo Neto (productos) + Inyecciones + baseCajaInicial - Total Retirado Dra
+        const efectivoEnCaja = totalEfectivoDia + totalInyecciones + baseCajaInicial - totalRetiradoDra;
         
         // Venta Neta Final = Venta Neto (Productos) + Inyecciones
         const ventaNetaFinal = totalNetoDia + totalInyecciones; 
@@ -499,7 +536,7 @@ async function exportarPdfDiario() {
         // Mapeo final para la tabla de detalles
         const bodyTablaDetalles = detallesVentaTabla
             .filter(d => d.cantidad > 0)
-            .map(d => [d.numero, d.cantidad.toFixed(0), `[${d.segmento}] ${d.concepto}`, `Q ${d.punitario}`, `Q ${d.total}`]);
+            .map(d => [d.numero, d.cantidad.toFixed(0), d.concepto, `Q ${d.punitario}`, `Q ${d.total}`]); 
 
         // --- GENERACIÓN DEL PDF ---
         doc.setFontSize(18);
@@ -517,58 +554,86 @@ async function exportarPdfDiario() {
         y += 8;
         
         // -----------------------------------------------------------
-        // INICIO: RESUMEN DE VENTAS POR SEGMENTO (usando autoTable)
+        // RESUMEN DE VENTAS
         // -----------------------------------------------------------
         const resumenVentas = [
-            // Segmentos
-            ['Ventas Mañana (AM)', formatoMoneda(totalEfectivoAM), formatoMoneda(totalTarjetaNetoAM)],
-            ['Ventas Tarde (PM)', formatoMoneda(totalEfectivoPM), formatoMoneda(totalTarjetaNetoPM)],
-            // Totales
-            [{ content: 'TOTAL NETO VENDIDO (PRODUCTOS)', colSpan: 1, styles: { fontStyle: 'bold', fillColor: [200, 220, 255] } }, 
-             { content: formatoMoneda(totalEfectivoDia), styles: { fontStyle: 'bold', fillColor: [200, 220, 255] } },
+            // Fila de mañana
+            ['Ventas Mañana (AM)', formatoMoneda(efectivoAM), formatoMoneda(tarjetaAM)],
+            // Fila de tarde (Solo contará ventas PM si se hizo cierre de mañana)
+            ['Ventas Tarde (PM)', formatoMoneda(efectivoPM), formatoMoneda(tarjetaPM)],
+            // Fila de totales
+            [{ content: 'TOTAL NETO VENDIDO (DÍA)', styles: { fontStyle: 'bold', fillColor: [200, 220, 255] } }, 
+             { content: formatoMoneda(totalEfectivoDia), styles: { fontStyle: 'bold', fillColor: [200, 220, 255] } }, 
              { content: formatoMoneda(totalTarjetaNetoDia), styles: { fontStyle: 'bold', fillColor: [200, 220, 255] } }],
         ];
 
         doc.autoTable({
             startY: y,
-            head: [['Detalle de Ventas', 'MONTO EFECTIVO NETO (Q)', 'MONTO TARJETA NETO (Q)']],
+            head: [['Detalle de Ventas', 'MONTO EFECTIVO NETO (Q)', 'MONTO TARJETA NETO (Q)']], 
             body: resumenVentas,
             theme: 'grid', 
             headStyles: { fillColor: [0, 123, 255], textColor: 255, fontStyle: 'bold' },
             styles: { fontSize: 9, cellPadding: 2 },
-            columnStyles: { 0: { cellWidth: 70 }, 1: { halign: 'right' }, 2: { halign: 'right' } }
+            columnStyles: { 
+                0: { cellWidth: 70 }, 
+                1: { halign: 'right', cellWidth: 50 },
+                2: { halign: 'right', cellWidth: 50 } 
+            }
         });
         
-        y = doc.autoTable.previous.finalY + 5; 
-
-        // -----------------------------------------------------------
-        // MOVIMIENTOS DE CAJA Y TOTALES FINALES
-        // -----------------------------------------------------------
+        // ** AJUSTE DE ESPACIADO **
+        y = doc.autoTable.previous.finalY + 8; // Más espacio
+        
         doc.setFontSize(14);
         doc.setFont(undefined, 'bold');
         doc.text("MOVIMIENTOS Y CIERRES", 14, y);
         doc.line(14, y + 2, 70, y + 2); 
         y += 8;
 
+        // -----------------------------------------------------------
+        // MOVIMIENTOS DE CAJA Y TOTALES FINALES (COLORES AJUSTADOS)
+        // -----------------------------------------------------------
         const movimientosCaja = [
-             // Nueva Venta Neta
-            [{ content: 'TOTAL VENTA NETA FINAL (PRODUCTOS + INYECCIONES)', colSpan: 1, styles: { fontStyle: 'bold', fillColor: [220, 240, 255] } }, 
+            // TOTAL VENTA NETA FINAL (PRODUCTOS + INYECCIONES)
+            // Color de fondo celeste claro (similar a la imagen)
+            [{ content: 'TOTAL VENTA NETA FINAL (VENTAS + INYECCIONES)', colSpan: 1, styles: { fontStyle: 'bold', fillColor: [215, 235, 255] } }, 
              formatoMoneda(ventaNetaFinal), 
-             { content: 'VENTA NETA', styles: { fontStyle: 'bold', fillColor: [220, 240, 255] } }],
-             // Inyecciones
-            ['Total en Inyecciones (Servicio)', formatoMoneda(totalInyecciones), { content: 'INYECCIONES', styles: { fillColor: [255, 250, 205] } }],
-            // Recargo, Retiro y Efectivo Final
-            ['Monto de Recargo por Tarjeta (5%)', formatoMoneda(montoRecargoTotal), { content: 'RECARGO', styles: { fillColor: [240, 255, 240] } }],
-            ['BASE DE CAJA INICIAL', formatoMoneda(BASE_CAJA_INICIAL), { content: 'BASE', styles: { fillColor: [255, 255, 220] } }],
-            ['MONTO RETIRADO POR DRA.', formatoMoneda(totalRetiradoDra), { content: 'RETIRO', styles: { fillColor: [255, 240, 220] } }],
-            ['EFECTIVO RESTANTE EN CAJA (Efectivo Neto + Inyecciones + Base - Retiro)', formatoMoneda(efectivoEnCaja), { content: 'FINAL', styles: { fontStyle: 'bold', fillColor: [255, 200, 200] } }],
+             // Etiqueta verde
+             { content: 'VENTA NETA', styles: { fontStyle: 'bold', fillColor: [153, 204, 153], textColor: 0 } }],
+            
+            // Inyecciones (Fondo claro)
+            ['Total en Inyecciones', formatoMoneda(totalInyecciones), 
+             // Etiqueta amarilla
+             { content: 'INYECCIONES', styles: { fillColor: [255, 255, 153], textColor: 0 } }],
+
+            // Recargo (Fondo claro)
+            ['Monto de Recargo por Tarjeta (5%)', formatoMoneda(montoRecargoTotal), 
+             // Etiqueta verde claro
+             { content: 'RECARGO', styles: { fillColor: [204, 255, 204], textColor: 0 } }],
+
+            // Base de Caja (Fondo claro)
+            ['BASE DE CAJA INICIAL (Saldo del día anterior)', formatoMoneda(baseCajaInicial), 
+             // Etiqueta amarilla
+             { content: 'BASE', styles: { fillColor: [255, 255, 153], textColor: 0 } }],
+            
+            // Retiro de Dra. (Fondo claro)
+            ['MONTO RETIRADO POR DRA.', formatoMoneda(totalRetiradoDra), 
+             // Etiqueta salmón/rojiza
+             { content: 'RETIRO', styles: { fillColor: [255, 204, 204], textColor: 0 } }],
+            
+            // Efectivo Restante (FINAL)
+            // Color de fondo salmón/rojizo fuerte (similar a la imagen)
+            [{ content: 'EFECTIVO RESTANTE EN CAJA (Efectivo Neto + Base - Retiro)', colSpan: 1, styles: { fontStyle: 'bold', fillColor: [255, 204, 204] } }, 
+             formatoMoneda(efectivoEnCaja), 
+             // Etiqueta roja
+             { content: 'FINAL', styles: { fontStyle: 'bold', fillColor: [255, 102, 102], textColor: 255 } }],
         ];
         
         doc.autoTable({
             startY: y,
             head: [['Concepto', 'Monto (Q)', 'Etiqueta']],
             body: movimientosCaja,
-            theme: 'striped', 
+            theme: 'plain', 
             headStyles: { fillColor: [52, 58, 64], textColor: 255, fontStyle: 'bold' },
             styles: { fontSize: 10, cellPadding: 2 },
             columnStyles: { 
@@ -590,7 +655,7 @@ async function exportarPdfDiario() {
         
         doc.autoTable({
             startY: y,
-            head: [['No. Venta', 'Cant.', 'Concepto [AM/PM]', 'P. Unitario', 'TOTAL']],
+            head: [['No. Venta', 'Cant.', 'Concepto (AM/PM)', 'P. Unitario', 'TOTAL']], 
             body: bodyTablaDetalles,
             theme: 'striped',
             headStyles: { fillColor: [0, 123, 255], textColor: 255, fontStyle: 'bold' },
@@ -614,7 +679,9 @@ async function exportarPdfDiario() {
 }
 
 
-// --- NUEVA FUNCIÓN: EXPORTACIÓN EXCEL DE CIERRES ---
+// ---------------------------------------------------------------------------------------------------
+// EXPORTACIÓN EXCEL DE CIERRES
+// ---------------------------------------------------------------------------------------------------
 async function exportarExcelCierres() {
     if (!datosCargadosCompletos) {
         const exito = await cargarVentasYCálculos();
@@ -626,12 +693,11 @@ async function exportarExcelCierres() {
         return;
     }
 
-    // Los datos ya se cargaron con la hora AM/PM en cargarVentasYCálculos()
     const datosCierres = todosLosCierres.map(cierre => ({
         ID_Cierre: cierre.id,
         Tipo: cierre.tipo.toUpperCase(),
         Fecha: cierre.fecha,
-        Hora: cierre.hora, // Ya usa AM/PM
+        Hora: cierre.hora, 
         Monto_Retirado: parseFloat(cierre.montoRetiro || 0).toFixed(2),
         Efectivo_Restante_Post_Cierre: parseFloat(cierre.efectivoRestante || 0).toFixed(2), 
         Registrado_Por: cierre.registradoPor || 'N/A'
@@ -649,7 +715,9 @@ async function exportarExcelCierres() {
     }
 }
 
-// --- EXPORTACIÓN EXCEL HISTÓRICO (CORREGIDA LA HORA) ---
+// ---------------------------------------------------------------------------------------------------
+// EXPORTACIÓN EXCEL HISTÓRICO
+// ---------------------------------------------------------------------------------------------------
 async function exportarExcelTotal() {
     if (!datosCargadosCompletos) {
         const exito = await cargarVentasYCálculos();
@@ -669,9 +737,7 @@ async function exportarExcelTotal() {
         const metodoPago = venta.metodoPago || 'N/A';
         const totalVentaBruto = parseFloat(venta.totalBruto || 0).toFixed(2); 
         const numeroVenta = venta.numeroVenta || idVenta.substring(0, 10); 
-        const segmentoDia = venta.segmentoDia || 'N/A';
         
-        // Obtener la hora con AM/PM usando la nueva función
         const horaVenta = formatTimeWithAmPm(venta.fechaVenta); 
         
 
@@ -703,10 +769,9 @@ async function exportarExcelTotal() {
                         ID_Venta: idVenta,
                         No_Transaccion: numeroVenta,
                         Fecha: fechaVenta,
-                        Hora: horaVenta, // APLICADA LA HORA CON AM/PM
-                        
+                        Hora: horaVenta, 
                         Metodo_Pago: metodoPago,
-                        Total_Venta_General: totalVentaBruto, 
+                        Total_Venta_General: totalVentaBruto,
                         Producto: nombreProducto,
                         Cantidad_Vendida: cantidad, 
                         Precio_Unitario_Base: precioUnitarioBase.toFixed(2),
@@ -721,7 +786,8 @@ async function exportarExcelTotal() {
         } else {
             // Caso para ventas sin detalle de productos
              datosDetallados.push({
-                 ID_Venta: idVenta, No_Transaccion: numeroVenta, Fecha: fechaVenta, Hora: horaVenta, Segmento_Dia: segmentoDia, Metodo_Pago: metodoPago, Total_Venta_General: totalVentaBruto,
+                 ID_Venta: idVenta, No_Transaccion: numeroVenta, Fecha: fechaVenta, Hora: horaVenta, 
+                 Metodo_Pago: metodoPago, Total_Venta_General: totalVentaBruto,
                  Producto: 'SIN DETALLE DE PRODUCTOS', Cantidad_Vendida: 0, Precio_Unitario_Base: 0, Precio_Unitario_Final: 0, 
                  Subtotal_Lote: 0, ID_Lote: 'N/A', Es_Antibiotico: 'N/A', Precio_Referencia_Producto: 0
              });
@@ -741,7 +807,9 @@ async function exportarExcelTotal() {
 }
 
 
-// --- EXPORTACIÓN PDF HISTÓRICO ---
+// ---------------------------------------------------------------------------------------------------
+// EXPORTACIÓN PDF HISTÓRICO
+// ---------------------------------------------------------------------------------------------------
 async function exportarPdfTotal() {
     if (!datosCargadosCompletos) {
         const exito = await cargarVentasYCálculos();
@@ -781,7 +849,9 @@ async function exportarPdfTotal() {
 }
 
 
-// --- EVENT LISTENERS E INICIALIZACIÓN ---
+// ---------------------------------------------------------------------------------------------------
+// EVENT LISTENERS E INICIALIZACIÓN
+// ---------------------------------------------------------------------------------------------------
 
 // 1. Manejo del Cierre de Mañana (Muestra el campo de texto)
 btnCierreManana.addEventListener("click", () => {
@@ -804,8 +874,8 @@ btnConfirmarRetiro.addEventListener("click", async () => {
     const hoyStr = formatDate(new Date());
     const ventasDelDia = todasLasVentas.filter(v => v.fechaVentaStr === hoyStr);
     const totalEfectivoVentas = calcularTotalesVentaDia(ventasDelDia).efectivoDia;
-    // Se incluye la base de caja
-    const efectivoActual = totalEfectivoVentas + BASE_CAJA_INICIAL; 
+    // Se incluye la base de caja DINÁMICA
+    const efectivoActual = totalEfectivoVentas + baseCajaInicial; 
     
     if (montoRetiro > efectivoActual) {
         alert(`❌ El monto de retiro (Q ${montoRetiro.toFixed(2)}) excede el efectivo disponible en caja (Q ${efectivoActual.toFixed(2)}). Por favor, revise.`);
@@ -816,8 +886,9 @@ btnConfirmarRetiro.addEventListener("click", async () => {
         return;
     }
 
-    // Calcular el efectivo restante
-    const efectivoRestante = efectivoActual - montoRetiro;
+    // Calcular el efectivo restante (incluye las inyecciones si ya se registraron)
+    // Este valor de 'efectivoRestante' es solo para mostrar el KPI a mitad del día.
+    const efectivoRestante = efectivoActual - montoRetiro + totalInyecciones; 
 
     try {
         const now = new Date();
@@ -827,36 +898,46 @@ btnConfirmarRetiro.addEventListener("click", async () => {
             timestamp: now,
             fechaStr: formatDate(now),
             montoRetiro: montoRetiro,
-            efectivoRestante: efectivoRestante, // Guardamos el efectivo restante
+            efectivoRestante: efectivoRestante, // Saldo post-retiro (incluye inyecciones)
             registradoPor: 'Usuario'
         });
 
         alert(`✅ Cierre de Mañana y Retiro de ${formatoMoneda(montoRetiro)} registrado. Efectivo restante: ${formatoMoneda(efectivoRestante)}`);
         
-        // MOSTRAR EN PANTALLA
-        cierreMananaInputDiv.style.display = 'none'; // Ocultar input
-        btnCierreManana.style.display = 'none'; // Ocultar botón de cierre mañana
-        btnCierreTarde.style.display = 'block'; // Mostrar botón de cierre tarde
+        cierreMananaInputDiv.style.display = 'none'; 
+        btnCierreManana.style.display = 'none'; 
+        btnCierreTarde.style.display = 'block'; 
         
         efectivoRestanteMañana = efectivoRestante;
         efectivoRestanteLbl.textContent = formatoMoneda(efectivoRestanteMañana);
-        kpiEfectivoRestante.style.display = 'flex'; // Mostrar KPI
-        inyeccionesInputDiv.style.display = 'block'; // Mostrar input de inyecciones
+        kpiEfectivoRestante.style.display = 'flex'; 
+        inyeccionesInputDiv.style.display = 'block'; 
         
-        await cargarVentasYCálculos(); // Recarga para actualizar KPIs, botones y el divisor AM/PM
+        await cargarVentasYCálculos(); 
     } catch (e) {
         console.error("Error al registrar cierre de mañana:", e);
         alert("❌ Error al guardar el cierre en Firebase.");
     }
 });
 
-// 3. Manejo del Cierre de Tarde (Solo registro, sin monto)
+// 3. Manejo del Cierre de Tarde (Guarda el saldo final como base de mañana SIN INYECCIONES)
 btnCierreTarde.addEventListener("click", async () => {
     if (cierreTardeRealizado) return;
 
     if (!confirm("¿Confirmar el Cierre Final del Día? Esto inhabilita el resto de cierres de hoy.")) {
         return;
     }
+
+    // Calcular el saldo final del día para usarlo como Base de Mañana
+    const hoyStr = formatDate(new Date());
+    const ventasDelDia = todasLasVentas.filter(v => v.fechaVentaStr === hoyStr);
+    const { efectivoDia: totalEfectivoVentas } = calcularTotalesVentaDia(ventasDelDia);
+
+    // Saldo Final de Efectivo TOTAL (lo que queda en caja)
+    const efectivoFinalDelDiaTotal = totalEfectivoVentas + baseCajaInicial + totalInyecciones - totalRetiradoDra;
+    
+    // Calcular el Saldo Final de Caja (Base para mañana) EXCLUYENDO el monto de Inyecciones
+    const efectivoParaBaseManana = efectivoFinalDelDiaTotal - totalInyecciones; 
 
     try {
         const now = new Date();
@@ -865,11 +946,12 @@ btnCierreTarde.addEventListener("click", async () => {
             timestamp: now,
             fechaStr: formatDate(now),
             montoRetiro: 0, 
+            efectivoRestante: efectivoParaBaseManana, // << ESTO ES LA BASE DE CAJA DE MAÑANA (SIN INYECCIONES)
             registradoPor: 'Usuario'
         });
 
-        alert("✅ Cierre Final del Día registrado exitosamente.");
-        await cargarVentasYCálculos(); // Recarga para actualizar botones
+        alert(`✅ Cierre Final del Día registrado. Saldo Final de Caja (Base para mañana, sin inyecciones): ${formatoMoneda(efectivoParaBaseManana)}`);
+        await cargarVentasYCálculos(); 
     } catch (e) {
         console.error("Error al registrar cierre de tarde:", e);
         alert("❌ Error al guardar el cierre final en Firebase.");
@@ -877,11 +959,20 @@ btnCierreTarde.addEventListener("click", async () => {
 });
 
 
-// --- NUEVO EVENT LISTENER PARA CAPTURAR INYECCIONES ---
+// --- EVENT LISTENER PARA CAPTURAR INYECCIONES ---
 montoInyeccionesInput.addEventListener('input', () => {
-    // Captura el valor del input, asegurando que sea un número flotante (o 0 si es inválido)
     totalInyecciones = parseFloat(montoInyeccionesInput.value) || 0;
-    console.log(`Monto de Inyecciones actualizado a: ${formatoMoneda(totalInyecciones)}`);
+    
+    // Recalcular el KPI de Efectivo Restante de forma dinámica al cambiar inyecciones
+    if (cierreMananaRealizado) {
+         const hoyStr = formatDate(new Date());
+         const ventasDelDia = todasLasVentas.filter(v => v.fechaVentaStr === hoyStr);
+         const totalEfectivoVentas = calcularTotalesVentaDia(ventasDelDia).efectivoDia;
+         
+         // Efectivo Restante = Ventas Efectivo NETO + Base Dinámica - Total Retirado Dra + Inyecciones
+         efectivoRestanteMañana = totalEfectivoVentas + baseCajaInicial - totalRetiradoDra + totalInyecciones;
+         efectivoRestanteLbl.textContent = formatoMoneda(efectivoRestanteMañana);
+    }
 });
 
 
