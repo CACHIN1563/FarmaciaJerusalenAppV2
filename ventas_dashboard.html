@@ -24,6 +24,7 @@
             --border-color: #dee2e6;
             --light-blue: #e0f2ff;
             --medium-gray: #6c757d;
+            --primary-red: #dc3545; /* Usaremos rojo para Efectivo Restante como alerta */
         }
 
         body {
@@ -132,25 +133,6 @@
         /* ---------------------------------------------------------------- */
 
 
-        /* Top Bar (CSS original, mantenido por la instrucción) */
-        .top-bar {
-            background-color: var(--primary-blue);
-            color: white;
-            padding: 15px 30px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: var(--shadow-medium);
-            font-weight: 600;
-        }
-
-        .top-bar .title {
-            font-size: 1.4rem;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
         /* Contenedor principal */
         .main-container {
             flex-grow: 1;
@@ -197,6 +179,12 @@
             flex-direction: column;
             justify-content: space-between;
             border-left: 5px solid;
+            transition: transform 0.2s;
+        }
+        
+        .kpi-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.12);
         }
 
         .kpi-card h3 {
@@ -217,12 +205,13 @@
         .kpi-monthly { border-left-color: var(--primary-blue); }
         .kpi-total { border-left-color: var(--info-color); }
         .kpi-warning { border-left-color: var(--warning-color); } /* Para Retiro */
+        .kpi-danger { border-left-color: var(--primary-red); background-color: #ffe0e6; } /* Para Efectivo Restante */
         
         .kpi-daily .value { color: var(--success-color); }
         .kpi-monthly .value { color: var(--primary-blue); }
         .kpi-total .value { color: var(--info-color); }
         .kpi-warning .value { color: var(--warning-color); } /* Para Retiro */
-
+        .kpi-danger .value { color: var(--primary-red); } /* Para Efectivo Restante */
 
         /* Controles y Botones de Exportación */
         .export-section, .cierre-section {
@@ -267,6 +256,17 @@
         .btn-export:hover {
             transform: translateY(-1px);
         }
+        
+        /* Inputs de Cierre - Nuevo estilo para agrupar */
+        .input-group-cierre {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .input-group-cierre label {
+            white-space: nowrap;
+        }
 
         /* Botón de PDF Diario (BIG BUTTON) */
         #btnExportarPdfDiario {
@@ -282,7 +282,7 @@
         #btnExportarExcelCierres { background-color: var(--info-color); } /* Color para Cierres Excel */
         
         /* Estilo específico para inputs de cierre */
-        #cierreMananaInput input {
+        #cierreMananaInput input, #inyeccionesInput input {
             padding: 10px;
             border: 1px solid #ced4da;
             border-radius: 4px;
@@ -290,9 +290,18 @@
             margin-right: 10px;
             font-size: 1rem;
         }
-        #cierreMananaInput button {
-            padding: 10px 20px;
-            font-weight: 600;
+        
+        /* Para el input de inyecciones */
+        #inyeccionesInput {
+            margin-top: 15px; 
+            padding: 15px; 
+            border: 1px solid var(--primary-blue); 
+            border-radius: 8px; 
+            background-color: var(--light-blue);
+        }
+        
+        #inyeccionesInput .btn-export {
+             background-color: var(--primary-blue);
         }
 
     </style>
@@ -346,6 +355,12 @@
                     <small>Monto total retirado hasta ahora.</small>
                 </div>
                 
+                <div class="kpi-card kpi-danger" id="kpiEfectivoRestante" style="display: none;">
+                    <h3>Efectivo Restante en Caja</h3>
+                    <div class="value" id="efectivoRestante">Q 0.00</div>
+                    <small>Efectivo disponible después del cierre de la mañana.</small>
+                </div>
+                
                 <div class="kpi-card kpi-total">
                     <h3>Venta Histórica Total</h3>
                     <div class="value" id="ventaTotalHistorica">Q 0.00</div>
@@ -359,7 +374,7 @@
                 <h2><i class="fas fa-cash-register"></i> Control de Cierre de Caja</h2>
                 <div class="button-group">
                     <button class="btn-export btn-cierre-manana" id="btnCierreManana" style="background-color: var(--warning-color); color: var(--dark-gray);">
-                        <i class="fas fa-sun"></i> Cierre de Mañana
+                        <i class="fas fa-sun"></i> Cierre de Mañana (Retiro)
                     </button>
                     
                     <button class="btn-export btn-cierre-tarde" id="btnCierreTarde" style="background-color: var(--primary-blue); display: none;">
@@ -368,10 +383,20 @@
                 </div>
 
                 <div id="cierreMananaInput" style="display: none; margin-top: 15px; padding: 15px; border: 1px solid #ffc107; border-radius: 8px; background-color: #fffaf0;">
-                    <label for="montoRetiroDra" style="font-weight: 600;">DRA se lleva (Efectivo): Q</label>
-                    <input type="number" id="montoRetiroDra" placeholder="Ej: 500.00" min="0">
-                    <button class="btn-export" id="btnConfirmarRetiro" style="background-color: var(--success-color);">Confirmar Retiro</button>
+                    <div class="input-group-cierre">
+                        <label for="montoRetiroDra" style="font-weight: 600;">Monto de Retiro (Efectivo) Q:</label>
+                        <input type="number" id="montoRetiroDra" placeholder="Ej: 500.00" min="0">
+                        <button class="btn-export" id="btnConfirmarRetiro" style="background-color: var(--success-color);">Confirmar Retiro</button>
+                    </div>
                 </div>
+                
+                <div id="inyeccionesInput" style="display: none;">
+                    <div class="input-group-cierre">
+                        <label for="montoInyecciones" style="font-weight: 600;">Total por Servicio de Inyecciones Q:</label>
+                        <input type="number" id="montoInyecciones" placeholder="Ej: 50.00" min="0">
+                    </div>
+                </div>
+                
             </div>
 
             <hr>
@@ -384,7 +409,7 @@
                         <i class="fas fa-file-pdf"></i> Descargar Reporte Diario (PDF)
                     </button>
 
-                    <button class="btn-export" id="btnExportarExcelCierres" style="background-color: var(--info-color);">
+                    <button class="btn-export" id="btnExportarExcelCierres">
                         <i class="fas fa-file-excel"></i> Exportar Reporte de Cierres
                     </button>
 
@@ -400,6 +425,12 @@
         </div>
     </div>
 
+    <script>
+        // Esta línea es necesaria si estás usando importación modular de jsPDF en tu archivo JS
+        // (Aunque lo estás importando globalmente, es una buena práctica asegurar la disponibilidad).
+        window.jsPDF = window.jspdf.jsPDF; 
+    </script>
+    
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
