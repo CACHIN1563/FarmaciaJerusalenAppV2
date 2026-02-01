@@ -1,14 +1,16 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard de Ventas - Farmacia</title>
-    
-    <link rel="stylesheet" href="estilos.css"> 
-    
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
-    
+
+    <link rel="stylesheet" href="estilos.css">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+
     <style>
         /* Variables y estilos generales (Asegúrate de que coincidan con tu 'estilos.css') */
         :root {
@@ -16,15 +18,18 @@
             --primary-dark: #0056b3;
             --dark-gray: #343a40;
             --light-gray: #f8f9fa;
-            --success-color: #28a745; 
-            --danger-color: #dc3545; 
-            --warning-color: #ffc107; /* Amarillo para Retiro/Cierre Mañana */
-            --info-color: #17a2b8; /* Azul claro para Cierres Excel */
+            --success-color: #28a745;
+            --danger-color: #dc3545;
+            --warning-color: #ffc107;
+            /* Amarillo para Retiro/Cierre Mañana */
+            --info-color: #17a2b8;
+            /* Azul claro para Cierres Excel */
             --shadow-medium: 0 4px 15px rgba(0, 0, 0, 0.1);
             --border-color: #dee2e6;
             --light-blue: #e0f2ff;
             --medium-gray: #6c757d;
-            --primary-red: #dc3545; /* Usaremos rojo para Efectivo Restante como alerta */
+            --primary-red: #dc3545;
+            /* Usaremos rojo para Efectivo Restante como alerta */
         }
 
         body {
@@ -36,11 +41,11 @@
             min-height: 100vh;
             color: var(--dark-gray);
         }
-        
+
         /* ---------------------------------------------------------------- */
         /* --- ESTILOS DEL MENÚ DE NAVEGACIÓN --- */
         /* ---------------------------------------------------------------- */
-        
+
         .navbar {
             background-color: var(--primary-blue);
             color: white;
@@ -73,8 +78,8 @@
         .nav-menu li {
             margin-left: 25px;
         }
-        
-        .nav-menu a { 
+
+        .nav-menu a {
             color: white;
             text-decoration: none;
             padding: 10px 15px;
@@ -86,7 +91,7 @@
         .nav-menu a:hover {
             background-color: var(--primary-dark);
         }
-        
+
         /* Dropdown */
         .dropdown {
             position: relative;
@@ -103,7 +108,7 @@
             position: absolute;
             background-color: #f9f9f9;
             min-width: 220px;
-            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+            box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
             z-index: 100;
             right: 0;
             border-radius: 4px;
@@ -127,7 +132,7 @@
         .dropdown:hover .dropdown-content {
             display: block;
         }
-        
+
         /* ---------------------------------------------------------------- */
         /* --- FIN ESTILOS DEL MENÚ DE NAVEGACIÓN --- */
         /* ---------------------------------------------------------------- */
@@ -181,7 +186,7 @@
             border-left: 5px solid;
             transition: transform 0.2s;
         }
-        
+
         .kpi-card:hover {
             transform: translateY(-3px);
             box-shadow: 0 6px 12px rgba(0, 0, 0, 0.12);
@@ -201,27 +206,64 @@
         }
 
         /* Colores de las cards */
-        .kpi-daily { border-left-color: var(--success-color); }
-        .kpi-monthly { border-left-color: var(--primary-blue); }
-        .kpi-total { border-left-color: var(--info-color); }
-        .kpi-warning { border-left-color: var(--warning-color); } /* Para Retiro */
-        .kpi-danger { border-left-color: var(--primary-red); background-color: #ffe0e6; } /* Para Efectivo Restante */
-        
-        .kpi-daily .value { color: var(--success-color); }
-        .kpi-monthly .value { color: var(--primary-blue); }
-        .kpi-total .value { color: var(--info-color); }
-        .kpi-warning .value { color: var(--warning-color); } /* Para Retiro */
-        .kpi-danger .value { color: var(--primary-red); } /* Para Efectivo Restante */
+        .kpi-daily {
+            border-left-color: var(--success-color);
+        }
+
+        .kpi-monthly {
+            border-left-color: var(--primary-blue);
+        }
+
+        .kpi-total {
+            border-left-color: var(--info-color);
+        }
+
+        .kpi-warning {
+            border-left-color: var(--warning-color);
+        }
+
+        /* Para Retiro */
+        .kpi-danger {
+            border-left-color: var(--primary-red);
+            background-color: #ffe0e6;
+        }
+
+        /* Para Efectivo Restante */
+
+        .kpi-daily .value {
+            color: var(--success-color);
+        }
+
+        .kpi-monthly .value {
+            color: var(--primary-blue);
+        }
+
+        .kpi-total .value {
+            color: var(--info-color);
+        }
+
+        .kpi-warning .value {
+            color: var(--warning-color);
+        }
+
+        /* Para Retiro */
+        .kpi-danger .value {
+            color: var(--primary-red);
+        }
+
+        /* Para Efectivo Restante */
 
         /* Controles y Botones de Exportación */
-        .export-section, .cierre-section {
+        .export-section,
+        .cierre-section {
             padding: 20px;
             background-color: var(--light-gray);
             border-radius: 10px;
             margin-bottom: 25px;
         }
 
-        .export-section h2, .cierre-section h2 {
+        .export-section h2,
+        .cierre-section h2 {
             font-size: 1.4rem;
             font-weight: 600;
             margin-top: 0;
@@ -256,33 +298,45 @@
         .btn-export:hover {
             transform: translateY(-1px);
         }
-        
+
         /* Inputs de Cierre - Nuevo estilo para agrupar */
         .input-group-cierre {
             display: flex;
             align-items: center;
             gap: 10px;
         }
-        
+
         .input-group-cierre label {
             white-space: nowrap;
         }
 
         /* Botón de PDF Diario (BIG BUTTON) */
         #btnExportarPdfDiario {
-            background-color: var(--danger-color); /* Rojo para el PDF específico */
+            background-color: var(--danger-color);
+            /* Rojo para el PDF específico */
             font-size: 1.1rem;
             padding: 15px 30px;
             box-shadow: 0 4px 6px rgba(220, 53, 69, 0.4);
         }
 
         /* Botones de Excel y PDF General */
-        #btnExportarExcelTotal { background-color: var(--success-color); }
-        #btnExportarPdfTotal { background-color: var(--primary-dark); }
-        #btnExportarExcelCierres { background-color: var(--info-color); } /* Color para Cierres Excel */
-        
+        #btnExportarExcelTotal {
+            background-color: var(--success-color);
+        }
+
+        #btnExportarPdfTotal {
+            background-color: var(--primary-dark);
+        }
+
+        #btnExportarExcelCierres {
+            background-color: var(--info-color);
+        }
+
+        /* Color para Cierres Excel */
+
         /* Estilo específico para inputs de cierre */
-        #cierreMananaInput input, #inyeccionesInput input {
+        #cierreMananaInput input,
+        #inyeccionesInput input {
             padding: 10px;
             border: 1px solid #ced4da;
             border-radius: 4px;
@@ -290,139 +344,450 @@
             margin-right: 10px;
             font-size: 1rem;
         }
-        
+
         /* Para el input de inyecciones */
         #inyeccionesInput {
-            margin-top: 15px; 
-            padding: 15px; 
-            border: 1px solid var(--primary-blue); 
-            border-radius: 8px; 
+            margin-top: 15px;
+            padding: 15px;
+            border: 1px solid var(--primary-blue);
+            border-radius: 8px;
             background-color: var(--light-blue);
         }
-        
+
         #inyeccionesInput .btn-export {
-             background-color: var(--primary-blue);
+            background-color: var(--primary-blue);
         }
 
+
+        /* Responsive Media Queries */
+        @media (max-width: 768px) {
+            .navbar {
+                flex-direction: column;
+                gap: 10px;
+                padding: 15px;
+            }
+
+            .nav-menu {
+                flex-direction: column;
+                width: 100%;
+                gap: 10px;
+            }
+
+            .nav-menu li {
+                margin: 0;
+                width: 100%;
+                text-align: center;
+            }
+
+            .content-panel {
+                padding: 15px;
+                width: 95%;
+                box-sizing: border-box;
+            }
+
+            .kpi-container {
+                grid-template-columns: 1fr;
+            }
+
+            .button-group {
+                flex-direction: column;
+                width: 100%;
+            }
+
+            .btn-export {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .input-group-cierre {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            #cierreMananaInput input,
+            #inyeccionesInput input {
+                width: 100%;
+                box-sizing: border-box;
+                margin-bottom: 10px;
+            }
+
+            #listaFacturas li,
+            #listaComentarios li {
+                display: flex;
+                flex-direction: column;
+                gap: 5px;
+            }
+
+            /* Ajustes para Modal de Ventas */
+            #tablaVentasDia th,
+            #tablaVentasDia td {
+                padding: 8px 5px;
+                font-size: 0.85rem;
+            }
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 5% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 95%;
+            max-width: 900px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            position: relative;
+        }
+
+        .close-modal {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close-modal:hover,
+        .close-modal:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        /* --- NUEVOS ESTILOS PARA CIERRE (UI) --- */
+        .card-custom {
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            transition: box-shadow 0.2s;
+        }
+
+        .card-custom:hover {
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-control-custom {
+            padding: 10px;
+            border: 1px solid #ced4da;
+            border-radius: 6px;
+            font-size: 0.95rem;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .form-control-custom:focus {
+            border-color: var(--primary-blue);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+        }
+
+        .btn-icon {
+            background: none;
+            border: none;
+            font-size: 1.2rem;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 50%;
+            transition: background 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn-icon:hover {
+            background-color: rgba(0, 0, 0, 0.05);
+        }
+
+        #btnAgregarFactura {
+            color: var(--info-color);
+        }
+
+        #btnAgregarComentario {
+            color: var(--warning-color);
+        }
+
+        table.custom-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        table.custom-table th,
+        table.custom-table td {
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+            text-align: left;
+        }
+
+        table.custom-table th {
+            font-weight: 600;
+            color: var(--medium-gray);
+            font-size: 0.9rem;
+        }
     </style>
+    <script>
+        window.onerror = function (message, source, lineno, colno, error) {
+            alert("Error Crítico de Sistema:\n" + message + "\nEn: " + source + ":" + lineno);
+        };
+    </script>
+    <script src="auth_check.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
 </head>
+
 <body>
-    
+
     <header>
         <nav class="navbar">
             <a href="ventas_dashboard.html" class="logo">
                 <i class="fas fa-prescription-bottle-alt"></i> FARMACIA JERUSALÉN
             </a>
-            
+
             <ul class="nav-menu">
                 <li><a href="index.html">Inicio</a></li>
-                <li><a href="ventas_dashboard.html">Dashboard</a></li> 
-                
+                <li><a href="ventas_dashboard.html">Dashboard</a></li>
+
                 <li class="dropdown">
                     <a href="#" class="dropbtn">Módulos <i class="fas fa-caret-down"></i></a>
                     <div class="dropdown-content">
                         <a href="ventas.html">Ventas <i class="fas fa-cash-register" style="float: right;"></i></a>
                         <a href="inventario.html">Inventario <i class="fas fa-boxes" style="float: right;"></i></a>
-                        <a href="facturas.html">Facturas por Pagar <i class="fas fa-file-invoice-dollar" style="float: right;"></i></a>
-                        <a href="vencimientos.html">Alerta Vencimientos <i class="fas fa-calendar-times" style="float: right;"></i></a>
-                        </div>
+                        <a href="facturas.html">Facturas por Pagar <i class="fas fa-file-invoice-dollar"
+                                style="float: right;"></i></a>
+                        <a href="vencimientos.html">Alerta Vencimientos <i class="fas fa-calendar-times"
+                                style="float: right;"></i></a>
+                    </div>
                 </li>
-                
-                <li><a href="#" aria-label="Usuario"><i class="fas fa-user-circle"></i></a></li>
+
+                <li><a href="#" onclick="logout()" title="Cerrar Sesión"><i class="fas fa-sign-out-alt"></i></a></li>
             </ul>
         </nav>
     </header>
     <div class="main-container">
         <div class="content-panel">
             <h1><i class="fas fa-chart-line"></i> Resumen de Transacciones de Venta</h1>
-            
+
             <div class="kpi-container">
                 <div class="kpi-card kpi-daily">
                     <h3>Venta Total del Día</h3>
                     <div class="value" id="ventaDiaria">Q 0.00</div>
                     <small>Hoy: <span id="fechaActual"></span></small>
                 </div>
-                
+
                 <div class="kpi-card kpi-monthly">
                     <h3>Venta Acumulada del Mes</h3>
-                    <div class="value" id="ventaMensual">Q 0.00</div>
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <div class="value" id="ventaMensual" data-raw="0">******</div>
+                        <i class="fas fa-eye-slash" style="cursor: pointer; color: #6c757d;"
+                            onclick="toggleSensitive('ventaMensual', this)"></i>
+                    </div>
                     <small>Acumulado mensual</small>
                 </div>
-                
+
                 <div class="kpi-card kpi-warning">
                     <h3>Retiro Acumulado Dra. (Hoy)</h3>
                     <div class="value" id="retiroDraDia">Q 0.00</div>
                     <small>Monto total retirado hasta ahora.</small>
                 </div>
-                
+
                 <div class="kpi-card kpi-danger" id="kpiEfectivoRestante" style="display: none;">
                     <h3>Efectivo Restante en Caja</h3>
                     <div class="value" id="efectivoRestante">Q 0.00</div>
                     <small>Efectivo disponible después del cierre de la mañana.</small>
                 </div>
-                
+
                 <div class="kpi-card kpi-total">
                     <h3>Venta Histórica Total</h3>
-                    <div class="value" id="ventaTotalHistorica">Q 0.00</div>
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <div class="value" id="ventaTotalHistorica" data-raw="0">******</div>
+                        <i class="fas fa-eye-slash" style="cursor: pointer; color: #6c757d;"
+                            onclick="toggleSensitive('ventaTotalHistorica', this)"></i>
+                    </div>
                     <small>Desde el inicio del registro</small>
                 </div>
             </div>
 
             <hr>
-            
+
             <div class="cierre-section">
                 <h2><i class="fas fa-cash-register"></i> Control de Cierre de Caja</h2>
                 <div class="button-group">
-                    <button class="btn-export btn-cierre-manana" id="btnCierreManana" style="background-color: var(--warning-color); color: var(--dark-gray);">
+                    <button class="btn-export btn-cierre-manana" id="btnCierreManana"
+                        style="background-color: var(--warning-color); color: var(--dark-gray);">
                         <i class="fas fa-sun"></i> Cierre de Mañana (Retiro)
                     </button>
-                    
-                    <button class="btn-export btn-cierre-tarde" id="btnCierreTarde" style="background-color: var(--primary-blue); display: none;">
+
+                    <button class="btn-export btn-cierre-tarde" id="btnCierreTarde"
+                        style="background-color: var(--primary-blue); display: none;">
                         <i class="fas fa-moon"></i> Cierre Final del Día
                     </button>
                 </div>
 
-                <div id="cierreMananaInput" style="display: none; margin-top: 15px; padding: 15px; border: 1px solid #ffc107; border-radius: 8px; background-color: #fffaf0;">
+                <div id="cierreMananaInput"
+                    style="display: none; margin-top: 15px; padding: 15px; border: 1px solid #ffc107; border-radius: 8px; background-color: #fffaf0;">
                     <div class="input-group-cierre">
                         <label for="montoRetiroDra" style="font-weight: 600;">Monto de Retiro (Efectivo) Q:</label>
                         <input type="number" id="montoRetiroDra" placeholder="Ej: 500.00" min="0">
-                        <button class="btn-export" id="btnConfirmarRetiro" style="background-color: var(--success-color);">Confirmar Retiro</button>
+                        <button class="btn-export" id="btnConfirmarRetiro"
+                            style="background-color: var(--success-color);">Confirmar Retiro</button>
                     </div>
                 </div>
-                
+
                 <div id="inyeccionesInput" style="display: none;">
                     <div class="input-group-cierre">
-                        <label for="montoInyecciones" style="font-weight: 600;">Total por Servicio de Inyecciones Q:</label>
+                        <label for="montoInyecciones" style="font-weight: 600;">Total por Servicio de Inyecciones
+                            Q:</label>
                         <input type="number" id="montoInyecciones" placeholder="Ej: 50.00" min="0">
                     </div>
                 </div>
-                
+
             </div>
 
-            <hr>
+            <!-- SECCIÓN DE CIERRE DE TARDE / FINAL -->
+            <div id="cierreTardeInput"
+                style="display: none; margin-top: 25px; padding: 25px; border: 0; border-radius: 12px; background-color: white; box-shadow: var(--shadow-medium);">
+                <h3
+                    style="margin-top: 0; color: var(--primary-dark); padding-bottom: 15px; border-bottom: 2px solid #e0f2ff; display: flex; align-items: center; gap: 10px;">
+                    <i class="fas fa-file-invoice-dollar"></i> Detalles del Cierre Final
+                </h3>
 
-            <div class="export-section">
-                <h2><i class="fas fa-download"></i> Opciones de Reportes y Exportación</h2>
-                <div class="button-group">
-                    
-                    <button class="btn-export" id="btnExportarPdfDiario">
-                        <i class="fas fa-file-pdf"></i> Descargar Reporte Diario (PDF)
-                    </button>
+                <!-- Contenedor Flex/Grid para Facturas y Salarios -->
+                <div
+                    style="display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 25px; margin-bottom: 25px;">
 
-                    <button class="btn-export" id="btnExportarExcelCierres">
-                        <i class="fas fa-file-excel"></i> Exportar Reporte de Cierres
-                    </button>
+                    <!-- Card Facturas -->
+                    <div class="card-custom"
+                        style="background: #ffffff; padding: 20px; border-radius: 10px; border: 1px solid #e9ecef; border-left: 5px solid var(--info-color);">
+                        <h4 style="margin: 0 0 15px 0; color: var(--dark-gray); font-size: 1.1rem;"><i
+                                class="fas fa-receipt" style="color: var(--info-color);"></i> Facturas del Día</h4>
+                        <div class="input-group-cierre" style="gap: 10px; margin-bottom: 15px;">
+                            <input type="text" id="facturaDesc" placeholder="Descripción / No. Factura"
+                                class="form-control-custom" style="flex: 2;">
+                            <input type="number" id="facturaMonto" placeholder="Monto Q" min="0"
+                                class="form-control-custom" style="flex: 1;">
+                            <button class="btn-export" id="btnAgregarFactura"
+                                style="padding: 8px 12px; background-color: var(--info-color); color: white; border-radius: 6px;">
+                                <i class="fas fa-plus"></i>
+                            </button>
+                        </div>
+                        <div id="listaFacturasContainer"
+                            style="background: #f8f9fa; border-radius: 6px; padding: 5px; max-height: 200px; overflow-y: auto;">
+                            <table class="custom-table" id="tablaFacturas">
+                                <thead>
+                                    <tr>
+                                        <th>Descripción</th>
+                                        <th style="text-align: right;">Monto</th>
+                                        <th style="width: 40px;"></th>
+                                    </tr>
+                                </thead>
+                                <tbody id="bodyTablaFacturas">
+                                    <!-- Se llenará dinámicamente -->
+                                </tbody>
+                            </table>
+                            <p id="msgSinFacturas"
+                                style="text-align: center; color: #aaa; font-size: 0.9rem; margin: 10px; display: none;">
+                                No hay facturas agregadas.</p>
+                        </div>
+                    </div>
 
-                    <button class="btn-export" id="btnExportarExcelTotal">
-                        <i class="fas fa-file-excel"></i> Exportar Histórico (Excel)
-                    </button>
-                    <button class="btn-export" id="btnExportarPdfTotal">
-                        <i class="fas fa-file-pdf"></i> Exportar Histórico (PDF)
+                    <!-- Card Salario -->
+                    <div class="card-custom"
+                        style="background: #ffffff; padding: 20px; border-radius: 10px; border: 1px solid #e9ecef; border-left: 5px solid var(--primary-blue);">
+                        <h4 style="margin: 0 0 15px 0; color: var(--dark-gray); font-size: 1.1rem;"><i
+                                class="fas fa-user-tie" style="color: var(--primary-blue);"></i> Pago de Salario</h4>
+                        <div style="display: flex; flex-direction: column; gap: 10px;">
+                            <label style="font-size: 0.9rem; font-weight: 500;">Nombre del Empleado / Detalle:</label>
+                            <input type="text" id="salarioDesc" placeholder="Ej: Juan Pérez - Turno Tarde"
+                                class="form-control-custom">
+
+                            <label style="font-size: 0.9rem; font-weight: 500;">Monto a Pagar (Q):</label>
+                            <input type="number" id="salarioMonto" placeholder="0.00" min="0"
+                                class="form-control-custom">
+                        </div>
+                        <div
+                            style="margin-top: 15px; background: #e0f2ff; padding: 10px; border-radius: 6px; font-size: 0.85rem; color: var(--primary-dark);">
+                            <i class="fas fa-info-circle"></i> Solo se permite registrar un pago de salario por cierre
+                            diario.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Comentarios Full Width -->
+                <div class="card-custom"
+                    style="background: #fff9db; padding: 20px; border-radius: 10px; border: 1px solid #ffeeba; border-left: 5px solid var(--warning-color);">
+                    <h4 style="margin: 0 0 15px 0; color: #856404; font-size: 1.1rem;"><i
+                            class="fas fa-comment-alt"></i> Notas o Comentarios Finales</h4>
+                    <div class="input-group-cierre" style="gap: 10px;">
+                        <input type="text" id="comentarioTexto"
+                            placeholder="Escribe aquí cualquier observación importante..." class="form-control-custom"
+                            style="background: white;">
+                        <button class="btn-export" id="btnAgregarComentario"
+                            style="padding: 8px 12px; background-color: var(--warning-color); color: #333; border-radius: 6px;">
+                            <i class="fas fa-plus"></i>
+                        </button>
+                    </div>
+                    <ul id="listaComentarios" style="margin-top: 15px; padding-left: 20px; color: #555;"></ul>
+                </div>
+
+                <!-- Boton Confirmar -->
+                <div style="margin-top: 30px; display: flex; justify-content: flex-end;">
+                    <button class="btn-export" id="btnConfirmarCierreFinal"
+                        style="width: 100%; background-color: var(--primary-dark); justify-content: center; font-size: 1.1rem;">
+                        <i class="fas fa-save"></i> CONFIRMAR CIERRE FINAL DEL DÍA
                     </button>
                 </div>
             </div>
-            
         </div>
+
+        <!-- NUEVO BOTÓN PARA GESTIÓN DE VENTAS -->
+        <div class="export-section" style="background-color: #e8f5e9; border: 1px solid #c8e6c9;">
+            <h2 style="color: #2e7d32; margin-bottom: 10px;"><i class="fas fa-search-dollar"></i> Gestión de Ventas del
+                Día</h2>
+            <div class="button-group">
+                <button class="btn-export" id="btnVerVentasDia" style="background-color: #2e7d32;">
+                    <i class="fas fa-list-ul"></i> Ver y Gestionar Ventas de HOY
+                </button>
+            </div>
+        </div>
+
+        <hr>
+
+        <div class="export-section">
+            <h2><i class="fas fa-download"></i> Opciones de Reportes y Exportación</h2>
+            <div class="button-group">
+
+                <button class="btn-export" id="btnExportarPdfDiario">
+                    <i class="fas fa-file-pdf"></i> Descargar Reporte Diario (PDF)
+                </button>
+
+                <button class="btn-export" id="btnCompartirWhatsapp" style="background-color: #25D366; color: white;">
+                    <i class="fab fa-whatsapp"></i> Enviar Resumen al WhatsApp
+                </button>
+
+                <button class="btn-export" id="btnExportarExcelCierres">
+                    <i class="fas fa-file-excel"></i> Exportar Reporte de Cierres
+                </button>
+
+                <button class="btn-export" id="btnExportarExcelTotal">
+                    <i class="fas fa-file-excel"></i> Exportar Histórico (Excel)
+                </button>
+                <button class="btn-export" id="btnExportarPdfTotal">
+                    <i class="fas fa-file-pdf"></i> Exportar Histórico (PDF)
+                </button>
+            </div>
+        </div>
+
+    </div>
     </div>
 
     <script>
@@ -430,11 +795,36 @@
         // (Aunque lo estás importando globalmente, es una buena práctica asegurar la disponibilidad).
         window.jsPDF = window.jspdf.jsPDF; 
     </script>
-    
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
-    
-    <script type="module" src="./ventas_dashboard.js"></script> 
+
+
+
+    <!-- MODAL DE GESTIÓN DE VENTAS -->
+    <div id="modalVentasDia" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" id="closeModalVentas">&times;</span>
+            <h2 style="color: var(--primary-dark); border-bottom: 2px solid var(--primary-blue); padding-bottom: 10px;">
+                <i class="fas fa-list-alt"></i> Ventas del Día
+            </h2>
+            <div style="overflow-x: auto; max-height: 60vh; overflow-y: auto;">
+                <table style="width: 100%; border-collapse: collapse; margin-top: 15px;" id="tablaVentasDia">
+                    <thead>
+                        <tr style="background-color: var(--primary-blue); color: white;">
+                            <th style="padding: 10px;">Hora</th>
+                            <th style="padding: 10px;">No. Venta</th>
+                            <th style="padding: 10px;">Productos</th>
+                            <th style="padding: 10px; text-align: right;">Total</th>
+                            <th style="padding: 10px; text-align: center;">Acción</th>
+                        </tr>
+                    </thead>
+                    <tbody id="bodyTablaVentasDia">
+                        <!-- Se llena dinámicamente -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="./ventas_dashboard.js"></script>
 </body>
+
 </html>
