@@ -1711,104 +1711,118 @@ function generarBlobPdfDiario(ventasDelDia) {
 // ---------------------------------------------------------------------------------------------------
 // FUNCIÓN WHATSAPP API (CON UPLOAD DE PDF)
 // ---------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------
+// FUNCIÓN WHATSAPP API (CON UPLOAD DE PDF)
+// ---------------------------------------------------------------------------------------------------
 btnCompartirWhatsapp?.addEventListener("click", async () => {
-    console.log("🟢 Click iniciar WhatsApp API");
-
-    // --- CONFIRMACIÓN PREVIA ---
-    if (!confirm("¿Deseas enviar el reporte PDF vía WhatsApp API?")) {
-        return;
-    }
+    console.log("🟢 Iniciando WhatsApp API...");
 
     if (!datosCargadosCompletos) {
         const exito = await cargarVentasYCálculos();
         if (!exito) return;
     }
 
-    // 1. Generar el PDF en Memoria (Blob)
     const ventasDelDia = todasLasVentas.filter(v => v.fechaVentaStr === formatDate(new Date()));
+    const totales = calcularTotalesVentaDia(ventasDelDia);
+    const fechaHoy = formatDate(new Date());
 
-    let doc;
-    try {
-        console.log("Generando PDF Blob...");
-        doc = generarBlobPdfDiario(ventasDelDia);
-    } catch (e) {
-        alert("Error interno: La función generarBlobPdfDiario falló. " + e.message);
-        console.error(e);
+    // --- PREPARAR MENSAJE DE TEXTO (FALLBACK) ---
+    const gastosFacturasSum = infoFacturas.reduce((acc, f) => acc + (parseFloat(f.monto) || 0), 0);
+    const efectivoFinalCaja = totales.efectivoDia + totalInyecciones + baseCajaInicial - totalRetiradoDra;
+
+    let mensajeTexto = `📊 *REPORTE FARMACIA JERUSALÉN* 📊\n`;
+    mensajeTexto += `📅 Fecha: ${fechaHoy}\n`;
+    mensajeTexto += `--------------------------------\n`;
+    mensajeTexto += `💰 *Venta Global:* ${formatoMoneda(totales.totalDia)}\n`;
+    mensajeTexto += `💵 *Efectivo (Ventas):* ${formatoMoneda(totales.efectivoDia)}\n`;
+    mensajeTexto += `💳 *Tarjeta (Neto):* ${formatoMoneda(totales.tarjetaDia)}\n`;
+    mensajeTexto += `💉 *Inyecciones:* ${formatoMoneda(totalInyecciones)}\n`;
+    mensajeTexto += `--------------------------------\n`;
+    mensajeTexto += `📉 *SALIDAS / RETIROS:*\n`;
+    mensajeTexto += `• Retiro Dra: ${formatoMoneda(totalRetiradoDra)}\n`;
+    if (gastosFacturasSum > 0) mensajeTexto += `• Facturas: ${formatoMoneda(gastosFacturasSum)}\n`;
+    if (infoSalario) mensajeTexto += `• Salario: ${formatoMoneda(infoSalario.monto)}\n`;
+    mensajeTexto += `--------------------------------\n`;
+    mensajeTexto += `✅ *EFECTIVO EN CAJA:* ${formatoMoneda(efectivoFinalCaja)}\n`;
+
+    const abrirWhatsAppWeb = () => {
+        const url = `https://wa.me/50236359013?text=${encodeURIComponent(mensajeTexto)}`;
+        window.open(url, '_blank');
+    };
+
+    // --- DIÁLOGO DE SELECCIÓN ---
+    const sendPdf = confirm("¿Deseas enviar el PDF por la API de Meta?\n\n(Si te sale error de CORS en consola, es por bloqueo de navegador. Cancela para enviar el REPORTE DE TEXTO directamente).");
+
+    if (!sendPdf) {
+        abrirWhatsAppWeb();
         return;
     }
 
-    const pdfBlob = doc.output('blob');
-    console.log("PDF Blob generado. Tamaño:", pdfBlob.size);
-
-    // 2. Configuración API 
-    const TOKEN = "EAAR1qjceh8wBQnKvUzDLDOH6dTOQOBSZChrn5seuNoYIVNx5zUgXTv7hoDSpzyAs0oEDDZAhQGp8a286DhVjLlfzSR3ytwuIkFNtSW3mqwxLE31hw1xrc9ZB7otaNleQd7FHNPKOTMwY2SqZA6Cm9spNppM1exdZCEC1PfJeAQZCoFMvrB0GmbaFQ4HtLP0R2vqz6mgopVnFjBGSSkrlDh84iGGWps9kXXKbplxlS6YtgHmklnqgV5PGDJfUxGbpTXmPGCcziOAGfZCrxbe0lnc6o6TtQZDZD";
-    const PHONE_NUMBER_ID = "1000182449838839";
-    const TO_NUMBER = "50236359013";
-
-    const formData = new FormData();
-    formData.append("messaging_product", "whatsapp");
-    formData.append("file", pdfBlob, `Reporte_${formatDate(new Date())}.pdf`);
-    formData.append("type", "application/pdf");
-
+    // --- PROCESO API ---
     // UI Feedback
-    const originalText = btnCompartirWhatsapp.innerHTML;
-    btnCompartirWhatsapp.innerHTML = "<i class='fas fa-spinner fa-spin'></i> Subiendo...";
+    const originalBtn = btnCompartirWhatsapp.innerHTML;
+    btnCompartirWhatsapp.innerHTML = "<i class='fas fa-spinner fa-spin'></i> Enviando...";
     btnCompartirWhatsapp.disabled = true;
 
     try {
-        // A. SUBIR ARCHIVO (MEDIA UPLOAD)
-        console.log("Subiendo PDF a WhatsApp (Endpoint)...");
+        // 1. Generar PDF
+        let doc = generarBlobPdfDiario(ventasDelDia);
+        const pdfBlob = doc.output('blob');
 
-        const uploadRes = await fetch(`https://graph.facebook.com/v22.0/${PHONE_NUMBER_ID}/media`, {
+        // 2. Parámetros API
+        const TOKEN = "EAAR1qjceh8wBQhOlOJcQmwmffyb2XE9u5EIT16irEzEkBs3o97ZCdKrZCKrk7rayzjK2zlDGG0LJoC0BZBZCkpDZCkmEY4NAu50zLJawR3sA5sVpf7ZCSc5xdUkdnuGO4tpcTzcJJdyZArRqZBALFQTV4ZARDL2uJFYesCRKLOrG5rC3SnOJ8KN26pczZC0ZAd6OE4sIgZDZD";
+        const PHONE_ID = "1000182449838839";
+        const TO = "50236359013";
+
+        const formData = new FormData();
+        formData.append("messaging_product", "whatsapp");
+        formData.append("file", pdfBlob, `Reporte_${fechaHoy.replace(/\//g, '-')}.pdf`);
+        formData.append("type", "application/pdf");
+
+        // 3. Media Upload
+        const upload = await fetch(`https://graph.facebook.com/v22.0/${PHONE_ID}/media`, {
             method: 'POST',
-            headers: {
-                'Authorization': `Bearer ${TOKEN}`
-            },
+            headers: { 'Authorization': `Bearer ${TOKEN}` },
             body: formData
         });
 
-        if (!uploadRes.ok) {
-            const err = await uploadRes.json();
-            throw new Error(`Error en Upload: ${JSON.stringify(err)}`);
+        if (!upload.ok) {
+            const err = await upload.json();
+            throw new Error(`Error Upload: ${JSON.stringify(err)}`);
         }
 
-        const uploadData = await uploadRes.json();
-        const mediaId = uploadData.id;
-        console.log("Media ID obtenido:", mediaId);
+        const { id: mediaId } = await upload.json();
 
-        // B. ENVIAR MENSAJE (MEDIA MESSAGE)
-        const messageBody = {
-            messaging_product: "whatsapp",
-            to: TO_NUMBER,
-            type: "document",
-            document: {
-                id: mediaId,
-                caption: "buenas tardes, el sistema de farmacia Jerusalem ha generado este reporte. cualquier inconveniente comunicarse al numero +502 36359013... Ing. Carlos Cachin...",
-                filename: `Reporte_${formatDate(new Date())}.pdf`
-            }
-        };
-
-        console.log("Enviando mensaje...");
-        const msgRes = await fetch(`https://graph.facebook.com/v22.0/${PHONE_NUMBER_ID}/messages`, {
+        // 4. Send Message
+        const msgRes = await fetch(`https://graph.facebook.com/v22.0/${PHONE_ID}/messages`, {
             method: 'POST',
             headers: {
                 'Authorization': `Bearer ${TOKEN}`,
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify(messageBody)
+            body: JSON.stringify({
+                messaging_product: "whatsapp",
+                to: TO,
+                type: "document",
+                document: {
+                    id: mediaId,
+                    caption: "Reporte Farmacia Jerusalén",
+                    filename: `Reporte_${fechaHoy.replace(/\//g, '-')}.pdf`
+                }
+            })
         });
 
-        if (!msgRes.ok) {
-            const err = await msgRes.json();
-            throw new Error(`Error al enviar mensaje: ${JSON.stringify(err)}`);
+        if (!msgRes.ok) throw new Error("Error al enviar el mensaje.");
+
+        alert("✅ PDF enviado con éxito.");
+
+    } catch (e) {
+        console.error(e);
+        if (confirm("❌ Error en la API (Token o CORS).\n\n¿Deseas enviar el reporte en formato TEXTO por WhatsApp Web?")) {
+            abrirWhatsAppWeb();
         }
-
-        alert("✅ Reporte PDF enviado exitosamente a WhatsApp (API).");
-
-    } catch (error) {
-        console.error(error);
-        alert(`❌ Error al enviar por WhatsApp API:\n${error.message}\n\nNOTA: Si dice 'Failed to fetch', es probable que sea bloqueo CORS.`);
     } finally {
+        btnCompartirWhatsapp.innerHTML = originalBtn;
         btnCompartirWhatsapp.disabled = false;
     }
 });

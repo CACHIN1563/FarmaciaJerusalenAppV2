@@ -575,7 +575,14 @@
     </header>
     <div class="main-container">
         <div class="content-panel">
-            <h1><i class="fas fa-chart-line"></i> Resumen de Transacciones de Venta</h1>
+            <div
+                style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 20px;">
+                <h1 style="margin: 0;"><i class="fas fa-chart-line"></i> Resumen de Transacciones de Venta</h1>
+                <button class="btn-export" id="btnCompartirWhatsapp"
+                    style="background-color: #25D366; color: white; padding: 12px 20px; font-weight: bold; border-radius: 50px; box-shadow: 0 4px 10px rgba(37, 211, 102, 0.3); border: none; cursor: pointer; display: flex; align-items: center; gap: 8px; font-size: 1.1rem;">
+                    <i class="fab fa-whatsapp" style="font-size: 1.4rem;"></i> ENVIAR REPORTE POR WHATSAPP
+                </button>
+            </div>
 
             <div class="kpi-container">
                 <div class="kpi-card kpi-daily">
@@ -770,9 +777,6 @@
                     <i class="fas fa-file-pdf"></i> Descargar Reporte Diario (PDF)
                 </button>
 
-                <button class="btn-export" id="btnCompartirWhatsapp" style="background-color: #25D366; color: white;">
-                    <i class="fab fa-whatsapp"></i> Enviar Resumen al WhatsApp
-                </button>
 
                 <button class="btn-export" id="btnExportarExcelCierres">
                     <i class="fas fa-file-excel"></i> Exportar Reporte de Cierres
