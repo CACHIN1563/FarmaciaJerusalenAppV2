@@ -1746,7 +1746,10 @@ btnCompartirWhatsapp?.addEventListener("click", async () => {
     mensajeTexto += `✅ *EFECTIVO EN CAJA:* ${formatoMoneda(efectivoFinalCaja)}\n`;
 
     const abrirWhatsAppWeb = () => {
-        const url = `https://wa.me/50236359013?text=${encodeURIComponent(mensajeTexto)}`;
+        const num = confirm("¿Enviar a Carlos (+502 3635...) o al nuevo número (+502 3194...)?\n\nAceptar: Carlos\nCancelar: Nuevo Número")
+            ? "50236359013"
+            : "50231943130";
+        const url = `https://wa.me/${num}?text=${encodeURIComponent(mensajeTexto)}`;
         window.open(url, '_blank');
     };
 
@@ -1772,14 +1775,14 @@ btnCompartirWhatsapp?.addEventListener("click", async () => {
         // 2. Parámetros API
         const TOKEN = "EAAR1qjceh8wBQhOlOJcQmwmffyb2XE9u5EIT16irEzEkBs3o97ZCdKrZCKrk7rayzjK2zlDGG0LJoC0BZBZCkpDZCkmEY4NAu50zLJawR3sA5sVpf7ZCSc5xdUkdnuGO4tpcTzcJJdyZArRqZBALFQTV4ZARDL2uJFYesCRKLOrG5rC3SnOJ8KN26pczZC0ZAd6OE4sIgZDZD";
         const PHONE_ID = "1000182449838839";
-        const TO = "50236359013";
+        const DESTINATARIOS = ["50236359013", "50231943130"];
 
         const formData = new FormData();
         formData.append("messaging_product", "whatsapp");
         formData.append("file", pdfBlob, `Reporte_${fechaHoy.replace(/\//g, '-')}.pdf`);
         formData.append("type", "application/pdf");
 
-        // 3. Media Upload
+        // 3. Media Upload (Una sola vez)
         const upload = await fetch(`https://graph.facebook.com/v22.0/${PHONE_ID}/media`, {
             method: 'POST',
             headers: { 'Authorization': `Bearer ${TOKEN}` },
@@ -1793,28 +1796,29 @@ btnCompartirWhatsapp?.addEventListener("click", async () => {
 
         const { id: mediaId } = await upload.json();
 
-        // 4. Send Message
-        const msgRes = await fetch(`https://graph.facebook.com/v22.0/${PHONE_ID}/messages`, {
-            method: 'POST',
-            headers: {
-                'Authorization': `Bearer ${TOKEN}`,
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                messaging_product: "whatsapp",
-                to: TO,
-                type: "document",
-                document: {
-                    id: mediaId,
-                    caption: "Reporte Farmacia Jerusalén",
-                    filename: `Reporte_${fechaHoy.replace(/\//g, '-')}.pdf`
-                }
-            })
-        });
+        // 4. Enviar Mensaje a cada destinatario
+        for (const numero of DESTINATARIOS) {
+            console.log(`Enviando a ${numero}...`);
+            await fetch(`https://graph.facebook.com/v22.0/${PHONE_ID}/messages`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${TOKEN}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    messaging_product: "whatsapp",
+                    to: numero,
+                    type: "document",
+                    document: {
+                        id: mediaId,
+                        caption: "Reporte Farmacia Jerusalén",
+                        filename: `Reporte_${fechaHoy.replace(/\//g, '-')}.pdf`
+                    }
+                })
+            });
+        }
 
-        if (!msgRes.ok) throw new Error("Error al enviar el mensaje.");
-
-        alert("✅ PDF enviado con éxito.");
+        alert("✅ PDF enviado con éxito a todos los números.");
 
     } catch (e) {
         console.error(e);
