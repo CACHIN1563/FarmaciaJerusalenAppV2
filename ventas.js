@@ -691,7 +691,7 @@ btnVender.addEventListener("click", async () => {
                             documento: venta.numeroVenta.toString(),
                             cantidad: unidadesVendidas,
                             saldo: Math.max(0, nuevoStockTotal),
-                            observacion: "Venta registrada"
+                            observacion: "Venta registrada no# " + venta.numeroVenta
                         });
                     } catch (kError) {
                         console.error("Error al registrar salida en Kardex:", kError);

@@ -434,7 +434,7 @@ formProducto?.addEventListener("submit", async (e) => {
             
             // Si es antibiótico, registrar entrada inicial en el Kardex
             if (datosProducto.antibiotico) {
-                await registrarMovimientoKardex(newDoc.id, datosProducto, 'ENTRADA', datosProducto.stock, datosProducto.numFactura, "Ingreso inicial de lote");
+                await registrarMovimientoKardex(newDoc.id, datosProducto, 'ENTRADA', datosProducto.stock, datosProducto.numFactura, "Ingreso de producto..");
             }
             
             alert(`✅ Nuevo Lote de ${datosProducto.nombre} agregado correctamente.`);
@@ -962,7 +962,7 @@ if (btnGuardarCargaRapida) {
                     stock: nuevoStockTotal,
                     numFactura: facturaDoc || dataActual.numFactura 
                 };
-                await registrarMovimientoKardex(idProducto, dataParaKardex, 'ENTRADA', cantidadAgregar, facturaDoc || "Carga Rápida", "Aumento de stock (Carga Rápida)");
+                await registrarMovimientoKardex(idProducto, dataParaKardex, 'ENTRADA', cantidadAgregar, facturaDoc || "Carga Rápida", "Ingreso de producto..");
             }
 
             alert(`✅ Stock actualizado exitosamente.\nNuevo total: ${nuevoStockTotal}`);
