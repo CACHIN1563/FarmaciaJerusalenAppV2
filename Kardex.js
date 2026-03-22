@@ -149,7 +149,7 @@ function renderizarTabla() {
 
         tr.innerHTML = `
             <td>${fechaStr}</td>
-            <td>${mov.documento || 'S/N'}</td>
+            <td>${mov.documento || '-'}</td>
             <td class="tipo-entrada">${mov.tipo === 'ENTRADA' ? mov.cantidad : '-'}</td>
             <td class="tipo-salida">${mov.tipo === 'SALIDA' ? mov.cantidad : '-'}</td>
             <td style="font-weight:bold;">${mov.saldo}</td>
@@ -198,7 +198,7 @@ function generarPdfKardex() {
     // Tabla de Movimientos
     const tableData = movimientosActuales.map(mov => [
         mov.fechaObjeto.toLocaleDateString('es-GT'),
-        mov.documento || 'S/N',
+        mov.documento || '-',
         mov.tipo === 'ENTRADA' ? mov.cantidad : '',
         mov.tipo === 'SALIDA' ? mov.cantidad : '',
         mov.saldo,

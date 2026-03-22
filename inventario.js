@@ -797,7 +797,7 @@ async function registrarMovimientoKardex(loteId, dataProducto, tipo, cantidad, d
             presentacion_med: dataProducto.presentacion_med || "",
             fecha: new Date(), // Timestamp local para ordenamiento
             tipo: tipo, // 'ENTRADA' o 'SALIDA'
-            documento: documento || "S/N",
+            documento: documento || "-",
             cantidad: cantidad,
             saldo: dataProducto.stock, // El saldo después del movimiento
             observacion: observacion

@@ -688,7 +688,7 @@ btnVender.addEventListener("click", async () => {
                             presentacion_med: loteOriginal.presentacion_med || "",
                             fecha: new Date(),
                             tipo: 'SALIDA',
-                            documento: venta.numeroVenta.toString(),
+                            documento: "-", // Solo se usa para facturas de entrada
                             cantidad: unidadesVendidas,
                             saldo: Math.max(0, nuevoStockTotal),
                             observacion: "Venta registrada no# " + venta.numeroVenta
