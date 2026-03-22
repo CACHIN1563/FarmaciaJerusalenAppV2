@@ -591,11 +591,18 @@ async function exportarPdfDiario() {
         });
 
         // --- Cálculo de Totales y Resumen ---
-        // Efectivo en caja = Efectivo Neto (productos) + Inyecciones + baseCajaInicial - Total Retirado Dra
-        const efectivoEnCaja = totalEfectivoDia + totalInyecciones + baseCajaInicial - totalRetiradoDra;
+        const totalVentaTienda = parseFloat(document.getElementById("montoVentaTienda")?.value) || 0;
+        const totalFacturasDia = infoFacturas.reduce((acc, f) => acc + parseFloat(f.monto || 0), 0);
+        const totalInyeccionesReal = parseFloat(document.getElementById("montoInyecciones")?.value) || totalInyecciones;
 
-        // Venta Neta Final = Venta Neto (Productos) + Inyecciones
-        const ventaNetaFinal = totalNetoDia + totalInyecciones;
+        // Efectivo en caja = Efectivo Neto (productos) + Inyecciones + baseCajaInicial - Total Retirado Dra - Facturas
+        const efectivoEnCaja = totalEfectivoDia + totalInyeccionesReal + baseCajaInicial - totalRetiradoDra - totalFacturasDia;
+
+        // Venta Neta Final = Solo Venta Neto de Productos (según solicitud)
+        const ventaNetaFinal = totalNetoDia;
+
+        // Re-asignar para uso en la tabla
+        totalInyecciones = totalInyeccionesReal;
 
         // *** APLICAR ORDENAMIENTO FINAL ***
         detallesVentaTabla.sort((a, b) => {
@@ -716,38 +723,38 @@ async function exportarPdfDiario() {
         // MOVIMIENTOS DE CAJA Y TOTALES FINALES (COLORES AJUSTADOS)
         // -----------------------------------------------------------
         const movimientosCaja = [
-            // TOTAL VENTA NETA FINAL (PRODUCTOS + INYECCIONES)
-            // Color de fondo celeste claro (similar a la imagen)
-            [{ content: 'TOTAL VENTA NETA FINAL (VENTAS + INYECCIONES)', colSpan: 1, styles: { fontStyle: 'bold', fillColor: [215, 235, 255] } },
+            // TOTAL VENTA NETA FINAL (Solo PRODUCTOS)
+            [{ content: 'TOTAL VENTA NETA (Solo Ventas de Productos)', colSpan: 1, styles: { fontStyle: 'bold', fillColor: [215, 235, 255] } },
             formatoMoneda(ventaNetaFinal),
-            // Etiqueta verde
             { content: 'VENTA NETA', styles: { fontStyle: 'bold', fillColor: [153, 204, 153], textColor: 0 } }],
 
             // Inyecciones (Fondo claro)
-            ['Total en Inyecciones', formatoMoneda(totalInyecciones),
-                // Etiqueta amarilla
+            ['(+) Servicio de Inyecciones', formatoMoneda(totalInyecciones),
                 { content: 'INYECCIONES', styles: { fillColor: [255, 255, 153], textColor: 0 } }],
+
+            // Venta Tienda (NUEVO - Informativo)
+            ['Venta Total del Día TIENDA (Dato aparte)', formatoMoneda(totalVentaTienda),
+                { content: 'TIENDA', styles: { fillColor: [220, 220, 220], textColor: 0 } }],
+
+            // Facturas (Restado de Caja)
+            ['(-) Pago de Facturas del Día (Sub-total)', formatoMoneda(totalFacturasDia),
+                { content: 'FACTURAS', styles: { fillColor: [255, 204, 204], textColor: 0 } }],
 
             // Recargo (Fondo claro)
             ['Monto de Recargo por Tarjeta (5%)', formatoMoneda(montoRecargoTotal),
-                // Etiqueta verde claro
                 { content: 'RECARGO', styles: { fillColor: [204, 255, 204], textColor: 0 } }],
 
             // Base de Caja (Fondo claro)
             ['BASE DE CAJA INICIAL (Saldo del día anterior)', formatoMoneda(baseCajaInicial),
-                // Etiqueta amarilla
                 { content: 'BASE', styles: { fillColor: [255, 255, 153], textColor: 0 } }],
 
             // Retiro de Dra. (Fondo claro)
             ['MONTO RETIRADO POR DRA.', formatoMoneda(totalRetiradoDra),
-                // Etiqueta salmón/rojiza
                 { content: 'RETIRO', styles: { fillColor: [255, 204, 204], textColor: 0 } }],
 
             // Efectivo Restante (FINAL)
-            // Color de fondo salmón/rojizo fuerte (similar a la imagen)
-            [{ content: 'EFECTIVO RESTANTE EN CAJA (Efectivo Neto + Base - Retiro)', colSpan: 1, styles: { fontStyle: 'bold', fillColor: [255, 204, 204] } },
+            [{ content: 'EFECTIVO RESTANTE EN CAJA (Ventas + Iny. + Base - Retiro - Facturas)', colSpan: 1, styles: { fontStyle: 'bold', fillColor: [255, 204, 204] } },
             formatoMoneda(efectivoEnCaja),
-            // Etiqueta roja
             { content: 'FINAL', styles: { fontStyle: 'bold', fillColor: [255, 102, 102], textColor: 255 } }],
         ];
 
