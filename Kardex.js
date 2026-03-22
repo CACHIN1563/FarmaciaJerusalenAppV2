@@ -92,8 +92,7 @@ async function cargarMovimientosKardex() {
         // Consultar movimientos donde el nombre coincida (agrupamos por nombre comercial)
         const q = query(
             collection(db, "kardex_antibioticos"), 
-            where("nombre", "==", productoSeleccionado.nombre),
-            orderBy("fecha", "asc")
+            where("nombre", "==", productoSeleccionado.nombre)
         );
         
         const snapshot = await getDocs(q);
@@ -112,6 +111,9 @@ async function cargarMovimientosKardex() {
                 });
             }
         });
+
+        // Ordenar en memoria por fecha para evitar errores de índice compuesto en Firebase
+        movimientosActuales.sort((a, b) => a.fechaObjeto - b.fechaObjeto);
 
         renderizarTabla();
         
