@@ -661,6 +661,7 @@
                 <div class="dropdown-content">
                     <a href="ventas.html">Ventas <i class="fas fa-cash-register" style="float: right;"></i></a>
                     <a href="inventario.html">Inventario <i class="fas fa-boxes" style="float: right;"></i></a>
+                    <a href="Kardex.html">Kardex <i class="fas fa-file-medical-alt" style="float: right;"></i></a>
                     <a href="facturas.html">Facturas por Pagar <i class="fas fa-file-invoice-dollar"
                             style="float: right;"></i></a>
                     <a href="vencimientos.html">Alerta Vencimientos <i class="fas fa-calendar-times"
@@ -733,9 +734,14 @@
                         <input type="text" id="marca" name="marca" placeholder="Ej: Genérico / Pfizer">
                     </div>
                     <div class="form-group">
-                        <label for="ubicacion">Ubicación (Estante/Cajón):</label>
-                        <input type="text" id="ubicacion" name="ubicacion" placeholder="Ej: 2B DER">
+                        <label for="numFactura">📄 Factura # (Opcional):</label>
+                        <input type="text" id="numFactura" name="numFactura" placeholder="Ej: FAC-12345">
                     </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="ubicacion">Ubicación (Estante/Cajón):</label>
+                    <input type="text" id="ubicacion" name="ubicacion" placeholder="Ej: 2B DER">
                 </div>
 
                 <h3 class="subsection-title">Precios Base (Referencia)</h3>
@@ -822,6 +828,25 @@
                             <label for="antibiotico">Requiere Receta (Antibiótico)</label>
                         </div>
                     </div>
+
+                    <!-- Campos exclusivos para el Kardex de Antibióticos -->
+                    <div id="seccion-kardex" style="display: none; background-color: #fef2f2; padding: 15px; border-radius: 8px; border: 1px solid #fee2e2; margin-top: 10px;">
+                        <h4 style="color: #991b1b; margin-top: 0; font-size: 0.9rem;"><i class="fas fa-file-medical"></i> Datos para Kardex Sanitario</h4>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="principioActivo">Principio Activo:</label>
+                                <input type="text" id="principioActivo" name="principioActivo" placeholder="Ej: Amoxicilina">
+                            </div>
+                            <div class="form-group">
+                                <label for="concentracion">Concentración:</label>
+                                <input type="text" id="concentracion" name="concentracion" placeholder="Ej: 500mg">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="presentacion_med">Presentación:</label>
+                            <input type="text" id="presentacion_med" name="presentacion_med" placeholder="Ej: Tabletas / Jarabe">
+                        </div>
+                    </div>
                 </div>
                 <div class="modal-actions">
                     <button type="submit" class="button-action submit-btn"><i class="fas fa-save"></i> Guardar
@@ -854,8 +879,13 @@
                     Ubicación</p>
 
                 <div class="form-group">
-                    <label for="cantidad-agregar-rapido">📦 Cantidad a Agregar (Unidades Totales):</label>
-                    <input type="number" id="cantidad-agregar-rapido" min="1" placeholder="Ej: 100">
+                    <label for="cantidad-agregar-rapido">📦 Cantidad a Agregar (Unidades Totales):*</label>
+                    <input type="number" id="cantidad-agregar-rapido" min="1" placeholder="Ej: 100" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="factura-rapida">📄 Factura # (Opcional):</label>
+                    <input type="text" id="factura-rapida" placeholder="Ej: FAC-12345">
                 </div>
 
                 <div class="form-group">

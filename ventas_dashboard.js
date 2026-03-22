@@ -229,9 +229,9 @@ async function cargarVentasYCálculos() {
         cierreMananaRealizado = false;
         cierreTardeRealizado = false;
 
-        // Reiniciar efectivo restante y ocultar el KPI de efectivo y el campo de inyecciones
-        efectivoRestanteMañana = 0;
-        kpiEfectivoRestante.style.display = 'none';
+        // Reiniciar datos detallados de cierre final
+        efectivoRestanteMañana = baseCajaInicial; 
+        kpiEfectivoRestante.style.display = 'flex'; 
         inyeccionesInputDiv.style.display = 'none';
 
         // Reiniciar datos detallados de cierre final
@@ -362,17 +362,18 @@ async function cargarVentasYCálculos() {
 
         console.log("3. ✅ Carga de Ventas completada. KPIs actualizados.");
 
-        // Recalcular Efectivo Restante (Si el cierre ya se hizo)
+        // Calcular Efectivo en Caja actual (Continuo)
+        const ventasDelDia = todasLasVentas.filter(v => v.fechaVentaStr === hoyStr);
+        const totalEfectivoVentas = calcularTotalesVentaDia(ventasDelDia).efectivoDia;
+
+        // Formula: Base + Ventas - Retiro (si existe)
+        efectivoRestanteMañana = baseCajaInicial + totalEfectivoVentas - totalRetiradoDra;
+
+        efectivoRestanteLbl.textContent = formatoMoneda(efectivoRestanteMañana);
+        kpiEfectivoRestante.style.display = 'flex';
+
         if (cierreMananaRealizado) {
-            const ventasDelDia = todasLasVentas.filter(v => v.fechaVentaStr === hoyStr);
-            const totalEfectivoVentas = calcularTotalesVentaDia(ventasDelDia).efectivoDia;
-
-            // Efectivo Restante = Ventas Efectivo NETO + Base Dinámica - Total Retirado Dra + Inyecciones
-            efectivoRestanteMañana = totalEfectivoVentas + baseCajaInicial - totalRetiradoDra + totalInyecciones;
-
-            efectivoRestanteLbl.textContent = formatoMoneda(efectivoRestanteMañana);
-            kpiEfectivoRestante.style.display = 'flex'; // Muestra el KPI
-            inyeccionesInputDiv.style.display = 'block'; // Muestra el campo de inyecciones
+            inyeccionesInputDiv.style.display = 'block'; 
         }
 
         actualizarBotonesCierre();
@@ -449,7 +450,7 @@ function actualizarBotonesCierre() {
     cierreMananaInputDiv.style.display = 'none';
 
     if (!cierreMananaRealizado) {
-        kpiEfectivoRestante.style.display = 'none';
+        // No ocultamos el KPI, solo el bloque de inyecciones
         inyeccionesInputDiv.style.display = 'none';
     }
 
@@ -595,8 +596,8 @@ async function exportarPdfDiario() {
         const totalFacturasDia = infoFacturas.reduce((acc, f) => acc + parseFloat(f.monto || 0), 0);
         const totalInyeccionesReal = parseFloat(document.getElementById("montoInyecciones")?.value) || totalInyecciones;
 
-        // Efectivo en caja = Efectivo Neto (productos) + Inyecciones + baseCajaInicial - Total Retirado Dra - Facturas
-        const efectivoEnCaja = totalEfectivoDia + totalInyeccionesReal + baseCajaInicial - totalRetiradoDra - totalFacturasDia;
+        // Efectivo en caja = Efectivo Neto (productos) + baseCajaInicial - Total Retirado Dra - Facturas
+        const efectivoEnCaja = totalEfectivoDia + baseCajaInicial - totalRetiradoDra - totalFacturasDia;
 
         // Venta Neta Final = Solo Venta Neto de Productos (según solicitud)
         const ventaNetaFinal = totalNetoDia;
@@ -753,7 +754,7 @@ async function exportarPdfDiario() {
                 { content: 'RETIRO', styles: { fillColor: [255, 204, 204], textColor: 0 } }],
 
             // Efectivo Restante (FINAL)
-            [{ content: 'EFECTIVO RESTANTE EN CAJA (Ventas + Iny. + Base - Retiro - Facturas)', colSpan: 1, styles: { fontStyle: 'bold', fillColor: [255, 204, 204] } },
+            [{ content: 'EFECTIVO RESTANTE EN CAJA (Ventas + Base - Retiro - Facturas)', colSpan: 1, styles: { fontStyle: 'bold', fillColor: [255, 204, 204] } },
             formatoMoneda(efectivoEnCaja),
             { content: 'FINAL', styles: { fontStyle: 'bold', fillColor: [255, 102, 102], textColor: 255 } }],
         ];

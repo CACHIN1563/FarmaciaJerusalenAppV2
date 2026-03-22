@@ -675,6 +675,28 @@ btnVender.addEventListener("click", async () => {
                 };
 
                 batch.update(ref, updateData);
+
+                // --- NUEVO: REGISTRO EN KARDEX SI ES ANTIBIÓTICO ---
+                if (itemCarrito.antibiotico) {
+                    try {
+                        const kardexRef = collection(db, "kardex_antibioticos");
+                        await addDoc(kardexRef, {
+                            productoId: loteId,
+                            nombre: itemCarrito.nombre,
+                            principioActivo: loteOriginal.principioActivo || "",
+                            concentracion: loteOriginal.concentracion || "",
+                            presentacion_med: loteOriginal.presentacion_med || "",
+                            fecha: new Date(),
+                            tipo: 'SALIDA',
+                            documento: venta.numeroVenta.toString(),
+                            cantidad: unidadesVendidas,
+                            saldo: Math.max(0, nuevoStockTotal),
+                            observacion: "Venta registrada"
+                        });
+                    } catch (kError) {
+                        console.error("Error al registrar salida en Kardex:", kError);
+                    }
+                }
             }
         }
         await batch.commit();

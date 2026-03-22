@@ -10,8 +10,12 @@ const MILLIS_PER_DAY = 24 * 60 * 60 * 1000;
 const buscar = document.getElementById("buscar"), lista = document.getElementById("lista-inventario"), indicadorCarga = document.getElementById("loading-indicator"), btnNuevoProducto = document.getElementById("btn-nuevo-producto"), btnDescargarInventario = document.getElementById("btn-descargar-inventario");
 
 // --- MODAL EDICIÓN/INGRESO ---
-const modal = document.getElementById("modal-producto"), modalTitle = document.getElementById("modal-title"), formProducto = document.getElementById("form-producto"), productoIdInput = document.getElementById("producto-id"), nombreInput = document.getElementById("nombre"), nombreSugerencias = document.getElementById("nombre-sugerencias"), marcaInput = document.getElementById("marca"), ubicacionInput = document.getElementById("ubicacion"), precioPublicoInput = document.getElementById("precioPublico"), precioUnidadInput = document.getElementById("precioUnidad"), precioCapsulaInput = document.getElementById("precioCapsula"), precioTabletaInput = document.getElementById("precioTableta"), precioBlisterInput = document.getElementById("precioBlister"), precioCajaInput = document.getElementById("precioCaja"), stockInput = document.getElementById("stock"), tabletasPorBlisterInput = document.getElementById("tabletasPorBlister"), blistersPorCajaInput = document.getElementById("blistersPorCaja"), stockTabletaInput = document.getElementById("stockTableta"), stockBlisterInput = document.getElementById("stockBlister"), stockCajaInput = document.getElementById("stockCaja"), vencimientoInput = document.getElementById("vencimiento"), antibioticoInput = document.getElementById("antibiotico"), btnCancelarModal = document.getElementById("btn-cancelar-modal"), closeModalSpan = modal ? modal.querySelector(".close") : null,
-    tipoProductoInput = document.getElementById("tipoProducto"); // <--- NUEVO INPUT DE TIPO DE PRODUCTO
+const modal = document.getElementById("modal-producto"), modalTitle = document.getElementById("modal-title"), formProducto = document.getElementById("form-producto"), productoIdInput = document.getElementById("producto-id"), nombreInput = document.getElementById("nombre"), nombreSugerencias = document.getElementById("nombre-sugerencias"), marcaInput = document.getElementById("marca"), numFacturaInput = document.getElementById("numFactura"), ubicacionInput = document.getElementById("ubicacion"), precioPublicoInput = document.getElementById("precioPublico"), precioUnidadInput = document.getElementById("precioUnidad"), precioCapsulaInput = document.getElementById("precioCapsula"), precioTabletaInput = document.getElementById("precioTableta"), precioBlisterInput = document.getElementById("precioBlister"), precioCajaInput = document.getElementById("precioCaja"), stockInput = document.getElementById("stock"), tabletasPorBlisterInput = document.getElementById("tabletasPorBlister"), blistersPorCajaInput = document.getElementById("blistersPorCaja"), stockTabletaInput = document.getElementById("stockTableta"), stockBlisterInput = document.getElementById("stockBlister"), stockCajaInput = document.getElementById("stockCaja"), vencimientoInput = document.getElementById("vencimiento"), antibioticoInput = document.getElementById("antibiotico"), btnCancelarModal = document.getElementById("btn-cancelar-modal"), closeModalSpan = modal ? modal.querySelector(".close") : null,
+    tipoProductoInput = document.getElementById("tipoProducto"),
+    seccionKardex = document.getElementById("seccion-kardex"),
+    principioActivoInput = document.getElementById("principioActivo"),
+    concentracionInput = document.getElementById("concentracion"),
+    presentacionMedInput = document.getElementById("presentacion_med");
 
 // --- MODAL CARGA MASIVA ---
 const modalMasiva = document.getElementById("modal-carga-masiva"), btnCargaMasiva = document.getElementById("btn-carga-masiva"), closeMasiva = document.getElementById("close-masiva"), btnCancelarMasiva = document.getElementById("btn-cancelar-masiva"), btnProcesarMasiva = document.getElementById("btn-procesar-masiva"), datosMasivosInput = document.getElementById("datos-masivos"), btnDescargarPlantilla = document.getElementById("btn-descargar-plantilla");
@@ -146,7 +150,21 @@ function desactivarCamposPorTipo(esOtroProducto) {
 tipoProductoInput?.addEventListener('change', (e) => {
     const esOtroProducto = e.target.value === 'otro';
     desactivarCamposPorTipo(esOtroProducto);
-    actualizarStocksCalculados(); // Forzar el cálculo (que ahora puede dar cero)
+    
+    // Si es "Otro", ocultar sección Kardex por si acaso
+    if (esOtroProducto && seccionKardex) {
+        seccionKardex.style.display = 'none';
+        antibioticoInput.checked = false;
+    }
+    
+    actualizarStocksCalculados();
+});
+
+// Listener para el check de Antibiótico (Mostrar/Ocultar campos Kardex)
+antibioticoInput?.addEventListener('change', (e) => {
+    if (seccionKardex) {
+        seccionKardex.style.display = e.target.checked ? 'block' : 'none';
+    }
 });
 
 // ------------------ LISTENERS DE CÁLCULO EN TIEMPO REAL ------------------
@@ -327,6 +345,17 @@ async function obtenerDatosProductoParaEdicion(productoId) {
             vencimientoInput.value = formatearFechaParaInput(fechaObjetoParaInput);
 
             antibioticoInput.checked = datos.antibiotico || false;
+            
+            // Mostrar sección Kardex si es antibiótico
+            if (seccionKardex) {
+                seccionKardex.style.display = datos.antibiotico ? 'block' : 'none';
+            }
+            
+            // Cargar nuevos campos
+            numFacturaInput.value = datos.numFactura || '';
+            principioActivoInput.value = datos.principioActivo || '';
+            concentracionInput.value = datos.concentracion || '';
+            presentacionMedInput.value = datos.presentacion_med || '';
 
             // CARGAR VALOR DEL NUEVO CAMPO Y DESACTIVAR SI ES NECESARIO
             const esOtroProducto = datos.esOtroProducto === true;
@@ -380,6 +409,13 @@ formProducto?.addEventListener("submit", async (e) => {
         stockCaja: desglose.stockCaja,
         vencimiento: vencimientoInput.value.trim() || null, // Se guarda AAAA-MM-DD
         antibiotico: !esOtroProducto && !!antibioticoInput.checked, // Se anula si es otro producto
+        
+        // --- NUEVOS CAMPOS ---
+        numFactura: numFacturaInput.value.trim() || null,
+        principioActivo: antibioticoInput.checked ? principioActivoInput.value.trim() : null,
+        concentracion: antibioticoInput.checked ? concentracionInput.value.trim() : null,
+        presentacion_med: antibioticoInput.checked ? presentacionMedInput.value.trim() : null,
+        
         esOtroProducto: esOtroProducto, // <--- NUEVO CAMPO
         fechaCreacion: new Date().toISOString().split('T')[0]
     };
@@ -394,7 +430,13 @@ formProducto?.addEventListener("submit", async (e) => {
             alert(`✅ Lote de ${datosProducto.nombre} actualizado correctamente.`);
         } else {
             const inventarioRef = collection(db, "inventario");
-            await addDoc(inventarioRef, datosProducto);
+            const newDoc = await addDoc(inventarioRef, datosProducto);
+            
+            // Si es antibiótico, registrar entrada inicial en el Kardex
+            if (datosProducto.antibiotico) {
+                await registrarMovimientoKardex(newDoc.id, datosProducto, 'ENTRADA', datosProducto.stock, datosProducto.numFactura, "Ingreso inicial de lote");
+            }
+            
             alert(`✅ Nuevo Lote de ${datosProducto.nombre} agregado correctamente.`);
         }
         cerrarModal();
@@ -738,7 +780,34 @@ const cantidadAgregarInput = document.getElementById("cantidad-agregar-rapido");
 const nuevoVencimientoInput = document.getElementById("nuevo-vencimiento-rapido");
 const lblVencimientoActual = document.getElementById("lbl-vencimiento-actual");
 const nuevoPrecioRapidoInput = document.getElementById("nuevo-precio-rapido");
+const facturaRapidaInput = document.getElementById("factura-rapida"); // <--- NUEVO
 const btnGuardarCargaRapida = document.getElementById("btn-guardar-carga-rapida");
+
+/**
+ * Registra un movimiento en la colección kardex_antibioticos
+ */
+async function registrarMovimientoKardex(loteId, dataProducto, tipo, cantidad, documento, observacion = "") {
+    try {
+        const kardexRef = collection(db, "kardex_antibioticos");
+        const movimiento = {
+            productoId: loteId,
+            nombre: dataProducto.nombre,
+            principioActivo: dataProducto.principioActivo || "",
+            concentracion: dataProducto.concentracion || "",
+            presentacion_med: dataProducto.presentacion_med || "",
+            fecha: new Date(), // Timestamp local para ordenamiento
+            tipo: tipo, // 'ENTRADA' o 'SALIDA'
+            documento: documento || "S/N",
+            cantidad: cantidad,
+            saldo: dataProducto.stock, // El saldo después del movimiento
+            observacion: observacion
+        };
+        await addDoc(kardexRef, movimiento);
+        console.log(`Kardex actualizado: ${tipo} de ${cantidad} para ${dataProducto.nombre}`);
+    } catch (error) {
+        console.error("Error al registrar movimiento en Kardex:", error);
+    }
+}
 
 // 1. Abrir Modal
 if (btnCargaRapida) {
@@ -823,6 +892,7 @@ if (btnGuardarCargaRapida) {
         const cantidadAgregar = parseInt(cantidadAgregarInput.value);
         const nuevoVencimiento = nuevoVencimientoInput.value; // YYYY-MM-DD
         const nuevoPrecio = parseFloat(nuevoPrecioRapidoInput.value);
+        const facturaDoc = facturaRapidaInput.value.trim() || null;
 
         if (!idProducto) {
             alert("Error: No se ha seleccionado ningún producto.");
@@ -884,6 +954,16 @@ if (btnGuardarCargaRapida) {
             }
 
             await updateDoc(productoRef, updateData);
+
+            // 5. SI ES ANTIBIÓTICO, REGISTRAR EN KARDEX
+            if (dataActual.antibiotico) {
+                const dataParaKardex = { 
+                    ...dataActual, 
+                    stock: nuevoStockTotal,
+                    numFactura: facturaDoc || dataActual.numFactura 
+                };
+                await registrarMovimientoKardex(idProducto, dataParaKardex, 'ENTRADA', cantidadAgregar, facturaDoc || "Carga Rápida", "Aumento de stock (Carga Rápida)");
+            }
 
             alert(`✅ Stock actualizado exitosamente.\nNuevo total: ${nuevoStockTotal}`);
 
