@@ -29,6 +29,7 @@
             --box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
             --border-color: #dee2e6; 
             --shadow-medium: 0 4px 15px rgba(0, 0, 0, 0.1); 
+            --info-color: #17a2b8;
         }
 
         * {
@@ -502,7 +503,7 @@
                     <label for="numFactura">Número de factura:</label>
                     <input type="text" id="numFactura" placeholder="Ej: 001-2025-12345" required>
                     
-                    <label for="monto">Monto Total (Q):</label>
+                    <label for="monto">Monto Total de la Factura (Q):</label>
                     <input type="number" id="monto" step="0.01" placeholder="Ej: 1250.50" required>
                     
                     <label for="proveedor">Proveedor:</label>
@@ -574,6 +575,22 @@
             </div>
         </div>
 
+    </div>
+
+    <!-- Modal para Pago Parcial -->
+    <div id="modalPagoParcial" class="modal" style="display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5);">
+        <div class="modal-content" style="background-color: white; margin: 15% auto; padding: 20px; border-radius: 8px; width: 330px; box-shadow: var(--shadow-medium);">
+            <span class="close-modal" id="closeModalPago" style="float: right; cursor: pointer; font-size: 20px;">&times;</span>
+            <h3 style="margin-bottom: 20px; color: var(--primary-blue);"><i class="fas fa-hand-holding-usd"></i> Pago Parcial</h3>
+            <p id="pagoInfo" style="font-size: 0.9rem; margin-bottom: 15px; color: #555;"></p>
+            
+            <label for="montoParcial" style="font-size: 0.85rem;">Monto a Pagar (Q):</label>
+            <input type="number" id="montoParcial" step="0.01" class="form-control-custom" style="margin-bottom: 20px; padding: 10px; border: 1px solid #ccc; border-radius: 4px; width: 100%;">
+            
+            <button id="btnConfirmarPagoParcial" class="btn-success" style="width: 100%; padding: 12px; font-weight: bold;">
+                <i class="fas fa-save"></i> Registrar Pago
+            </button>
+        </div>
     </div>
 
     <script type="module" src="firebase-config.js"></script>

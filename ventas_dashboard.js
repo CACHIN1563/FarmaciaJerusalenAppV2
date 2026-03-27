@@ -729,9 +729,7 @@ async function exportarPdfDiario() {
             formatoMoneda(ventaNetaFinal),
             { content: 'VENTA NETA', styles: { fontStyle: 'bold', fillColor: [153, 204, 153], textColor: 0 } }],
 
-            // Inyecciones (Fondo claro)
-            ['(+) Servicio de Inyecciones', formatoMoneda(totalInyecciones),
-                { content: 'INYECCIONES', styles: { fillColor: [255, 255, 153], textColor: 0 } }],
+            // Inyecciones (Removido del flujo de caja, ahora es solo informativo)
 
             // Venta Tienda (NUEVO - Informativo)
             ['Venta Total del Día TIENDA (Dato aparte)', formatoMoneda(totalVentaTienda),
@@ -770,6 +768,34 @@ async function exportarPdfDiario() {
                 0: { cellWidth: 120 },
                 1: { halign: 'right', fontStyle: 'bold' },
                 2: { cellWidth: 30, halign: 'center', fontStyle: 'bold' }
+            }
+        });
+        
+        y = doc.autoTable.previous.finalY + 10;
+        
+        // --- SECCIÓN INFORMATIVA DE SERVICIOS ---
+        doc.setFontSize(14);
+        doc.setFont(undefined, 'bold');
+        doc.text("SERVICIOS Y DATOS EXTRAS", 14, y);
+        doc.line(14, y + 2, 80, y + 2);
+        y += 8;
+        
+        const datosExtras = [
+            ['Servicio de Inyecciones', formatoMoneda(totalInyecciones), 'Dato Informativo'],
+            ['Venta Global TIENDA', formatoMoneda(totalVentaTienda), 'Dato Informativo']
+        ];
+        
+        doc.autoTable({
+            startY: y,
+            head: [['Servicio / Concepto', 'Monto (Q)', 'Observación']],
+            body: datosExtras,
+            theme: 'grid',
+            headStyles: { fillColor: [255, 193, 7], textColor: 0 }, // Amarillo informativo
+            styles: { fontSize: 10, cellPadding: 2 },
+            columnStyles: {
+                0: { cellWidth: 80 },
+                1: { halign: 'right', cellWidth: 40 },
+                2: { halign: 'center', cellWidth: 50 }
             }
         });
 
@@ -1019,9 +1045,8 @@ btnConfirmarRetiro.addEventListener("click", async () => {
         return;
     }
 
-    // Calcular el efectivo restante (incluye las inyecciones si ya se registraron)
-    // Este valor de 'efectivoRestante' es solo para mostrar el KPI a mitad del día.
-    const efectivoRestante = efectivoActual - montoRetiro + totalInyecciones;
+    // Calcular el efectivo restante (Dato informativo, ya no se suma inyecciones)
+    const efectivoRestante = efectivoActual - montoRetiro;
 
     try {
         const now = new Date();
@@ -1192,9 +1217,9 @@ btnConfirmarCierreFinal.addEventListener("click", async () => {
     let totalPagosFacturas = cierreFacturasTemp.reduce((sum, item) => sum + item.monto, 0);
     let totalPagoSalario = cierreSalarioTemp ? cierreSalarioTemp.monto : 0;
 
-    // Efectivo Final Físico (lo que queda en el cajón incluyendo inyecciones si no se retiraron aparte)
-    // Asumimos que Inyecciones se queda en caja hasta el cierre final.
-    let efectivoFinalFisico = (baseCajaInicial + totalEfectivoVentas + totalInyecciones)
+    // Efectivo Final Físico (lo que queda en el cajón)
+    // Se excluyen inyecciones por solicitud del usuario (dato extra)
+    let efectivoFinalFisico = (baseCajaInicial + totalEfectivoVentas)
         - totalRetiradoDra
         - totalPagosFacturas
         - totalPagoSalario;
@@ -1406,8 +1431,8 @@ montoInyeccionesInput.addEventListener('input', () => {
         const ventasDelDia = todasLasVentas.filter(v => v.fechaVentaStr === hoyStr);
         const totalEfectivoVentas = calcularTotalesVentaDia(ventasDelDia).efectivoDia;
 
-        // Efectivo Restante = Ventas Efectivo NETO + Base Dinámica - Total Retirado Dra + Inyecciones
-        efectivoRestanteMañana = totalEfectivoVentas + baseCajaInicial - totalRetiradoDra + totalInyecciones;
+        // Efectivo Restante = Ventas Efectivo NETO + Base Dinámica - Total Retirado Dra
+        efectivoRestanteMañana = totalEfectivoVentas + baseCajaInicial - totalRetiradoDra;
         efectivoRestanteLbl.textContent = formatoMoneda(efectivoRestanteMañana);
     }
 });
@@ -1437,7 +1462,7 @@ btnCompartirWhatsapp?.addEventListener("click", async () => {
     const totalGastos = gastosFacturas + gastoSalario + totalRetiradoDra;
 
     // Efectivo Final en Caja
-    const efectivoFinal = totales.efectivoDia + totalInyecciones + baseCajaInicial - totalRetiradoDra;
+    const efectivoFinal = totales.efectivoDia + baseCajaInicial - totalRetiradoDra;
 
     const fechaHoy = formatDate(new Date());
 
@@ -1552,8 +1577,8 @@ function generarBlobPdfDiario(ventasDelDia) {
         }
     });
 
-    const efectivoEnCaja = totalEfectivoDia + totalInyecciones + baseCajaInicial - totalRetiradoDra;
-    const ventaNetaFinal = totalNetoDia + totalInyecciones;
+    const efectivoEnCaja = totalEfectivoDia + baseCajaInicial - totalRetiradoDra;
+    const ventaNetaFinal = totalNetoDia;
 
     detallesVentaTabla.sort((a, b) => {
         if (a.ordenVenta !== b.ordenVenta) {
@@ -1599,6 +1624,33 @@ function generarBlobPdfDiario(ventasDelDia) {
             0: { cellWidth: 60 },
             1: { halign: 'right', cellWidth: 45 },
             2: { halign: 'right', cellWidth: 45 }
+        }
+    });
+
+    y = doc.autoTable.previous.finalY + 10;
+
+    // --- SECCIÓN INFORMATIVA DE SERVICIOS ---
+    doc.setFontSize(14);
+    doc.setFont(undefined, 'bold');
+    doc.text("SERVICIOS Y DATOS EXTRAS", 14, y);
+    doc.line(14, y + 2, 80, y + 2);
+    y += 8;
+
+    const datosExtras = [
+        ['Servicio de Inyecciones', formatoMoneda(totalInyecciones), 'Dato Informativo']
+    ];
+
+    doc.autoTable({
+        startY: y,
+        head: [['Servicio / Concepto', 'Monto (Q)', 'Observación']],
+        body: datosExtras,
+        theme: 'grid',
+        headStyles: { fillColor: [255, 193, 7], textColor: 0 },
+        styles: { fontSize: 10, cellPadding: 2 },
+        columnStyles: {
+            0: { cellWidth: 80 },
+            1: { halign: 'right', cellWidth: 40 },
+            2: { halign: 'center', cellWidth: 50 }
         }
     });
 

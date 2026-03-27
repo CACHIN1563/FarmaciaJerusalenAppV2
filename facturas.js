@@ -39,9 +39,14 @@ const mensajeCarga = document.getElementById("mensajeCarga");
 const btnMostrarExportar = document.getElementById("btnMostrarExportar");
 const menuExportar = document.getElementById("menuExportar");
 
-const btnJSON = document.getElementById("exportarJSON");
-const btnExcel = document.getElementById("exportarEXCEL");
 const btnPDF = document.getElementById("exportarPDF");
+const modalPagoParcial = document.getElementById("modalPagoParcial");
+const closeModalPago = document.getElementById("closeModalPago");
+const btnConfirmarPagoParcial = document.getElementById("btnConfirmarPagoParcial");
+const montoParcialInput = document.getElementById("montoParcial");
+const pagoInfoP = document.getElementById("pagoInfo");
+
+let facturaSeleccionadaId = null;
 
 let facturas = [];
 let paginaActual = 1;
@@ -231,6 +236,8 @@ btnCargaMasiva.onclick = async () => {
                         fechaPago: fechaPago,
                         estado: estado,
                         descripcion: descripcion,
+                        montoPagado: 0,
+                        historialPagos: []
                     });
                     subidasExitosas++;
                     numFacturasExistentes.add(numFactura); 
@@ -291,6 +298,8 @@ btnGuardar.onclick = async () => {
             fechaPago: fechaPago.value,
             estado: estado.value,
             descripcion: descripcion.value || "", 
+            montoPagado: estado.value === 'pagada' ? parseFloat(monto.value) : 0,
+            historialPagos: estado.value === 'pagada' ? [{ monto: parseFloat(monto.value), fecha: new Date().toISOString() }] : []
         });
 
         alert("✅ Factura guardada exitosamente!");
@@ -398,12 +407,19 @@ function renderFacturas() {
         // Mostrar descripción si existe
         const descripcionHTML = f.descripcion ? `<p class="factura-descripcion">Notas: ${f.descripcion.replace(/\n/g, '<br>')}</p>` : '';
 
+        const saldo = f.monto - (f.montoPagado || 0);
+        const historial = f.historialPagos || [];
+        const ultimoPago = historial.length > 0 ? historial[historial.length - 1] : null;
+        const fechaUltimoPago = ultimoPago ? new Date(ultimoPago.fecha).toLocaleDateString() : 'N/A';
+
         listaFacturas.innerHTML += `
         <div class="factura-box">
             <p><b>No.Factura:</b> ${f.numFactura}</p>
-            <p><b>Monto Total:</b> <strong>${formatoMoneda(f.monto)}</strong></p> 
+            <p><b>Monto Total:</b> ${formatoMoneda(f.monto)}</p> 
+            <p><b>Pagado:</b> <span style="color:var(--success-color); font-weight:bold;">${formatoMoneda(f.montoPagado || 0)}</span></p>
+            <p><b>Saldo Pendiente:</b> <strong style="color:var(--danger-color);">${formatoMoneda(saldo)}</strong></p>
             <p><b>Proveedor:</b> ${f.proveedor}</p>
-            <p><b>Emisión:</b> ${f.fechaEmision}</p>
+            <p><b>Último Pago:</b> ${fechaUltimoPago}</p>
             <p><b>Límite Pago:</b> ${f.fechaPago}</p>
             
             ${descripcionHTML} 
@@ -414,7 +430,8 @@ function renderFacturas() {
             </p>
 
             <div class="factura-actions">
-                <button class="btn btn-pagar" ${btnPagarDisabled} onclick="marcarPagada('${f.id}')">${btnPagarTexto}</button>
+                <button class="btn btn-pagar" ${btnPagarDisabled} onclick="marcarPagada('${f.id}')"><i class="fas fa-check-double"></i> Pago Total</button>
+                <button class="btn btn-pagar" style="background-color: var(--info-color);" ${btnPagarDisabled} onclick="abrirModalPagoParcial('${f.id}')"><i class="fas fa-hand-holding-usd"></i> Pago Parcial</button>
                 <button class="btn btn-eliminar" onclick="eliminarFactura('${f.id}')"><i class="fas fa-trash-alt"></i> Eliminar</button>
             </div>
         </div>
@@ -428,7 +445,67 @@ function renderFacturas() {
 // ACCIONES GLOBALES (ORIGINAL)
 // ----------------------------
 window.marcarPagada = async (id) => {
-    await updateDoc(doc(db, "facturas", id), { estado: "pagada" });
+    const f = facturas.find(fact => fact.id === id);
+    if (!f) return;
+    
+    const saldo = f.monto - (f.montoPagado || 0);
+    const nuevoHistorial = [...(f.historialPagos || [])];
+    nuevoHistorial.push({ monto: saldo, fecha: new Date().toISOString() });
+
+    await updateDoc(doc(db, "facturas", id), { 
+        estado: "pagada",
+        montoPagado: f.monto,
+        historialPagos: nuevoHistorial
+    });
+};
+
+window.abrirModalPagoParcial = (id) => {
+    const f = facturas.find(fact => fact.id === id);
+    if (!f) return;
+    
+    facturaSeleccionadaId = id;
+    const saldo = f.monto - (f.montoPagado || 0);
+    pagoInfoP.innerHTML = `Factura: <b>${f.numFactura}</b><br>Saldo Pendiente: <b>${formatoMoneda(saldo)}</b>`;
+    montoParcialInput.value = saldo.toFixed(2);
+    modalPagoParcial.style.display = 'block';
+};
+
+closeModalPago.onclick = () => {
+    modalPagoParcial.style.display = 'none';
+};
+
+btnConfirmarPagoParcial.onclick = async () => {
+    const monto = parseFloat(montoParcialInput.value);
+    if (isNaN(monto) || monto <= 0) {
+        alert("Ingrese un monto válido.");
+        return;
+    }
+
+    const f = facturas.find(fact => fact.id === facturaSeleccionadaId);
+    if (!f) return;
+
+    const saldoActual = f.monto - (f.montoPagado || 0);
+    if (monto > saldoActual + 0.01) {
+        alert("El pago excede el saldo pendiente.");
+        return;
+    }
+
+    const nuevoMontoPagado = (f.montoPagado || 0) + monto;
+    const nuevoEstado = (nuevoMontoPagado >= f.monto - 0.01) ? "pagada" : "pendiente";
+    const nuevoHistorial = [...(f.historialPagos || [])];
+    nuevoHistorial.push({ monto: monto, fecha: new Date().toISOString() });
+
+    try {
+        await updateDoc(doc(db, "facturas", facturaSeleccionadaId), {
+            montoPagado: nuevoMontoPagado,
+            estado: nuevoEstado,
+            historialPagos: nuevoHistorial
+        });
+        alert("✅ Pago registrado correctamente.");
+        modalPagoParcial.style.display = 'none';
+    } catch (e) {
+        alert("Error al registrar pago: " + e.message);
+    }
 };
 
 window.eliminarFactura = async (id) => {
