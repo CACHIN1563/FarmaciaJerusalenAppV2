@@ -40,6 +40,8 @@ const btnMostrarExportar = document.getElementById("btnMostrarExportar");
 const menuExportar = document.getElementById("menuExportar");
 
 const btnPDF = document.getElementById("exportarPDF");
+const btnJSON = document.getElementById("exportarJSON");
+const btnExcel = document.getElementById("exportarEXCEL");
 const modalPagoParcial = document.getElementById("modalPagoParcial");
 const closeModalPago = document.getElementById("closeModalPago");
 const btnConfirmarPagoParcial = document.getElementById("btnConfirmarPagoParcial");
