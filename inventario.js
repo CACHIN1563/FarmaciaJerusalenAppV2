@@ -248,7 +248,8 @@ btnDescargarInventario?.addEventListener("click", () => {
             vencimientoCSV, // USAR FECHA FORMATEADA (DD/MM/AAAA)
             item.antibiotico ? 'true' : 'false',
             item.esOtroProducto ? 'true' : 'false', // <--- NUEVA COLUMNA
-            item.fechaCreacion || ''
+            item.fechaCreacion || '',
+            item.cantidadInicial || ''
         ];
         return row.map(field => `"${String(field).replace(/"/g, '""')}"`).join(',');
     }).join('\n');
@@ -417,18 +418,23 @@ formProducto?.addEventListener("submit", async (e) => {
         presentacion_med: antibioticoInput.checked ? presentacionMedInput.value.trim() : null,
         
         esOtroProducto: esOtroProducto, // <--- NUEVO CAMPO
-        fechaCreacion: new Date().toISOString().split('T')[0]
     };
+
     if (!datosProducto.nombre || datosProducto.stock < 0) {
         alert("El nombre y el stock total deben ser válidos.");
         return;
     }
+
     try {
         if (id) {
             const productoRef = doc(db, "inventario", id);
             await updateDoc(productoRef, datosProducto);
             alert(`✅ Lote de ${datosProducto.nombre} actualizado correctamente.`);
         } else {
+            // CAMPOS QUE SOLO SE AGREGAN AL CREAR
+            datosProducto.fechaCreacion = new Date().toISOString().split('T')[0];
+            datosProducto.cantidadInicial = stockMaestro;
+
             const inventarioRef = collection(db, "inventario");
             const newDoc = await addDoc(inventarioRef, datosProducto);
             
@@ -565,7 +571,10 @@ function abrirModalLotes(nombreProducto) {
             `${lote.stockTableta > 0 ? `| Unidades: <strong>${lote.stockTableta}</strong>` : ''} ${lote.stockBlister > 0 ? `| Blisters: <strong>${lote.stockBlister}</strong>` : ''} ${lote.stockCaja > 0 ? `| Cajas: <strong>${lote.stockCaja}</strong>` : ''}`;
         const tipoProductoLabel = lote.esOtroProducto ? `<span style="color: #007bff;">🛍 Otro Producto</span>` : '';
 
-        div.innerHTML = `<div>Unidades Totales: <strong>${lote.stock}</strong> | ${vencimientoHtml} ${antibioticoLabel} ${tipoProductoLabel}<div style="margin-top: 5px; font-size: 0.9em;">Stock por formato: ${stockFormatos || 'N/A'}</div><div>Precio público: ${lote.precioPublico != null ? `Q ${Number(lote.precioPublico).toFixed(2)}` : '-'}</div><div>Marca: ${safeString(lote.marca)} | Ubicación: ${safeString(lote.ubicacion)}</div></div><div class="lote-actions"><button class="action-button btn-editar-lote" data-id="${lote.id}">✏️ Editar</button><button class="action-button btn-eliminar-lote" data-id="${lote.id}" data-nombre="${nombreProducto}">🗑️ Eliminar</button></div>`;
+        // Formatear fecha de creación si existe
+        const fechaIngreso = lote.fechaCreacion ? lote.fechaCreacion.split('-').reverse().join('/') : '-';
+
+        div.innerHTML = `<div>Unidades Totales: <strong>${lote.stock}</strong> (Ingresó: <strong>${lote.cantidadInicial || '-'}</strong>) | ${vencimientoHtml} ${antibioticoLabel} ${tipoProductoLabel}<div style="margin-top: 5px; font-size: 0.9em;">Fecha Ingreso: <strong>${fechaIngreso}</strong> | Stock por formato: ${stockFormatos || 'N/A'}</div><div>Precio público: ${lote.precioPublico != null ? `Q ${Number(lote.precioPublico).toFixed(2)}` : '-'}</div><div>Marca: ${safeString(lote.marca)} | Ubicación: ${safeString(lote.ubicacion)}</div></div><div class="lote-actions"><button class="action-button btn-editar-lote" data-id="${lote.id}">✏️ Editar</button><button class="action-button btn-eliminar-lote" data-id="${lote.id}" data-nombre="${nombreProducto}">🗑️ Eliminar</button></div>`;
         if (lotesLista) lotesLista.appendChild(div);
     });
     if (modalLotes) modalLotes.style.display = "block";
@@ -699,6 +708,8 @@ async function cargarInventario() {
                 esOtroProducto: !!data.esOtroProducto, // <--- CAMPO EN LOTE
                 marca: data.marca ?? null,
                 ubicacion: data.ubicacion ?? null,
+                fechaCreacion: data.fechaCreacion || null,
+                cantidadInicial: data.cantidadInicial || null,
             };
 
             // 3. AGRUPACIÓN
