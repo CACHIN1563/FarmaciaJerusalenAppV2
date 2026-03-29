@@ -62,6 +62,31 @@ const formatoMoneda = (monto) => {
     return `Q ${parseFloat(monto).toFixed(2)}`;
 };
 
+/**
+ * Busca movimientos en el Kardex con el mismo número de factura y actualiza su fecha
+ * para que coincida con la fecha de emisión de la factura recién ingresada.
+ */
+async function sincronizarFechasKardex(num, fechaStr) {
+    if (!num || !fechaStr) return;
+    try {
+        const refKardex = collection(db, "kardex_antibioticos");
+        const q = query(refKardex, where("documento", "==", num.trim()));
+        const snap = await getDocs(q);
+        
+        if (!snap.empty) {
+            console.log(`Sincronizando ${snap.size} registros de Kardex con la factura ${num}`);
+            const fechaObjeto = new Date(fechaStr + "T12:00:00");
+            
+            const promesas = snap.docs.map(mov => 
+                updateDoc(doc(db, "kardex_antibioticos", mov.id), { fecha: fechaObjeto })
+            );
+            await Promise.all(promesas);
+        }
+    } catch (error) {
+        console.error("Error al sincronizar fechas de Kardex:", error);
+    }
+}
+
 async function existeFactura(num) {
     const q = query(refFacturas, where("numFactura", "==", num));
     const snap = await getDocs(q);
@@ -243,6 +268,10 @@ btnCargaMasiva.onclick = async () => {
                     });
                     subidasExitosas++;
                     numFacturasExistentes.add(numFactura); 
+                    
+                    // Sincronización retroactiva con Kardex
+                    await sincronizarFechasKardex(numFactura, fechaEmision);
+                    
                     mensajeCarga.textContent = `Procesando ${index + 1}/${total} (${subidasExitosas} añadidas)...`;
                 } catch (error) {
                     console.error(`Fallo al subir factura ${numFactura}:`, error);
@@ -305,6 +334,9 @@ btnGuardar.onclick = async () => {
         });
 
         alert("✅ Factura guardada exitosamente!");
+
+        // Sincronización retroactiva con Kardex
+        await sincronizarFechasKardex(numFactura.value, fechaEmision.value);
 
         // LIMPIAR FORMULARIO
         numFactura.value = "";
@@ -421,6 +453,7 @@ function renderFacturas() {
             <p><b>Pagado:</b> <span style="color:var(--success-color); font-weight:bold;">${formatoMoneda(f.montoPagado || 0)}</span></p>
             <p><b>Saldo Pendiente:</b> <strong style="color:var(--danger-color);">${formatoMoneda(saldo)}</strong></p>
             <p><b>Proveedor:</b> ${f.proveedor}</p>
+            <p><b>Fecha Emisión:</b> <span style="color:var(--primary-dark); font-weight:bold;">${f.fechaEmision}</span></p>
             <p><b>Último Pago:</b> ${fechaUltimoPago}</p>
             <p><b>Límite Pago:</b> ${f.fechaPago}</p>
             

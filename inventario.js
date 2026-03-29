@@ -1,5 +1,5 @@
 import { db } from "./firebase-config.js";
-import { collection, getDocs, deleteDoc, doc, getDoc, updateDoc, addDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { collection, getDocs, deleteDoc, doc, getDoc, updateDoc, addDoc, query, where } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 // --- CONSTANTES GLOBALES PARA LA CONVERSIÓN DE FECHA DE EXCEL ---
 const DIAS_OFFSET = 25569;
@@ -800,13 +800,38 @@ const btnGuardarCargaRapida = document.getElementById("btn-guardar-carga-rapida"
 async function registrarMovimientoKardex(loteId, dataProducto, tipo, cantidad, documento, observacion = "") {
     try {
         const kardexRef = collection(db, "kardex_antibioticos");
+        
+        // --- NUEVA LÓGICA DE FECHA AUTOMÁTICA ---
+        let fechaMovimiento = new Date(); // Fecha de hoy como respaldo
+        
+        // Si es un ingreso y tiene un documento (número de factura)
+        if (tipo === 'ENTRADA' && documento && documento !== "-") {
+            try {
+                // Buscar la factura en el módulo de facturas
+                const q = query(collection(db, "facturas"), where("numFactura", "==", documento.trim()));
+                const snapFactura = await getDocs(q);
+                
+                if (!snapFactura.empty) {
+                    const dataFactura = snapFactura.docs[0].data();
+                    if (dataFactura.fechaEmision) {
+                        // Convertir YYYY-MM-DD a objeto Date (ajustado a mediodía local para evitar desfases UTC)
+                        fechaMovimiento = new Date(dataFactura.fechaEmision + "T12:00:00");
+                        console.log(`Relacionando Kardex con factura: ${documento}. Usando fecha: ${dataFactura.fechaEmision}`);
+                    }
+                }
+            } catch (errFact) {
+                console.warn("No se pudo consultar la factura para la fecha del Kardex:", errFact);
+            }
+        }
+        // ----------------------------------------
+
         const movimiento = {
             productoId: loteId,
             nombre: dataProducto.nombre,
             principioActivo: dataProducto.principioActivo || "",
             concentracion: dataProducto.concentracion || "",
             presentacion_med: dataProducto.presentacion_med || "",
-            fecha: new Date(), // Timestamp local para ordenamiento
+            fecha: fechaMovimiento, // Timestamp local para ordenamiento
             tipo: tipo, // 'ENTRADA' o 'SALIDA'
             documento: documento || "-",
             cantidad: cantidad,
