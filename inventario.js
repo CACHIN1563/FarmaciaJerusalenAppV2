@@ -429,6 +429,13 @@ formProducto?.addEventListener("submit", async (e) => {
         if (id) {
             const productoRef = doc(db, "inventario", id);
             await updateDoc(productoRef, datosProducto);
+            
+            // --- NUEVA LÓGICA DE SINCRONIZACIÓN DE EDICIÓN ---
+            if (datosProducto.antibiotico) {
+                await actualizarMovimientoIngresoKardex(id, datosProducto);
+            }
+            // ------------------------------------------------
+
             alert(`✅ Lote de ${datosProducto.nombre} actualizado correctamente.`);
         } else {
             // CAMPOS QUE SOLO SE AGREGAN AL CREAR
@@ -842,6 +849,50 @@ async function registrarMovimientoKardex(loteId, dataProducto, tipo, cantidad, d
         console.log(`Kardex actualizado: ${tipo} de ${cantidad} para ${dataProducto.nombre}`);
     } catch (error) {
         console.error("Error al registrar movimiento en Kardex:", error);
+    }
+}
+
+/**
+ * Cuando se edita un lote/producto, esta función busca su entrada inicial en el Kardex
+ * y actualiza los metadatos y el documento/fecha de factura.
+ */
+async function actualizarMovimientoIngresoKardex(loteId, dataProducto) {
+    try {
+        const refKardex = collection(db, "kardex_antibioticos");
+        // Buscamos el ingreso de este producto específico
+        const q = query(refKardex, where("productoId", "==", loteId), where("observacion", "==", "Ingreso de producto.."));
+        const snap = await getDocs(q);
+        
+        if (!snap.empty) {
+            const docKardex = snap.docs[0];
+            const facturaNum = dataProducto.numFactura || "-";
+            
+            // --- RE-CALCULAR FECHA (MISMA LÓGICA QUE registrarMovimientoKardex) ---
+            let nuevaFecha = new Date(); // Por defecto hoy
+            if (facturaNum !== "-") {
+                const qFact = query(collection(db, "facturas"), where("numFactura", "==", facturaNum.trim()));
+                const snapFact = await getDocs(qFact);
+                if (!snapFact.empty) {
+                    const dataF = snapFact.docs[0].data();
+                    if (dataF.fechaEmision) {
+                        nuevaFecha = new Date(dataF.fechaEmision + "T12:00:00");
+                    }
+                }
+            }
+            // ----------------------------------------------------------------------
+
+            await updateDoc(doc(db, "kardex_antibioticos", docKardex.id), {
+                nombre: dataProducto.nombre,
+                principioActivo: dataProducto.principioActivo || "",
+                concentracion: dataProducto.concentracion || "",
+                presentacion_med: dataProducto.presentacion_med || "",
+                documento: facturaNum,
+                fecha: nuevaFecha
+            });
+            console.log(`Entrada de Kardex actualizada para el lote ${loteId}`);
+        }
+    } catch (error) {
+        console.error("Error al sincronizar edición con Kardex:", error);
     }
 }
 
