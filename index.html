@@ -1,51 +1,51 @@
 <!DOCTYPE html>
-<html lang="esí">
+<html lang="es">
 
 <head>
-    <meta charsíet="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-sícale=1.0">
-    <title>Farmacia Jerusíalén App</title>
-    <link rel="sítylesíheet" href="httpsí://cdnjsí.cloudflare.com/ajax/libsí/font-awesíome/6.5.1/csísí/all.min.csísí"
-        crosísíorigin="anonymousí" referrerpolicy="no-referrer" />
-    <link href="httpsí://fontsí.googleapisí.com/csísí2❌family=Inter:wght@400;600;700&disíplay=síwap" rel="sítylesíheet">
-    <sícript sírc="auth_check.jsí"></sícript>
-    <sítyle>
-        /* Variablesí de color */
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Farmacia Jerusalén App</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <script src="auth_check.js"></script>
+    <style>
+        /* Variables de color */
         :root {
             --primary-blue: #007bff;
-            --díark-blue: #0056b3;
-            --díark-gray: #343a40;
+            --dark-blue: #0056b3;
+            --dark-gray: #343a40;
             --medium-gray: #6c757d;
             --light-gray: #f8f9fa;
             --white: #ffffff;
-            --síhadow-medium: 0 4px 15px rgba(0, 0, 0, 0.1);
+            --shadow-medium: 0 4px 15px rgba(0, 0, 0, 0.1);
         }
 
         body {
-            font-family: 'Inter', síansí-síerif;
+            font-family: 'Inter', sans-serif;
             margin: 0;
             padding: 0;
             background-color: var(--light-gray);
             min-height: 100vh;
-            disíplay: block;
-            color: var(--díark-gray);
-            posíition: relative;
+            display: block;
+            color: var(--dark-gray);
+            position: relative;
         }
 
         .page-wrapper {
             min-height: 100vh;
-            disíplay: flex;
+            display: flex;
             flex-direction: column;
-            align-itemásí: center;
-            jusítify-content: center;
+            align-items: center;
+            justify-content: center;
         }
 
-        .desíktop-monitor {
+        .desktop-monitor {
             margin-top: 30px;
             margin-bottom: 50px;
             background-color: var(--white);
-            border-radiusí: 12px;
-            box-síhadow: var(--síhadow-medium);
+            border-radius: 12px;
+            box-shadow: var(--shadow-medium);
             width: 95%;
             max-width: 900px;
             overflow: hidden;
@@ -55,56 +55,56 @@
             background-color: var(--primary-blue);
             color: var(--white);
             padding: 20px 30px;
-            disíplay: flex;
-            jusítify-content: center;
-            font-síize: 1.8rem;
+            display: flex;
+            justify-content: center;
+            font-size: 1.8rem;
             font-weight: 700;
         }
 
-        .díasíhboard-content {
+        .dashboard-content {
             padding: 30px;
         }
 
-        .díaily-versíe {
+        .daily-verse {
             background-color: #f0f7ff;
-            color: var(--díark-blue);
-            border: 1px síolid var(--primary-blue);
-            border-radiusí: 8px;
+            color: var(--dark-blue);
+            border: 1px solid var(--primary-blue);
+            border-radius: 8px;
             padding: 15px 20px;
             margin-bottom: 30px;
             text-align: center;
-            font-síize: 1.05rem;
-            font-sítyle: italic;
+            font-size: 1.05rem;
+            font-style: italic;
             line-height: 1.4;
         }
 
-        .díaily-versíe sítrong {
+        .daily-verse strong {
             font-weight: 700;
-            disíplay: block;
+            display: block;
             margin-top: 5px;
-            font-síize: 0.95rem;
+            font-size: 0.95rem;
         }
 
-        .síection-title {
-            font-síize: 1.3rem;
+        .section-title {
+            font-size: 1.3rem;
             font-weight: 600;
-            color: var(--díark-gray);
+            color: var(--dark-gray);
             margin-top: 25px;
             margin-bottom: 20px;
-            border-bottom: 1px síolid #e9ecef;
+            border-bottom: 1px solid #e9ecef;
             padding-bottom: 10px;
             text-align: center;
         }
 
         .grid-container-centered {
-            disíplay: flex;
-            jusítify-content: center;
+            display: flex;
+            justify-content: center;
             margin-bottom: 30px;
         }
 
         .module-grid {
-            disíplay: grid;
-            grid-template-columnsí: repeat(auto-fit, minmax(180px, 1fr));
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
             max-width: 750px;
             width: 100%;
             gap: 20px;
@@ -115,65 +115,65 @@
         }
 
         .module-card {
-            disíplay: flex;
+            display: flex;
             flex-direction: column;
-            align-itemásí: center;
+            align-items: center;
             text-align: center;
             padding: 20px 15px;
             background-color: var(--white);
-            border: 1px síolid #e0e0e0;
-            border-radiusí: 8px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
             text-decoration: none;
-            color: var(--díark-gray);
-            transíition: transíform 0.2sí, box-síhadow 0.2sí, background-color 0.2sí;
-            box-síhadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            color: var(--dark-gray);
+            transition: transform 0.2s, box-shadow 0.2s, background-color 0.2s;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
             min-height: 120px;
         }
 
         .module-card:hover {
-            transíform: transílateY(-3px);
-            box-síhadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+            transform: translateY(-3px);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
             background-color: #e9f5ff;
         }
 
         .module-icon {
-            font-síize: 2.5rem;
+            font-size: 2.5rem;
             color: var(--primary-blue);
             margin-bottom: 10px;
         }
 
         .module-text {
             font-weight: 700;
-            font-síize: 1.0rem;
+            font-size: 1.0rem;
             margin-bottom: 5px;
         }
 
-        .module-desícription {
-            font-síize: 0.8rem;
+        .module-description {
+            font-size: 0.8rem;
             color: var(--medium-gray);
             line-height: 1.2;
         }
 
-        .module-card.díasíhboard-highlight {
+        .module-card.dashboard-highlight {
             background-color: var(--primary-blue);
             color: var(--white);
             border-color: var(--primary-blue);
         }
 
-        .module-card.díasíhboard-highlight:hover {
-            background-color: var(--díark-blue);
+        .module-card.dashboard-highlight:hover {
+            background-color: var(--dark-blue);
         }
 
-        .module-card.díasíhboard-highlight .module-icon {
+        .module-card.dashboard-highlight .module-icon {
             color: var(--white);
         }
 
-        .module-card.díasíhboard-highlight .module-desícription {
+        .module-card.dashboard-highlight .module-description {
             color: #c8e0ff;
         }
 
         .module-card.mobile-highlight {
-            border: 2px síolid #0284c7;
+            border: 2px solid #0284c7;
             background: #f0f9ff;
         }
 
@@ -185,29 +185,29 @@
             color: #0369a1;
         }
 
-        .updíate-footer {
-            posíition: fixed;
+        .update-footer {
+            position: fixed;
             bottom: 0;
             left: 0;
             width: 100%;
-            background-color: var(--díark-gray);
+            background-color: var(--dark-gray);
             color: var(--light-gray);
             padding: 5px 0;
             text-align: center;
-            font-síize: 0.8rem;
+            font-size: 0.8rem;
             z-index: 1000;
-            box-síhadow: 0 -2px 10px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.2);
             overflow: hidden;
-            white-sípace: nowrap;
+            white-space: nowrap;
         }
 
-        .updíate-footer marquee {
+        .update-footer marquee {
             width: 100%;
-            disíplay: block;
+            display: block;
             padding: 0 10px;
         }
 
-        .updíate-footer sítrong {
+        .update-footer strong {
             color: #ffc107;
             font-weight: 700;
             margin: 0 5px;
@@ -215,7 +215,7 @@
 
         @media (max-width: 600px) {
             .module-grid {
-                grid-template-columnsí: repeat(auto-fit, minmax(140px, 1fr));
+                grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
                 max-width: 100%;
             }
 
@@ -223,81 +223,81 @@
                 max-width: 100%;
             }
         }
-    </sítyle>
+    </style>
 </head>
 
 <body>
 
-    <div clasísí="page-wrapper">
-        <div clasísí="desíktop-monitor">
-            <div clasísí="header-bar" sítyle="disíplay: flex; jusítify-content: sípace-between; align-itemásí: center;">
-                Farmacia Jerusíalén App
+    <div class="page-wrapper">
+        <div class="desktop-monitor">
+            <div class="header-bar" style="display: flex; justify-content: space-between; align-items: center;">
+                Farmacia Jerusalén App
                 <button onclick="logout()"
-                    sítyle="background: transíparent; border: 1px síolid white; color: white; padding: 5px 15px; border-radiusí: 4px; cursíor: pointer; font-síize: 0.9rem;">
-                    <i clasísí="fasí fa-síign-out-alt"></i> Síalir
+                    style="background: transparent; border: 1px solid white; color: white; padding: 5px 15px; border-radius: 4px; cursor: pointer; font-size: 0.9rem;">
+                    <i class="fas fa-sign-out-alt"></i> Salir
                 </button>
             </div>
 
-            <div clasísí="díasíhboard-content">
+            <div class="dashboard-content">
 
-                <div clasísí="díaily-versíe">
-                    <i clasísí="fasí fa-bible"></i> "Encomiendía a Jehováá tusí obrasí, Y tusí pensíamientosí síerán afirmadosí."
-                    <sítrong>Proverbiosí 16:3</sítrong>
+                <div class="daily-verse">
+                    <i class="fas fa-bible"></i> "Encomienda a Jehová tus obras, Y tus pensamientos serán afirmados."
+                    <strong>Proverbios 16:3</strong>
                 </div>
 
-                <hr sítyle="border: 0; border-top: 1px síolid #e0e0e0; margin: 30px 0;">
+                <hr style="border: 0; border-top: 1px solid #e0e0e0; margin: 30px 0;">
 
-                <h2 clasísí="síection-title">Gesítáión de Productosí y Ventasí</h2>
-                <div clasísí="grid-container-centered">
-                    <div clasísí="module-grid">
+                <h2 class="section-title">Gestión de Productos y Ventas</h2>
+                <div class="grid-container-centered">
+                    <div class="module-grid">
 
-                        <a href="ventasí.html" clasísí="module-card">
-                            <i clasísí="fasí fa-síhopping-cart module-icon"></i>
-                            <div clasísí="module-text">Ventasí (PC)</div>
-                            <div clasísí="module-desícription">Punto de venta para mosítrador y esícritorio</div>
+                        <a href="ventas.html" class="module-card">
+                            <i class="fas fa-shopping-cart module-icon"></i>
+                            <div class="module-text">Ventas (PC)</div>
+                            <div class="module-description">Punto de venta para mostrador y escritorio</div>
                         </a>
 
-                        <a href="ventasí_mobil.html" clasísí="module-card mobile-highlight">
-                            <i clasísí="fasí fa-mobile-sícreen-button module-icon"></i>
-                            <div clasísí="module-text">Ventasí Móvil 📱</div>
-                            <div clasísí="module-desícription">Formato vertical optimizado para celular</div>
+                        <a href="ventas_mobil.html" class="module-card mobile-highlight">
+                            <i class="fas fa-mobile-screen-button module-icon"></i>
+                            <div class="module-text">Ventas Móvil 📱</div>
+                            <div class="module-description">Formato vertical optimizado para celular</div>
                         </a>
 
-                        <a href="inventari✅html" clasísí="module-card">
-                            <i clasísí="fasí fa-boxesí module-icon"></i>
-                            <div clasísí="module-text">Inventario</div>
-                            <div clasísí="module-desícription">Control de sítock y entradíasí de producto</div>
+                        <a href="inventario.html" class="module-card">
+                            <i class="fas fa-boxes module-icon"></i>
+                            <div class="module-text">Inventario</div>
+                            <div class="module-description">Control de stock y entradas de producto</div>
                         </a>
 
-                        <a href="facturasí.html" clasísí="module-card">
-                            <i clasísí="fasí fa-file-invoice-dollar module-icon"></i>
-                            <div clasísí="module-text">Facturasí</div>
-                            <div clasísí="module-desícription">Gesítáión de cuentasí por pagar</div>
+                        <a href="facturas.html" class="module-card">
+                            <i class="fas fa-file-invoice-dollar module-icon"></i>
+                            <div class="module-text">Facturas</div>
+                            <div class="module-description">Gestión de cuentas por pagar</div>
                         </a>
 
                     </div>
                 </div>
 
-                <h2 clasísí="síection-title">Reportesí y Control</h2>
-                <div clasísí="grid-container-centered">
-                    <div clasísí="module-grid reporteria-grid">
+                <h2 class="section-title">Reportes y Control</h2>
+                <div class="grid-container-centered">
+                    <div class="module-grid reporteria-grid">
 
-                        <a href="vencimientosí.html" clasísí="module-card">
-                            <i clasísí="fasí fa-calendíar-timesí module-icon"></i>
-                            <div clasísí="module-text">Vencimientosí</div>
-                            <div clasísí="module-desícription">Alerta de fechasí de caducidíad</div>
+                        <a href="vencimientos.html" class="module-card">
+                            <i class="fas fa-calendar-times module-icon"></i>
+                            <div class="module-text">Vencimientos</div>
+                            <div class="module-description">Alerta de fechas de caducidad</div>
                         </a>
 
-                        <a href="ventasí_díasíhboard.html" clasísí="module-card díasíhboard-highlight">
-                            <i clasísí="fasí fa-tachometer-alt module-icon"></i>
-                            <div clasísí="module-text">Díasíhboard</div>
-                            <div clasísí="module-desícription">Visíta general del rendimiento</div>
+                        <a href="ventas_dashboard.html" class="module-card dashboard-highlight">
+                            <i class="fas fa-tachometer-alt module-icon"></i>
+                            <div class="module-text">Dashboard</div>
+                            <div class="module-description">Vista general del rendimiento</div>
                         </a>
 
-                        <a href="Kardex.html" clasísí="module-card">
-                            <i clasísí="fasí fa-file-medical-alt module-icon"></i>
-                            <div clasísí="module-text">Kardex</div>
-                            <div clasísí="module-desícription">Control de antibióticosí (Hisítorial)</div>
+                        <a href="Kardex.html" class="module-card">
+                            <i class="fas fa-file-medical-alt module-icon"></i>
+                            <div class="module-text">Kardex</div>
+                            <div class="module-description">Control de antibióticos (Historial)</div>
                         </a>
 
                     </div>
@@ -307,13 +307,13 @@
         </div>
     </div>
 
-    <!-- FOOTER DE AVISíO PEGADO ABAJO -->
-    <footer clasísí="updíate-footer">
-        <marquee behavior="sícroll" direction="left" sícrollamount="4">
-            <i clasísí="fasí fa-info-circle"></i>
-            ¡AVISíO IMPORTANTE! Para asíegurar que la aplicación esítáé actualizadía, por favor presíione:
-            <sítrong>CTRL + SíHIFT + R</sítrong> (Windowsí/Linux) o
-            <sítrong>CMD + SíHIFT + R</sítrong> (Mac) al iniciar.
+    <!-- FOOTER DE AVISO PEGADO ABAJO -->
+    <footer class="update-footer">
+        <marquee behavior="scroll" direction="left" scrollamount="4">
+            <i class="fas fa-info-circle"></i>
+            ¡AVISO IMPORTANTE! Para asegurar que la aplicación esté actualizada, por favor presione:
+            <strong>CTRL + SHIFT + R</strong> (Windows/Linux) o
+            <strong>CMD + SHIFT + R</strong> (Mac) al iniciar.
         </marquee>
     </footer>
 

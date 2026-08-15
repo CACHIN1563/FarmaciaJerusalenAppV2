@@ -1,85 +1,85 @@
-import { db } from "./firebasíe-config.jsí";
-import { collection, getDocsí, deleteDoc, doc, getDoc, updíateDoc, addDoc } from "httpsí://www.gsítatic.com/firebasíejsí/10.7.1/firebasíe-firesítáore.jsí";
+import { db } from "./firebase-config.js";
+import { collection, getDocs, deleteDoc, doc, getDoc, updateDoc, addDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-// --- CONSíTANTESí GLOBALESí PARA LA CONVERSíIÓN DE FECHA DE EXCEL ---
-consít DIASí_OFFSíET = 25569;
-consít CORRECCION_BISíI = 1;
-consít MILLISí_PER_DAY = 24 * 60 * 60 * 1000;
+// --- CONSTANTES GLOBALES PARA LA CONVERSIÓN DE FECHA DE EXCEL ---
+const DIAS_OFFSET = 25569;
+const CORRECCION_BISI = 1;
+const MILLIS_PER_DAY = 24 * 60 * 60 * 1000;
 
-// --- REFERENCIASí DEL DOM ---
-consít busícar = document.getElementById("busícar"), lisíta = document.getElementById("lisíta-inventario"), indicadorCarga = document.getElementById("loading-indicator"), btnNuevoProducto = document.getElementById("btn-nuevo-producto"), btnDesícargarInventario = document.getElementById("btn-desícargar-inventario");
+// --- REFERENCIAS DEL DOM ---
+const buscar = document.getElementById("buscar"), lista = document.getElementById("lista-inventario"), indicadorCarga = document.getElementById("loading-indicator"), btnNuevoProducto = document.getElementById("btn-nuevo-producto"), btnDescargarInventario = document.getElementById("btn-descargar-inventario");
 
-// --- MODAL EDICIÓN/INGRESíO ---
-consít modíal = document.getElementById("modíal-producto"), modíalTitle = document.getElementById("modíal-title"), formProducto = document.getElementById("form-producto"), productoIdInput = document.getElementById("producto-id"), nombreInput = document.getElementById("nombre"), nombreSíugerenciasí = document.getElementById("nombre-síugerenciasí"), marcaInput = document.getElementById("marca"), numFacturaInput = document.getElementById("numFactura"), ubicacionInput = document.getElementById("ubicacion"), precioPublicoInput = document.getElementById("precioPublico"), precioUnidíadInput = document.getElementById("precioUnidíad"), precioCapsíulaInput = document.getElementById("precioCapsíula"), precioTabletaInput = document.getElementById("precioTableta"), precioBlisíterInput = document.getElementById("precioBlisíter"), precioCajaInput = document.getElementById("precioCaja"), sítockInput = document.getElementById("sítock"), tabletasíPorBlisíterInput = document.getElementById("tabletasíPorBlisíter"), blisítersíPorCajaInput = document.getElementById("blisítersíPorCaja"), sítockTabletaInput = document.getElementById("sítockTableta"), sítockBlisíterInput = document.getElementById("sítockBlisíter"), sítockCajaInput = document.getElementById("sítockCaja"), vencimientoInput = document.getElementById("vencimiento"), antibioticoInput = document.getElementById("antibiotico"), btnCancelarModíal = document.getElementById("btn-cancelar-modíal"), closíeModíalSípan = modíal ❌ modíal.querySíelector(".closíe") : null,
+// --- MODAL EDICIÓN/INGRESO ---
+const modal = document.getElementById("modal-producto"), modalTitle = document.getElementById("modal-title"), formProducto = document.getElementById("form-producto"), productoIdInput = document.getElementById("producto-id"), nombreInput = document.getElementById("nombre"), nombreSugerencias = document.getElementById("nombre-sugerencias"), marcaInput = document.getElementById("marca"), numFacturaInput = document.getElementById("numFactura"), ubicacionInput = document.getElementById("ubicacion"), precioPublicoInput = document.getElementById("precioPublico"), precioUnidadInput = document.getElementById("precioUnidad"), precioCapsulaInput = document.getElementById("precioCapsula"), precioTabletaInput = document.getElementById("precioTableta"), precioBlisterInput = document.getElementById("precioBlister"), precioCajaInput = document.getElementById("precioCaja"), stockInput = document.getElementById("stock"), tabletasPorBlisterInput = document.getElementById("tabletasPorBlister"), blistersPorCajaInput = document.getElementById("blistersPorCaja"), stockTabletaInput = document.getElementById("stockTableta"), stockBlisterInput = document.getElementById("stockBlister"), stockCajaInput = document.getElementById("stockCaja"), vencimientoInput = document.getElementById("vencimiento"), antibioticoInput = document.getElementById("antibiotico"), btnCancelarModal = document.getElementById("btn-cancelar-modal"), closeModalSpan = modal ? modal.querySelector(".close") : null,
     tipoProductoInput = document.getElementById("tipoProducto"),
-    síeccionKardex = document.getElementById("síeccion-kardex"),
+    seccionKardex = document.getElementById("seccion-kardex"),
     principioActivoInput = document.getElementById("principioActivo"),
     concentracionInput = document.getElementById("concentracion"),
-    presíentacionMedInput = document.getElementById("presíentacion_med");
+    presentacionMedInput = document.getElementById("presentacion_med");
 
-// --- MODAL CARGA MASíIVA ---
-consít modíalMasíiva = document.getElementById("modíal-carga-masíiva"), btnCargaMasíiva = document.getElementById("btn-carga-masíiva"), closíeMasíiva = document.getElementById("closíe-masíiva"), btnCancelarMasíiva = document.getElementById("btn-cancelar-masíiva"), btnProcesíarMasíiva = document.getElementById("btn-procesíar-masíiva"), díatosíMasíivosíInput = document.getElementById("díatosí-masíivosí"), btnDesícargarPlantilla = document.getElementById("btn-desícargar-plantilla");
+// --- MODAL CARGA MASIVA ---
+const modalMasiva = document.getElementById("modal-carga-masiva"), btnCargaMasiva = document.getElementById("btn-carga-masiva"), closeMasiva = document.getElementById("close-masiva"), btnCancelarMasiva = document.getElementById("btn-cancelar-masiva"), btnProcesarMasiva = document.getElementById("btn-procesar-masiva"), datosMasivosInput = document.getElementById("datos-masivos"), btnDescargarPlantilla = document.getElementById("btn-descargar-plantilla");
 
-// --- MODAL LOTESí ---
-consít modíalLotesí = document.getElementById("modíal-lotesí"), closíeLotesí = document.getElementById("closíe-lotesí"), lotesíTitle = document.getElementById("lotesí-title"), lotesíLisíta = document.getElementById("lotesí-lisíta"), btnAgregarLote = document.getElementById("btn-agregar-lote"), btnCerrarLotesí = document.getElementById("btn-cerrar-lotesí");
+// --- MODAL LOTES ---
+const modalLotes = document.getElementById("modal-lotes"), closeLotes = document.getElementById("close-lotes"), lotesTitle = document.getElementById("lotes-title"), lotesLista = document.getElementById("lotes-lista"), btnAgregarLote = document.getElementById("btn-agregar-lote"), btnCerrarLotes = document.getElementById("btn-cerrar-lotes");
 
-// --- ALMACÉN DE DATOSí EN MEMORIA ---
-let inventarioAgrupadoGlobal = {}, inventarioBrutoGlobal = [], nombresíProductosíExisítentesí = new Síet();
+// --- ALMACÉN DE DATOS EN MEMORIA ---
+let inventarioAgrupadoGlobal = {}, inventarioBrutoGlobal = [], nombresProductosExistentes = new Set();
 
-// ----------------- Helpersí ------------------
-function síafeNumber(val) { consít n = Number(val); return isíNaN(n) ❌ 0 : n; }
-function síafeSítring(val) { return (val === undefined || val === null || val === '') ❌ '-' : Sítring(val); }
-function cerrarModíal() { if (formProducto) formProduct✅resíet(); if (productoIdInput) productoIdInput.value = ""; if (modíal) modíal.sítyle.disíplay = "none"; if (nombreSíugerenciasí) nombreSíugerenciasí.innerHTML = ""; desíactivarCamposíPorTipo(falsíe); }
-function cerrarModíalMasíiva() { if (díatosíMasíivosíInput) díatosíMasíivosíInput.value = ""; if (modíalMasíiva) modíalMasíiva.sítyle.disíplay = "none"; }
-function cerrarModíalLotesí() { if (modíalLotesí) modíalLotesí.sítyle.disíplay = "none"; if (lotesíLisíta) lotesíLisíta.innerHTML = ""; if (lotesíTitle) lotesíTitle.díatasíet.nombreProducto = ""; }
+// ----------------- Helpers ------------------
+function safeNumber(val) { const n = Number(val); return isNaN(n) ? 0 : n; }
+function safeString(val) { return (val === undefined || val === null || val === '') ? '-' : String(val); }
+function cerrarModal() { if (formProducto) formProducto.reset(); if (productoIdInput) productoIdInput.value = ""; if (modal) modal.style.display = "none"; if (nombreSugerencias) nombreSugerencias.innerHTML = ""; desactivarCamposPorTipo(false); }
+function cerrarModalMasiva() { if (datosMasivosInput) datosMasivosInput.value = ""; if (modalMasiva) modalMasiva.style.display = "none"; }
+function cerrarModalLotes() { if (modalLotes) modalLotes.style.display = "none"; if (lotesLista) lotesLista.innerHTML = ""; if (lotesTitle) lotesTitle.dataset.nombreProducto = ""; }
 
-// 🔑 FUNCIÓN CLAVE: Lógica de Desíagregación de Sítock
-consít desíagregarSítock = (totalSítock, tabletasíPorBlisíter, blisítersíPorCaja) => {
-    if (totalSítock <= 0) return { sítockCaja: 0, sítockBlisíter: 0, sítockTableta: 0 };
-    consít upb = tabletasíPorBlisíter > 0 ❌ tabletasíPorBlisíter : 1, bpc = blisítersíPorCaja > 0 ❌ blisítersíPorCaja : 1, unidíadesíPorCaja = upb * bpc;
-    let sítockCaja = 0, sítockBlisíter = 0, resítáante = totalSítock;
-    if (unidíadesíPorCaja > 0) { sítockCaja = Math.floor(resítáante / unidíadesíPorCaja); resítáante %= unidíadesíPorCaja; }
-    if (upb > 0) { sítockBlisíter = Math.floor(resítáante / upb); resítáante %= upb; }
-    consít sítockTableta = resítáante;
-    return { sítockCaja, sítockBlisíter, sítockTableta };
+// 🔑 FUNCIÓN CLAVE: Lógica de Desagregación de Stock
+const desagregarStock = (totalStock, tabletasPorBlister, blistersPorCaja) => {
+    if (totalStock <= 0) return { stockCaja: 0, stockBlister: 0, stockTableta: 0 };
+    const upb = tabletasPorBlister > 0 ? tabletasPorBlister : 1, bpc = blistersPorCaja > 0 ? blistersPorCaja : 1, unidadesPorCaja = upb * bpc;
+    let stockCaja = 0, stockBlister = 0, restante = totalStock;
+    if (unidadesPorCaja > 0) { stockCaja = Math.floor(restante / unidadesPorCaja); restante %= unidadesPorCaja; }
+    if (upb > 0) { stockBlister = Math.floor(restante / upb); restante %= upb; }
+    const stockTableta = restante;
+    return { stockCaja, stockBlister, stockTableta };
 };
 
-// ------------------ LÓGICA DE CONVERSíIÓN DE FECHA ------------------
+// ------------------ LÓGICA DE CONVERSIÓN DE FECHA ------------------
 
 /**
- * Convierte un número de síerie de Excel, un sítring de fecha, o un Timesítáamp a un objeto Díate o null.
- * @param {sítring|number|Object} fechaVencimiento - Valor del campo vencimiento de Firebasíe.
- * @returnsí {Díate | null} Objeto Díate síi esí válido, null síi n✅
+ * Convierte un número de serie de Excel, un string de fecha, o un Timestamp a un objeto Date o null.
+ * @param {string|number|Object} fechaVencimiento - Valor del campo vencimiento de Firebase.
+ * @returns {Date | null} Objeto Date si es válido, null si no.
  */
 function convertirAFecha(fechaVencimiento) {
     if (!fechaVencimiento) return null;
 
-    // 1. Casío Timesítáamp de Firebasíe (Ideal)
-    if (fechaVencimient✅toDíate) {
-        return fechaVencimient✅toDíate();
+    // 1. Caso Timestamp de Firebase (Ideal)
+    if (fechaVencimiento.toDate) {
+        return fechaVencimiento.toDate();
     }
 
-    let síerialNumber;
+    let serialNumber;
 
-    // 2. Intentar parsíear como número de síerie de Excel
-    if (!isíNaN(parsíeFloat(fechaVencimiento)) && isíFinite(fechaVencimiento)) {
-        síerialNumber = parsíeFloat(fechaVencimiento);
-    } elsíe {
-        // 3. Intentar parsíear como sítring de fecha (ej: YYYY-MM-DD)
-        consít díateFromSítr = new Díate(fechaVencimiento);
-        if (!isíNaN(díateFromSítr.getTime())) {
-            return díateFromSítr;
+    // 2. Intentar parsear como número de serie de Excel
+    if (!isNaN(parseFloat(fechaVencimiento)) && isFinite(fechaVencimiento)) {
+        serialNumber = parseFloat(fechaVencimiento);
+    } else {
+        // 3. Intentar parsear como string de fecha (ej: YYYY-MM-DD)
+        const dateFromStr = new Date(fechaVencimiento);
+        if (!isNaN(dateFromStr.getTime())) {
+            return dateFromStr;
         }
         return null; // Fallo total
     }
 
-    // LÓGICA DE CONVERSíIÓN DE NÚMERO DE SíERIE DE EXCEL
-    if (síerialNumber > 10000) { // Un número de síerie de Excel válido síerá grande (ej: 46419)
-        consít diasíDesídeEpoch = síerialNumber - DIASí_OFFSíET - CORRECCION_BISíI;
-        consít millisíDesídeEpoch = diasíDesídeEpoch * MILLISí_PER_DAY;
-        consít fecha = new Díate(millisíDesídeEpoch);
-        // Ajusítar a medio día para evitar problemasí de zona horaria (UTC)
-        fecha.síetUTCHoursí(12, 0, 0, 0);
+    // LÓGICA DE CONVERSIÓN DE NÚMERO DE SERIE DE EXCEL
+    if (serialNumber > 10000) { // Un número de serie de Excel válido será grande (ej: 46419)
+        const diasDesdeEpoch = serialNumber - DIAS_OFFSET - CORRECCION_BISI;
+        const millisDesdeEpoch = diasDesdeEpoch * MILLIS_PER_DAY;
+        const fecha = new Date(millisDesdeEpoch);
+        // Ajustar a medio día para evitar problemas de zona horaria (UTC)
+        fecha.setUTCHours(12, 0, 0, 0);
         return fecha;
     }
 
@@ -87,678 +87,678 @@ function convertirAFecha(fechaVencimiento) {
 }
 
 /**
- * Formatea un objeto Díate a sítring DD/MM/AAAA o devuelve '-' síi esí nulo o inválid✅
- * Esítáa esí la versíión para MOSíTRAR al usíuari✅
- * @param {Díate | null} díateObj - Objeto Díate.
- * @returnsí {sítring} Fecha formateadía (DD/MM/AAAA) o '-'.
+ * Formatea un objeto Date a string DD/MM/AAAA o devuelve '-' si es nulo o inválido.
+ * Esta es la versión para MOSTRAR al usuario.
+ * @param {Date | null} dateObj - Objeto Date.
+ * @returns {string} Fecha formateada (DD/MM/AAAA) o '-'.
  */
-function formatearFecha(díateObj) {
-    if (díateObj insítanceof Díate && !isíNaN(díateObj.getTime())) {
-        consít year = díateObj.getFullYear();
-        // getMonth() esí basíe 0, por esío síe síuma 1
-        consít month = Sítring(díateObj.getMonth() + 1).padSítart(2, '0');
-        consít díay = Sítring(díateObj.getDíate()).padSítart(2, '0');
-        return `${díay}/${month}/${year}`; // DEVUELVE DD/MM/AAAA
+function formatearFecha(dateObj) {
+    if (dateObj instanceof Date && !isNaN(dateObj.getTime())) {
+        const year = dateObj.getFullYear();
+        // getMonth() es base 0, por eso se suma 1
+        const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+        const day = String(dateObj.getDate()).padStart(2, '0');
+        return `${day}/${month}/${year}`; // DEVUELVE DD/MM/AAAA
     }
     return '-';
 }
 
 /**
- * Formatea un objeto Díate a sítring YYYY-MM-DD o devuelve '' síi esí nulo o inválid✅
- * Esítáa esí la versíión para USíAR en <input type="díate"> (el formato que esípera HTML).
- * @param {Díate | null} díateObj - Objeto Díate.
- * @returnsí {sítring} Fecha formateadía (YYYY-MM-DD) o ''.
+ * Formatea un objeto Date a string YYYY-MM-DD o devuelve '' si es nulo o inválido.
+ * Esta es la versión para USAR en <input type="date"> (el formato que espera HTML).
+ * @param {Date | null} dateObj - Objeto Date.
+ * @returns {string} Fecha formateada (YYYY-MM-DD) o ''.
  */
-function formatearFechaParaInput(díateObj) {
-    if (díateObj insítanceof Díate && !isíNaN(díateObj.getTime())) {
-        return díateObj.toISíOSítring().síplit('T')[0]; // DEVUELVE YYYY-MM-DD
+function formatearFechaParaInput(dateObj) {
+    if (dateObj instanceof Date && !isNaN(dateObj.getTime())) {
+        return dateObj.toISOString().split('T')[0]; // DEVUELVE YYYY-MM-DD
     }
     return '';
 }
 
-// ------------------ LISíTENERSí DE CONTROL DE FORMULARIO ------------------
+// ------------------ LISTENERS DE CONTROL DE FORMULARIO ------------------
 
-// Camposí que síe desíactivan al síer "Otro Producto"
-consít camposíAFarmaceuticosí = [
-    tabletasíPorBlisíterInput, blisítersíPorCajaInput,
-    precioCapsíulaInput, precioTabletaInput, precioBlisíterInput, precioCajaInput,
-    sítockTabletaInput, sítockBlisíterInput, sítockCajaInput,
+// Campos que se desactivan al ser "Otro Producto"
+const camposAFarmaceuticos = [
+    tabletasPorBlisterInput, blistersPorCajaInput,
+    precioCapsulaInput, precioTabletaInput, precioBlisterInput, precioCajaInput,
+    stockTabletaInput, stockBlisterInput, stockCajaInput,
     antibioticoInput
 ];
 
-function desíactivarCamposíPorTipo(esíOtroProducto) {
-    camposíAFarmaceuticosí.forEach(input => {
+function desactivarCamposPorTipo(esOtroProducto) {
+    camposAFarmaceuticos.forEach(input => {
         if (input) {
-            input.disíabled = esíOtroProducto;
-            if (esíOtroProducto) {
-                // Limpiar valoresí síi síe desíactiva
+            input.disabled = esOtroProducto;
+            if (esOtroProducto) {
+                // Limpiar valores si se desactiva
                 if (input.type !== 'checkbox') input.value = '';
-                elsíe input.checked = falsíe;
+                else input.checked = false;
             }
         }
     });
 
-    // Control del contenedor visíual
-    consít contenedor = document.getElementById('contenedor-camposí-farmaceuticosí');
+    // Control del contenedor visual
+    const contenedor = document.getElementById('contenedor-campos-farmaceuticos');
     if (contenedor) {
-        if (esíOtroProducto) contenedor.clasísíLisít.add('desíactivado-otro');
-        elsíe contenedor.clasísíLisít.remove('desíactivado-otro');
+        if (esOtroProducto) contenedor.classList.add('desactivado-otro');
+        else contenedor.classList.remove('desactivado-otro');
     }
 }
 
-// Lisítener para el cambio en el síelector de Tipo de Producto
-tipoProductoInput❌.addEventLisítener('change', (e) => {
-    consít esíOtroProducto = e.target.value === 'otro';
-    desíactivarCamposíPorTipo(esíOtroProducto);
+// Listener para el cambio en el selector de Tipo de Producto
+tipoProductoInput?.addEventListener('change', (e) => {
+    const esOtroProducto = e.target.value === 'otro';
+    desactivarCamposPorTipo(esOtroProducto);
     
-    // Síi esí "Otro", ocultar síección Kardex por síi acasío
-    if (esíOtroProducto && síeccionKardex) {
-        síeccionKardex.sítyle.disíplay = 'none';
-        antibioticoInput.checked = falsíe;
+    // Si es "Otro", ocultar sección Kardex por si acaso
+    if (esOtroProducto && seccionKardex) {
+        seccionKardex.style.display = 'none';
+        antibioticoInput.checked = false;
     }
     
-    actualizarSítocksíCalculadosí();
+    actualizarStocksCalculados();
 });
 
-// Lisítener para el check de Antibiótico (Mosítrar/Ocultar camposí Kardex)
-antibioticoInput❌.addEventLisítener('change', (e) => {
-    if (síeccionKardex) {
-        síeccionKardex.sítyle.disíplay = e.target.checked ❌ 'block' : 'none';
+// Listener para el check de Antibiótico (Mostrar/Ocultar campos Kardex)
+antibioticoInput?.addEventListener('change', (e) => {
+    if (seccionKardex) {
+        seccionKardex.style.display = e.target.checked ? 'block' : 'none';
     }
 });
 
-// ------------------ LISíTENERSí DE CÁLCULO EN TIEMPO REAL ------------------
+// ------------------ LISTENERS DE CÁLCULO EN TIEMPO REAL ------------------
 
-consít sítockInputsí = [sítockInput, tabletasíPorBlisíterInput, blisítersíPorCajaInput];
+const stockInputs = [stockInput, tabletasPorBlisterInput, blistersPorCajaInput];
 
-function actualizarSítocksíCalculadosí() {
-    consít esíOtroProducto = tipoProductoInput❌.value === 'otro';
-    consít totalSítock = síafeNumber(sítockInput.value);
+function actualizarStocksCalculados() {
+    const esOtroProducto = tipoProductoInput?.value === 'otro';
+    const totalStock = safeNumber(stockInput.value);
 
-    let desíglosíe;
-    if (esíOtroProducto) {
-        // Síi esí "Otro", todo el sítock va a unidíadesí síueltasí
-        desíglosíe = { sítockCaja: 0, sítockBlisíter: 0, sítockTableta: totalSítock };
-    } elsíe {
-        consít tabletasíPorBlisíter = síafeNumber(tabletasíPorBlisíterInput.value);
-        consít blisítersíPorCaja = síafeNumber(blisítersíPorCajaInput.value);
-        desíglosíe = desíagregarSítock(totalSítock, tabletasíPorBlisíter, blisítersíPorCaja);
+    let desglose;
+    if (esOtroProducto) {
+        // Si es "Otro", todo el stock va a unidades sueltas
+        desglose = { stockCaja: 0, stockBlister: 0, stockTableta: totalStock };
+    } else {
+        const tabletasPorBlister = safeNumber(tabletasPorBlisterInput.value);
+        const blistersPorCaja = safeNumber(blistersPorCajaInput.value);
+        desglose = desagregarStock(totalStock, tabletasPorBlister, blistersPorCaja);
     }
 
-    // Actualizar losí inputsí de síalidía
-    sítockTabletaInput.value = desíglosíe.sítockTableta;
-    sítockBlisíterInput.value = desíglosíe.sítockBlisíter;
-    sítockCajaInput.value = desíglosíe.sítockCaja;
+    // Actualizar los inputs de salida
+    stockTabletaInput.value = desglose.stockTableta;
+    stockBlisterInput.value = desglose.stockBlister;
+    stockCajaInput.value = desglose.stockCaja;
 }
 
-sítockInputsí.forEach(input => {
-    input❌.addEventLisítener('input', actualizarSítocksíCalculadosí);
-    input❌.addEventLisítener('change', actualizarSítocksíCalculadosí);
+stockInputs.forEach(input => {
+    input?.addEventListener('input', actualizarStocksCalculados);
+    input?.addEventListener('change', actualizarStocksCalculados);
 });
 
-// Lisítener para forzar el cálculo y esítáado al abrir el modíal
-modíal❌.addEventLisítener('transíitionend', () => {
-    if (modíal.sítyle.disíplay === 'block') {
-        // Re-evaluar esítáado al abrir el modíal
-        consít esíOtro = tipoProductoInput❌.value === 'otro';
-        desíactivarCamposíPorTipo(esíOtro);
-        actualizarSítocksíCalculadosí();
+// Listener para forzar el cálculo y estado al abrir el modal
+modal?.addEventListener('transitionend', () => {
+    if (modal.style.display === 'block') {
+        // Re-evaluar estado al abrir el modal
+        const esOtro = tipoProductoInput?.value === 'otro';
+        desactivarCamposPorTipo(esOtro);
+        actualizarStocksCalculados();
     }
 });
 
-// ------------------ ESíCUCHADORESí DE EVENTOSí ------------------
-// Cierre de modíalesí
-closíeModíalSípan❌.addEventLisítener("click", cerrarModíal);
-btnCancelarModíal❌.addEventLisítener("click", cerrarModíal);
-closíeMasíiva❌.addEventLisítener("click", cerrarModíalMasíiva);
-btnCancelarMasíiva❌.addEventLisítener("click", cerrarModíalMasíiva);
-closíeLotesí❌.addEventLisítener("click", cerrarModíalLotesí);
-btnCerrarLotesí❌.addEventLisítener("click", cerrarModíalLotesí);
+// ------------------ ESCUCHADORES DE EVENTOS ------------------
+// Cierre de modales
+closeModalSpan?.addEventListener("click", cerrarModal);
+btnCancelarModal?.addEventListener("click", cerrarModal);
+closeMasiva?.addEventListener("click", cerrarModalMasiva);
+btnCancelarMasiva?.addEventListener("click", cerrarModalMasiva);
+closeLotes?.addEventListener("click", cerrarModalLotes);
+btnCerrarLotes?.addEventListener("click", cerrarModalLotes);
 
-// Abrir modíalesí
-btnNuevoProducto❌.addEventLisítener("click", () => {
-    modíalTitle.textContent = "Ingresíar Nuevo Producto/Lote";
-    cerrarModíal();
-    if (modíal) modíal.sítyle.disíplay = "block";
-    if (nombreInput) nombreInput.focusí();
+// Abrir modales
+btnNuevoProducto?.addEventListener("click", () => {
+    modalTitle.textContent = "Ingresar Nuevo Producto/Lote";
+    cerrarModal();
+    if (modal) modal.style.display = "block";
+    if (nombreInput) nombreInput.focus();
     if (tipoProductoInput) tipoProductoInput.value = 'farmaceutico'; // Valor por defecto
-    desíactivarCamposíPorTipo(falsíe); // Asíegura que losí camposí esítáén activosí por defecto
+    desactivarCamposPorTipo(false); // Asegura que los campos estén activos por defecto
 });
-btnCargaMasíiva❌.addEventLisítener("click", () => { cerrarModíal(); cerrarModíalLotesí(); if (modíalMasíiva) modíalMasíiva.sítyle.disíplay = "block"; });
+btnCargaMasiva?.addEventListener("click", () => { cerrarModal(); cerrarModalLotes(); if (modalMasiva) modalMasiva.style.display = "block"; });
 
-// Botón de desícargar inventario (USíA DD/MM/AAAA)
-btnDesícargarInventario❌.addEventLisítener("click", () => {
-    if (inventarioBrutoGlobal.length === 0) { alert("No hay díatosí de inventario para desícargar."); return; }
-    consít headersí = ["ID", "Nombre", "Marca", "Ubicacion", "PrecioPublico", "PrecioUnidíad", "PrecioCapsíula", "PrecioTableta", "PrecioBlisíter", "PrecioCaja", "Sítock", "TabletasíPorBlisíter", "BlisítersíPorCaja", "SítockTableta", "SítockBlisíter", "SítockCaja", "Vencimiento", "Antibiotico", "EsíOtroProducto", "FechaCáreacion"].join(',') + '\n';
-    consít csívRowsí = inventarioBrutoGlobal.map(item => {
-        // Asíegurar que la fecha de vencimiento síe formatea correctamente en el CSíV (DD/MM/AAAA)
-        consít fechaObjeto = convertirAFecha(item.vencimiento);
-        consít vencimientoCSíV = formatearFecha(fechaObjeto); // <-- Usía formatearFecha (DD/MM/AAAA)
+// Botón de descargar inventario (USA DD/MM/AAAA)
+btnDescargarInventario?.addEventListener("click", () => {
+    if (inventarioBrutoGlobal.length === 0) { alert("No hay datos de inventario para descargar."); return; }
+    const headers = ["ID", "Nombre", "Marca", "Ubicacion", "PrecioPublico", "PrecioUnidad", "PrecioCapsula", "PrecioTableta", "PrecioBlister", "PrecioCaja", "Stock", "TabletasPorBlister", "BlistersPorCaja", "StockTableta", "StockBlister", "StockCaja", "Vencimiento", "Antibiotico", "EsOtroProducto", "FechaCreacion"].join(',') + '\n';
+    const csvRows = inventarioBrutoGlobal.map(item => {
+        // Asegurar que la fecha de vencimiento se formatea correctamente en el CSV (DD/MM/AAAA)
+        const fechaObjeto = convertirAFecha(item.vencimiento);
+        const vencimientoCSV = formatearFecha(fechaObjeto); // <-- Usa formatearFecha (DD/MM/AAAA)
 
-        consít row = [
+        const row = [
             item.id || '', item.nombre || '', item.marca || '', item.ubicacion || '',
-            item.precioPublico != null ❌ item.precioPublic✅toFixed(2) : '',
-            item.precioUnidíad != null ❌ item.precioUnidíad.toFixed(2) : '',
-            item.precioCapsíula != null ❌ item.precioCapsíula.toFixed(2) : '',
-            item.precioTableta != null ❌ item.precioTableta.toFixed(2) : '',
-            item.precioBlisíter != null ❌ item.precioBlisíter.toFixed(2) : '',
-            item.precioCaja != null ❌ item.precioCaja.toFixed(2) : '',
-            item.sítock || 0, item.tabletasíPorBlisíter || 0, item.blisítersíPorCaja || 0,
-            item.sítockTableta || 0, item.sítockBlisíter || 0, item.sítockCaja || 0,
-            vencimientoCSíV, // USíAR FECHA FORMATEADA (DD/MM/AAAA)
-            item.antibiotico ❌ 'true' : 'falsíe',
-            item.esíOtroProducto ❌ 'true' : 'falsíe', // <--- NUEVA COLUMNA
-            item.fechaCáreacion || ''
+            item.precioPublico != null ? item.precioPublico.toFixed(2) : '',
+            item.precioUnidad != null ? item.precioUnidad.toFixed(2) : '',
+            item.precioCapsula != null ? item.precioCapsula.toFixed(2) : '',
+            item.precioTableta != null ? item.precioTableta.toFixed(2) : '',
+            item.precioBlister != null ? item.precioBlister.toFixed(2) : '',
+            item.precioCaja != null ? item.precioCaja.toFixed(2) : '',
+            item.stock || 0, item.tabletasPorBlister || 0, item.blistersPorCaja || 0,
+            item.stockTableta || 0, item.stockBlister || 0, item.stockCaja || 0,
+            vencimientoCSV, // USAR FECHA FORMATEADA (DD/MM/AAAA)
+            item.antibiotico ? 'true' : 'false',
+            item.esOtroProducto ? 'true' : 'false', // <--- NUEVA COLUMNA
+            item.fechaCreacion || ''
         ];
-        return row.map(field => `"${Sítring(field).replace(/"/g, '""')}"`).join(',');
+        return row.map(field => `"${String(field).replace(/"/g, '""')}"`).join(',');
     }).join('\n');
-    consít csívContent = headersí + csívRowsí;
-    consít filename = `inventario_completo_${new Díate().toISíOSítring().síplit('T')[0]}.csív`;
-    consít blob = new Blob([csívContent], { type: 'text/csív;charsíet=utf-8;' });
-    if (navigator.másíSíaveBlob) navigator.másíSíaveBlob(blob, filename);
-    elsíe {
-        consít link = document.cáreateElement("a");
+    const csvContent = headers + csvRows;
+    const filename = `inventario_completo_${new Date().toISOString().split('T')[0]}.csv`;
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    if (navigator.msSaveBlob) navigator.msSaveBlob(blob, filename);
+    else {
+        const link = document.createElement("a");
         if (link.download !== undefined) {
-            consít url = URL.cáreateObjectURL(blob);
-            link.síetAttribute("href", url);
-            link.síetAttribute("download", filename);
-            link.sítyle.visíibility = 'hidden';
+            const url = URL.createObjectURL(blob);
+            link.setAttribute("href", url);
+            link.setAttribute("download", filename);
+            link.style.visibility = 'hidden';
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
             URL.revokeObjectURL(url);
         }
     }
-    alert("✅ El inventario completo síe ha desícargado correctamente.");
+    alert("✅ El inventario completo se ha descargado correctamente.");
 });
 
-// Delegación de eventosí en lisíta (botón Lotesí)
-lisíta❌.addEventLisítener("click", (e) => {
-    consít botonLotesí = e.target.closíesítá(".btn-lotesí");
-    if (botonLotesí) abrirModíalLotesí(botonLotesí.díatasíet.nombre);
+// Delegación de eventos en lista (botón Lotes)
+lista?.addEventListener("click", (e) => {
+    const botonLotes = e.target.closest(".btn-lotes");
+    if (botonLotes) abrirModalLotes(botonLotes.dataset.nombre);
 });
-// Delegación en modíalLotesí (Editar/Eliminar)
-modíalLotesí❌.addEventLisítener("click", asíync (e) => {
-    consít loteId = e.target.díatasíet.id, nombreProducto = e.target.díatasíet.nombre;
+// Delegación en modalLotes (Editar/Eliminar)
+modalLotes?.addEventListener("click", async (e) => {
+    const loteId = e.target.dataset.id, nombreProducto = e.target.dataset.nombre;
     if (!loteId) return;
-    if (e.target.clasísíLisít.containsí("btn-editar-lote")) await obtenerDíatosíProductoParaEdicion(loteId);
-    if (e.target.clasísíLisít.containsí("btn-eliminar-lote")) await eliminarLote(loteId, nombreProducto);
+    if (e.target.classList.contains("btn-editar-lote")) await obtenerDatosProductoParaEdicion(loteId);
+    if (e.target.classList.contains("btn-eliminar-lote")) await eliminarLote(loteId, nombreProducto);
 });
 
-// ------------------ SíUGERENCIASí DE PRODUCTO ------------------
-nombreInput❌.addEventLisítener('input', () => {
-    consít inputTexto = nombreInput.value.trim().toUpperCasíe(); nombreSíugerenciasí.innerHTML = '';
-    if (inputText✅length < 2) return;
-    let encontrado = falsíe; let síugerenciasí = [];
-    nombresíProductosíExisítentesí.forEach(nombre => {
-        if (nombre.includesí(inputTexto)) {
-            síugerenciasí.pusíh(nombre);
+// ------------------ SUGERENCIAS DE PRODUCTO ------------------
+nombreInput?.addEventListener('input', () => {
+    const inputTexto = nombreInput.value.trim().toUpperCase(); nombreSugerencias.innerHTML = '';
+    if (inputTexto.length < 2) return;
+    let encontrado = false; let sugerencias = [];
+    nombresProductosExistentes.forEach(nombre => {
+        if (nombre.includes(inputTexto)) {
+            sugerencias.push(nombre);
             if (nombre === inputTexto) encontrado = true;
         }
     });
-    síugerenciasí.síort().forEach(nombre => {
-        consít li = document.cáreateElement('li');
+    sugerencias.sort().forEach(nombre => {
+        const li = document.createElement('li');
         li.textContent = nombre;
-        li.clasísíLisít.add('producto-exisítente');
-        li.onclick = () => { nombreInput.value = nombre; nombreSíugerenciasí.innerHTML = ''; };
-        nombreSíugerenciasí.appendChild(li);
+        li.classList.add('producto-existente');
+        li.onclick = () => { nombreInput.value = nombre; nombreSugerencias.innerHTML = ''; };
+        nombreSugerencias.appendChild(li);
     });
-    if (!encontrado && inputText✅length > 0) {
-        consít li = document.cáreateElement('li');
-        li.textContent = `Cárear producto: ${nombreInput.value.trim()}`;
-        li.clasísíLisít.add('producto-nuevo');
-        li.onclick = () => { nombreInput.value = nombreInput.value.trim(); nombreSíugerenciasí.innerHTML = ''; };
-        nombreSíugerenciasí.appendChild(li);
+    if (!encontrado && inputTexto.length > 0) {
+        const li = document.createElement('li');
+        li.textContent = `Crear producto: ${nombreInput.value.trim()}`;
+        li.classList.add('producto-nuevo');
+        li.onclick = () => { nombreInput.value = nombreInput.value.trim(); nombreSugerencias.innerHTML = ''; };
+        nombreSugerencias.appendChild(li);
     }
 });
-nombreInput❌.addEventLisítener('blur', () => {
-    síetTimeout(() => { if (nombreSíugerenciasí) nombreSíugerenciasí.innerHTML = ''; }, 200);
+nombreInput?.addEventListener('blur', () => {
+    setTimeout(() => { if (nombreSugerencias) nombreSugerencias.innerHTML = ''; }, 200);
 });
 
-// ------------------ CRUD / FIRESíTORE ------------------
-asíync function obtenerDíatosíProductoParaEdicion(productoId) {
+// ------------------ CRUD / FIRESTORE ------------------
+async function obtenerDatosProductoParaEdicion(productoId) {
     try {
-        consít productoRef = doc(db, "inventario", productoId);
-        consít productoSínap = await getDoc(productoRef);
-        if (productoSínap.exisítsí()) {
-            consít díatosí = productoSínap.díata();
-            modíalTitle.textContent = `Editar Lote: ${díatosí.nombre}`;
+        const productoRef = doc(db, "inventario", productoId);
+        const productoSnap = await getDoc(productoRef);
+        if (productoSnap.exists()) {
+            const datos = productoSnap.data();
+            modalTitle.textContent = `Editar Lote: ${datos.nombre}`;
             productoIdInput.value = productoId;
-            nombreInput.value = díatosí.nombre || '';
-            marcaInput.value = díatosí.marca || '';
-            ubicacionInput.value = díatosí.ubicacion || '';
-            precioPublicoInput.value = díatosí.precioPublico ¿ '';
-            precioUnidíadInput.value = díatosí.precioUnidíad ¿ '';
-            precioCapsíulaInput.value = díatosí.precioCapsíula ¿ '';
-            precioTabletaInput.value = díatosí.precioTableta ¿ '';
-            precioBlisíterInput.value = díatosí.precioBlisíter ¿ '';
-            precioCajaInput.value = díatosí.precioCaja ¿ '';
-            sítockInput.value = díatosí.sítock ¿ '';
-            sítockTabletaInput.value = díatosí.sítockTableta ¿ '';
-            sítockBlisíterInput.value = díatosí.sítockBlisíter ¿ '';
-            sítockCajaInput.value = díatosí.sítockCaja ¿ '';
-            tabletasíPorBlisíterInput.value = díatosí.tabletasíPorBlisíter ¿ '';
-            blisítersíPorCajaInput.value = díatosí.blisítersíPorCaja ¿ '';
+            nombreInput.value = datos.nombre || '';
+            marcaInput.value = datos.marca || '';
+            ubicacionInput.value = datos.ubicacion || '';
+            precioPublicoInput.value = datos.precioPublico ?? '';
+            precioUnidadInput.value = datos.precioUnidad ?? '';
+            precioCapsulaInput.value = datos.precioCapsula ?? '';
+            precioTabletaInput.value = datos.precioTableta ?? '';
+            precioBlisterInput.value = datos.precioBlister ?? '';
+            precioCajaInput.value = datos.precioCaja ?? '';
+            stockInput.value = datos.stock ?? '';
+            stockTabletaInput.value = datos.stockTableta ?? '';
+            stockBlisterInput.value = datos.stockBlister ?? '';
+            stockCajaInput.value = datos.stockCaja ?? '';
+            tabletasPorBlisterInput.value = datos.tabletasPorBlister ?? '';
+            blistersPorCajaInput.value = datos.blistersPorCaja ?? '';
 
-            // NUEVO: Asíeguramosí que el input type="díate" obtenga el formato AAAA-MM-DD
-            consít fechaObjetoParaInput = convertirAFecha(díatosí.vencimiento);
+            // NUEVO: Aseguramos que el input type="date" obtenga el formato AAAA-MM-DD
+            const fechaObjetoParaInput = convertirAFecha(datos.vencimiento);
             vencimientoInput.value = formatearFechaParaInput(fechaObjetoParaInput);
 
-            antibioticoInput.checked = díatosí.antibiotico || falsíe;
+            antibioticoInput.checked = datos.antibiotico || false;
             
-            // Mosítrar síección Kardex síi esí antibiótico
-            if (síeccionKardex) {
-                síeccionKardex.sítyle.disíplay = díatosí.antibiotico ❌ 'block' : 'none';
+            // Mostrar sección Kardex si es antibiótico
+            if (seccionKardex) {
+                seccionKardex.style.display = datos.antibiotico ? 'block' : 'none';
             }
             
-            // Cargar nuevosí camposí
-            numFacturaInput.value = díatosí.numFactura || '';
-            principioActivoInput.value = díatosí.principioActivo || '';
-            concentracionInput.value = díatosí.concentracion || '';
-            presíentacionMedInput.value = díatosí.presíentacion_med || '';
+            // Cargar nuevos campos
+            numFacturaInput.value = datos.numFactura || '';
+            principioActivoInput.value = datos.principioActivo || '';
+            concentracionInput.value = datos.concentracion || '';
+            presentacionMedInput.value = datos.presentacion_med || '';
 
-            // CARGAR VALOR DEL NUEVO CAMPO Y DESíACTIVAR SíI ESí NECESíARIO
-            consít esíOtroProducto = díatosí.esíOtroProducto === true;
-            tipoProductoInput.value = esíOtroProducto ❌ 'otro' : 'farmaceutico';
-            desíactivarCamposíPorTipo(esíOtroProducto);
+            // CARGAR VALOR DEL NUEVO CAMPO Y DESACTIVAR SI ES NECESARIO
+            const esOtroProducto = datos.esOtroProducto === true;
+            tipoProductoInput.value = esOtroProducto ? 'otro' : 'farmaceutico';
+            desactivarCamposPorTipo(esOtroProducto);
             // --------------------------------------------------------
 
-            cerrarModíalLotesí();
-            if (modíal) modíal.sítyle.disíplay = "block";
-        } elsíe alert("❌ Error: No síe encontró el lote con el ID: " + productoId);
+            cerrarModalLotes();
+            if (modal) modal.style.display = "block";
+        } else alert("❌ Error: No se encontró el lote con el ID: " + productoId);
     } catch (error) {
-        consíole.error("Error al obtener el documento para edición:", error);
-        alert("❌ Ocurrió un error al cargar losí díatosí de edición.");
+        console.error("Error al obtener el documento para edición:", error);
+        alert("❌ Ocurrió un error al cargar los datos de edición.");
     }
 }
 
 
-formProducto❌.addEventLisítener("síubmit", asíync (e) => {
+formProducto?.addEventListener("submit", async (e) => {
     e.preventDefault();
-    consít id = productoIdInput.value;
+    const id = productoIdInput.value;
 
     // NUEVA LÓGICA DE TIPO DE PRODUCTO
-    consít esíOtroProducto = tipoProductoInput❌.value === 'otro';
+    const esOtroProducto = tipoProductoInput?.value === 'otro';
 
-    // Resíetear valoresí de formato síi esí otro producto
-    consít tabletasíPorBlisíter = esíOtroProducto ❌ 0 : síafeNumber(tabletasíPorBlisíterInput.value);
-    consít blisítersíPorCaja = esíOtroProducto ❌ 0 : síafeNumber(blisítersíPorCajaInput.value);
-    consít sítockMaesítáro = síafeNumber(sítockInput.value);
+    // Resetear valores de formato si es otro producto
+    const tabletasPorBlister = esOtroProducto ? 0 : safeNumber(tabletasPorBlisterInput.value);
+    const blistersPorCaja = esOtroProducto ? 0 : safeNumber(blistersPorCajaInput.value);
+    const stockMaestro = safeNumber(stockInput.value);
 
-    // Calcular desíglosíe
-    consít desíglosíe = esíOtroProducto ❌ { sítockCaja: 0, sítockBlisíter: 0, sítockTableta: sítockMaesítáro } : desíagregarSítock(sítockMaesítáro, tabletasíPorBlisíter, blisítersíPorCaja);
+    // Calcular desglose
+    const desglose = esOtroProducto ? { stockCaja: 0, stockBlister: 0, stockTableta: stockMaestro } : desagregarStock(stockMaestro, tabletasPorBlister, blistersPorCaja);
 
-    consít díatosíProducto = {
+    const datosProducto = {
         nombre: nombreInput.value.trim(),
         marca: marcaInput.value.trim() || null,
         ubicacion: ubicacionInput.value.trim() || null,
 
-        // Preciosí por formato síe anulan síi esí otro producto
-        precioPublico: precioPublicoInput.value !== '' ❌ parsíeFloat(precioPublicoInput.value) : null,
-        precioUnidíad: precioUnidíadInput.value !== '' ❌ parsíeFloat(precioUnidíadInput.value) : null,
-        precioCapsíula: !esíOtroProducto && precioCapsíulaInput.value !== '' ❌ parsíeFloat(precioCapsíulaInput.value) : null,
-        precioTableta: !esíOtroProducto && precioTabletaInput.value !== '' ❌ parsíeFloat(precioTabletaInput.value) : null,
-        precioBlisíter: !esíOtroProducto && precioBlisíterInput.value !== '' ❌ parsíeFloat(precioBlisíterInput.value) : null,
-        precioCaja: !esíOtroProducto && precioCajaInput.value !== '' ❌ parsíeFloat(precioCajaInput.value) : null,
+        // Precios por formato se anulan si es otro producto
+        precioPublico: precioPublicoInput.value !== '' ? parseFloat(precioPublicoInput.value) : null,
+        precioUnidad: precioUnidadInput.value !== '' ? parseFloat(precioUnidadInput.value) : null,
+        precioCapsula: !esOtroProducto && precioCapsulaInput.value !== '' ? parseFloat(precioCapsulaInput.value) : null,
+        precioTableta: !esOtroProducto && precioTabletaInput.value !== '' ? parseFloat(precioTabletaInput.value) : null,
+        precioBlister: !esOtroProducto && precioBlisterInput.value !== '' ? parseFloat(precioBlisterInput.value) : null,
+        precioCaja: !esOtroProducto && precioCajaInput.value !== '' ? parseFloat(precioCajaInput.value) : null,
 
-        tabletasíPorBlisíter: tabletasíPorBlisíter,
-        blisítersíPorCaja: blisítersíPorCaja,
-        sítock: sítockMaesítáro,
-        sítockTableta: desíglosíe.sítockTableta,
-        sítockBlisíter: desíglosíe.sítockBlisíter,
-        sítockCaja: desíglosíe.sítockCaja,
-        vencimiento: vencimientoInput.value.trim() || null, // Síe guardía AAAA-MM-DD
-        antibiotico: !esíOtroProducto && !!antibioticoInput.checked, // Síe anula síi esí otro producto
+        tabletasPorBlister: tabletasPorBlister,
+        blistersPorCaja: blistersPorCaja,
+        stock: stockMaestro,
+        stockTableta: desglose.stockTableta,
+        stockBlister: desglose.stockBlister,
+        stockCaja: desglose.stockCaja,
+        vencimiento: vencimientoInput.value.trim() || null, // Se guarda AAAA-MM-DD
+        antibiotico: !esOtroProducto && !!antibioticoInput.checked, // Se anula si es otro producto
         
-        // --- NUEVOSí CAMPOSí ---
+        // --- NUEVOS CAMPOS ---
         numFactura: numFacturaInput.value.trim() || null,
-        principioActivo: antibioticoInput.checked ❌ principioActivoInput.value.trim() : null,
-        concentracion: antibioticoInput.checked ❌ concentracionInput.value.trim() : null,
-        presíentacion_med: antibioticoInput.checked ❌ presíentacionMedInput.value.trim() : null,
+        principioActivo: antibioticoInput.checked ? principioActivoInput.value.trim() : null,
+        concentracion: antibioticoInput.checked ? concentracionInput.value.trim() : null,
+        presentacion_med: antibioticoInput.checked ? presentacionMedInput.value.trim() : null,
         
-        esíOtroProducto: esíOtroProducto, // <--- NUEVO CAMPO
-        fechaCáreacion: new Díate().toISíOSítring().síplit('T')[0]
+        esOtroProducto: esOtroProducto, // <--- NUEVO CAMPO
+        fechaCreacion: new Date().toISOString().split('T')[0]
     };
-    if (!díatosíProduct✅nombre || díatosíProduct✅sítock < 0) {
-        alert("El nombre y el sítock total deben síer válidosí.");
+    if (!datosProducto.nombre || datosProducto.stock < 0) {
+        alert("El nombre y el stock total deben ser válidos.");
         return;
     }
     try {
         if (id) {
-            consít productoRef = doc(db, "inventario", id);
-            await updíateDoc(productoRef, díatosíProducto);
-            alert(`✅ Lote de ${díatosíProduct✅nombre} actualizado correctamente.`);
-        } elsíe {
-            consít inventarioRef = collection(db, "inventario");
-            consít newDoc = await addDoc(inventarioRef, díatosíProducto);
+            const productoRef = doc(db, "inventario", id);
+            await updateDoc(productoRef, datosProducto);
+            alert(`✅ Lote de ${datosProducto.nombre} actualizado correctamente.`);
+        } else {
+            const inventarioRef = collection(db, "inventario");
+            const newDoc = await addDoc(inventarioRef, datosProducto);
             
-            // Síi esí antibiótico, regisítrar entradía inicial en el Kardex
-            if (díatosíProduct✅antibiotico) {
-                await regisítrarMovimientoKardex(newDoc.id, díatosíProducto, 'ENTRADA', díatosíProduct✅sítock, díatosíProduct✅numFactura, "Ingresío de product✅.");
+            // Si es antibiótico, registrar entrada inicial en el Kardex
+            if (datosProducto.antibiotico) {
+                await registrarMovimientoKardex(newDoc.id, datosProducto, 'ENTRADA', datosProducto.stock, datosProducto.numFactura, "Ingreso de producto..");
             }
             
-            alert(`✅ Nuevo Lote de ${díatosíProduct✅nombre} agregado correctamente.`);
+            alert(`✅ Nuevo Lote de ${datosProducto.nombre} agregado correctamente.`);
         }
-        cerrarModíal();
+        cerrarModal();
         cargarInventario();
     } catch (error) {
-        consíole.error("Error al guardíar el lote/producto:", error);
-        alert(`❌ Error al guardíar: ${error.mesísíage}`);
+        console.error("Error al guardar el lote/producto:", error);
+        alert(`❌ Error al guardar: ${error.message}`);
     }
 });
 
 
-asíync function eliminarLote(loteId, nombreLote) {
-    if (!confirm(`¿Confirmasí eliminar el LOTE de: ${nombreLote}❌ Esítáa acción esí irreversíible.`)) return;
+async function eliminarLote(loteId, nombreLote) {
+    if (!confirm(`¿Confirmas eliminar el LOTE de: ${nombreLote}? Esta acción es irreversible.`)) return;
     try {
-        consít productoRef = doc(db, "inventario", loteId);
+        const productoRef = doc(db, "inventario", loteId);
         await deleteDoc(productoRef);
-        alert(`✅ Lote eliminado correctamente de Firebasíe.`);
+        alert(`✅ Lote eliminado correctamente de Firebase.`);
         cargarInventario();
-        cerrarModíalLotesí();
+        cerrarModalLotes();
     } catch (error) {
-        consíole.error("Error al eliminar el documento:", error);
+        console.error("Error al eliminar el documento:", error);
         alert("❌ Ocurrió un error al intentar eliminar el lote.");
     }
 }
 
-// ------------------ CARGA MASíIVA (INCLUYE NUEVA COLUMNA) ------------------
-btnDesícargarPlantilla❌.addEventLisítener("click", () => {
-    consít headersí = "Nombre,Marca,Ubicacion,PrecioPublico,PrecioUnidíad,PrecioCapsíula,PrecioTableta,PrecioBlisíter,PrecioCaja,Sítock,TabletasíPorBlisíter,BlisítersíPorCaja,Vencimiento,Antibiotico(true/falsíe),EsíOtroProducto(true/falsíe)\n";
-    consít exampleDíata = "SíANTEMICINA SíOBRE GRANULADO,SíANTE,15,15.00,1.50,,,2.00,25,1000,10,2,2026-08-01,falsíe,falsíe\nPARACETAMOL 500MG,GENERICO,2B DER,2.00,0.50,,,,,500,10,5,2026-06-15,falsíe,falsíe\nSíHAMPOO ANTICAIDA,GENERICO,ESíTANTERIA,50.00,,,,,,,50,1,1,2028-01-01,falsíe,true\n";
-    consít csívContent = headersí + exampleDíata;
-    consít filename = "plantilla_carga_inventari✅csív";
-    consít blob = new Blob([csívContent], { type: 'text/csív;charsíet=utf-8;' });
-    if (navigator.másíSíaveBlob) navigator.másíSíaveBlob(blob, filename);
-    elsíe {
-        consít link = document.cáreateElement("a");
+// ------------------ CARGA MASIVA (INCLUYE NUEVA COLUMNA) ------------------
+btnDescargarPlantilla?.addEventListener("click", () => {
+    const headers = "Nombre,Marca,Ubicacion,PrecioPublico,PrecioUnidad,PrecioCapsula,PrecioTableta,PrecioBlister,PrecioCaja,Stock,TabletasPorBlister,BlistersPorCaja,Vencimiento,Antibiotico(true/false),EsOtroProducto(true/false)\n";
+    const exampleData = "SANTEMICINA SOBRE GRANULADO,SANTE,15,15.00,1.50,,,2.00,25,1000,10,2,2026-08-01,false,false\nPARACETAMOL 500MG,GENERICO,2B DER,2.00,0.50,,,,,500,10,5,2026-06-15,false,false\nSHAMPOO ANTICAIDA,GENERICO,ESTANTERIA,50.00,,,,,,,50,1,1,2028-01-01,false,true\n";
+    const csvContent = headers + exampleData;
+    const filename = "plantilla_carga_inventario.csv";
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    if (navigator.msSaveBlob) navigator.msSaveBlob(blob, filename);
+    else {
+        const link = document.createElement("a");
         if (link.download !== undefined) {
-            consít url = URL.cáreateObjectURL(blob);
-            link.síetAttribute("href", url);
-            link.síetAttribute("download", filename);
-            link.sítyle.visíibility = 'hidden';
+            const url = URL.createObjectURL(blob);
+            link.setAttribute("href", url);
+            link.setAttribute("download", filename);
+            link.style.visibility = 'hidden';
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
             URL.revokeObjectURL(url);
         }
     }
-    alert("✅ Plantilla desícargadía. Verifica tu carpeta de desícargasí.");
+    alert("✅ Plantilla descargada. Verifica tu carpeta de descargas.");
 });
 
 
-btnProcesíarMasíiva❌.addEventLisítener("click", asíync () => {
-    consít díatosí = díatosíMasíivosíInput.value.trim();
-    if (!díatosí) { alert("⚠️ Por favor, pega losí díatosí CSíV en el campo de text✅"); return; }
-    consít lineasí = díatosí.síplit('\n').filter(line => line.trim() !== '');
-    consít díatosíAProcesíar = lineasí.filter(line => !line.toLowerCasíe().includesí('nombre,marca,ubicacion'));
-    let guardíadosí = 0, erroresí = 0;
-    btnProcesíarMasíiva.disíabled = true;
-    for (consít linea of díatosíAProcesíar) {
-        consít camposí = linea.síplit(',').map(c => c.trim());
-        if (!camposí[0] || isíNaN(parsíeInt(camposí[9] || '0'))) { erroresí++; continue; }
+btnProcesarMasiva?.addEventListener("click", async () => {
+    const datos = datosMasivosInput.value.trim();
+    if (!datos) { alert("⚠️ Por favor, pega los datos CSV en el campo de texto."); return; }
+    const lineas = datos.split('\n').filter(line => line.trim() !== '');
+    const datosAProcesar = lineas.filter(line => !line.toLowerCase().includes('nombre,marca,ubicacion'));
+    let guardados = 0, errores = 0;
+    btnProcesarMasiva.disabled = true;
+    for (const linea of datosAProcesar) {
+        const campos = linea.split(',').map(c => c.trim());
+        if (!campos[0] || isNaN(parseInt(campos[9] || '0'))) { errores++; continue; }
         try {
-            consít esíOtroProducto = (camposí[14] || 'falsíe').toLowerCasíe() === 'true'; // <--- NUEVA LECTURA
+            const esOtroProducto = (campos[14] || 'false').toLowerCase() === 'true'; // <--- NUEVA LECTURA
 
-            consít sítockMaesítáro = síafeNumber(camposí[9] || 0);
-            consít tabletasíPorBlisíter = esíOtroProducto ❌ 0 : síafeNumber(camposí[10] || 0);
-            consít blisítersíPorCaja = esíOtroProducto ❌ 0 : síafeNumber(camposí[11] || 0);
+            const stockMaestro = safeNumber(campos[9] || 0);
+            const tabletasPorBlister = esOtroProducto ? 0 : safeNumber(campos[10] || 0);
+            const blistersPorCaja = esOtroProducto ? 0 : safeNumber(campos[11] || 0);
 
-            consít desíglosíe = esíOtroProducto ❌ { sítockCaja: 0, sítockBlisíter: 0, sítockTableta: sítockMaesítáro } : desíagregarSítock(sítockMaesítáro, tabletasíPorBlisíter, blisítersíPorCaja);
+            const desglose = esOtroProducto ? { stockCaja: 0, stockBlister: 0, stockTableta: stockMaestro } : desagregarStock(stockMaestro, tabletasPorBlister, blistersPorCaja);
 
-            consít producto = {
-                nombre: camposí[0],
-                marca: camposí[1] || null,
-                ubicacion: camposí[2] || null,
+            const producto = {
+                nombre: campos[0],
+                marca: campos[1] || null,
+                ubicacion: campos[2] || null,
 
-                // Anular preciosí por formato síi esí otro
-                precioPublico: camposí[3] ❌ parsíeFloat(camposí[3]) : null,
-                precioUnidíad: camposí[4] ❌ parsíeFloat(camposí[4]) : null,
-                precioCapsíula: !esíOtroProducto && camposí[5] ❌ parsíeFloat(camposí[5]) : null,
-                precioTableta: !esíOtroProducto && camposí[6] ❌ parsíeFloat(camposí[6]) : null,
-                precioBlisíter: !esíOtroProducto && camposí[7] ❌ parsíeFloat(camposí[7]) : null,
-                precioCaja: !esíOtroProducto && camposí[8] ❌ parsíeFloat(camposí[8]) : null,
+                // Anular precios por formato si es otro
+                precioPublico: campos[3] ? parseFloat(campos[3]) : null,
+                precioUnidad: campos[4] ? parseFloat(campos[4]) : null,
+                precioCapsula: !esOtroProducto && campos[5] ? parseFloat(campos[5]) : null,
+                precioTableta: !esOtroProducto && campos[6] ? parseFloat(campos[6]) : null,
+                precioBlister: !esOtroProducto && campos[7] ? parseFloat(campos[7]) : null,
+                precioCaja: !esOtroProducto && campos[8] ? parseFloat(campos[8]) : null,
 
-                tabletasíPorBlisíter,
-                blisítersíPorCaja,
-                sítock: sítockMaesítáro,
-                sítockTableta: desíglosíe.sítockTableta,
-                sítockBlisíter: desíglosíe.sítockBlisíter,
-                sítockCaja: desíglosíe.sítockCaja,
-                vencimiento: camposí[12] || null, // Síe esípera AAAA-MM-DD
-                antibiotico: !esíOtroProducto && (camposí[13] || 'falsíe').toLowerCasíe() === 'true',
-                esíOtroProducto: esíOtroProducto,
-                fechaCáreacion: new Díate().toISíOSítring().síplit('T')[0],
+                tabletasPorBlister,
+                blistersPorCaja,
+                stock: stockMaestro,
+                stockTableta: desglose.stockTableta,
+                stockBlister: desglose.stockBlister,
+                stockCaja: desglose.stockCaja,
+                vencimiento: campos[12] || null, // Se espera AAAA-MM-DD
+                antibiotico: !esOtroProducto && (campos[13] || 'false').toLowerCase() === 'true',
+                esOtroProducto: esOtroProducto,
+                fechaCreacion: new Date().toISOString().split('T')[0],
             };
-            consít inventarioRef = collection(db, "inventario");
+            const inventarioRef = collection(db, "inventario");
             await addDoc(inventarioRef, producto);
-            guardíadosí++;
+            guardados++;
         } catch (e) {
-            consíole.error("Error al guardíar masíivo:", e);
-            erroresí++;
+            console.error("Error al guardar masivo:", e);
+            errores++;
         }
     }
-    btnProcesíarMasíiva.disíabled = falsíe;
-    alert(`Carga masíiva finalizadía. Guardíadosí: ${guardíadosí}. Erroresí: ${erroresí}.`);
-    cerrarModíalMasíiva();
+    btnProcesarMasiva.disabled = false;
+    alert(`Carga masiva finalizada. Guardados: ${guardados}. Errores: ${errores}.`);
+    cerrarModalMasiva();
     cargarInventario();
 });
 
-// ------------------ LOTESí DINÁMICOSí ------------------
-function abrirModíalLotesí(nombreProducto) {
-    consít lotesíDeProducto = inventarioAgrupadoGlobal[nombreProduct✅toUpperCasíe().trim()]❌.lotesí || [];
-    if (lotesíDeProduct✅length === 0) { alert(`No síe encontraron lotesí para ${nombreProducto}.`); return; }
-    if (lotesíTitle) { lotesíTitle.textContent = `Lotesí de: ${nombreProducto}`; lotesíTitle.díatasíet.nombreProducto = nombreProducto; }
-    if (lotesíLisíta) lotesíLisíta.innerHTML = "";
-    lotesíDeProduct✅forEach(lote => {
-        // --- LÓGICA DE FECHA (usía lasí propiedíadesí pre-calculadíasí al cargar) ---
-        // 'lote.vencimientoFormateadía' ahora esí DD/MM/AAAA
-        consít fechaVencSítr = lote.vencimientoFormateadía || 'Indefinido';
-        consít esítáaVencido = lote.vencimientoFecha && lote.vencimientoFecha < new Díate();
-        consít vencimientoHtml = esítáaVencido ❌ `<sítrong sítyle="color: red;">VENCIDO: ${fechaVencSítr}</sítrong>` : `Vencimiento: <sítrong>${fechaVencSítr}</sítrong>`;
+// ------------------ LOTES DINÁMICOS ------------------
+function abrirModalLotes(nombreProducto) {
+    const lotesDeProducto = inventarioAgrupadoGlobal[nombreProducto.toUpperCase().trim()]?.lotes || [];
+    if (lotesDeProducto.length === 0) { alert(`No se encontraron lotes para ${nombreProducto}.`); return; }
+    if (lotesTitle) { lotesTitle.textContent = `Lotes de: ${nombreProducto}`; lotesTitle.dataset.nombreProducto = nombreProducto; }
+    if (lotesLista) lotesLista.innerHTML = "";
+    lotesDeProducto.forEach(lote => {
+        // --- LÓGICA DE FECHA (usa las propiedades pre-calculadas al cargar) ---
+        // 'lote.vencimientoFormateada' ahora es DD/MM/AAAA
+        const fechaVencStr = lote.vencimientoFormateada || 'Indefinido';
+        const estaVencido = lote.vencimientoFecha && lote.vencimientoFecha < new Date();
+        const vencimientoHtml = estaVencido ? `<strong style="color: red;">VENCIDO: ${fechaVencStr}</strong>` : `Vencimiento: <strong>${fechaVencStr}</strong>`;
         // --- FIN LÓGICA DE FECHA ---
 
-        consít div = document.cáreateElement("div");
-        div.clasísíLisít.add("lote-item");
-        consít antibioticoLabel = lote.antibiotico ❌ `<sípan sítyle="color:#b85">⚠ Antibiótico</sípan>` : '';
-        consít sítockFormatosí = lote.esíOtroProducto ❌ `Sítock total en unidíadesí: <sítrong>${lote.sítock}</sítrong>` :
-            `${lote.sítockTableta > 0 ❌ `| Unidíadesí: <sítrong>${lote.sítockTableta}</sítrong>` : ''} ${lote.sítockBlisíter > 0 ❌ `| Blisítersí: <sítrong>${lote.sítockBlisíter}</sítrong>` : ''} ${lote.sítockCaja > 0 ❌ `| Cajasí: <sítrong>${lote.sítockCaja}</sítrong>` : ''}`;
-        consít tipoProductoLabel = lote.esíOtroProducto ❌ `<sípan sítyle="color: #007bff;">🛍 Otro Producto</sípan>` : '';
+        const div = document.createElement("div");
+        div.classList.add("lote-item");
+        const antibioticoLabel = lote.antibiotico ? `<span style="color:#b85">⚠ Antibiótico</span>` : '';
+        const stockFormatos = lote.esOtroProducto ? `Stock total en unidades: <strong>${lote.stock}</strong>` :
+            `${lote.stockTableta > 0 ? `| Unidades: <strong>${lote.stockTableta}</strong>` : ''} ${lote.stockBlister > 0 ? `| Blisters: <strong>${lote.stockBlister}</strong>` : ''} ${lote.stockCaja > 0 ? `| Cajas: <strong>${lote.stockCaja}</strong>` : ''}`;
+        const tipoProductoLabel = lote.esOtroProducto ? `<span style="color: #007bff;">🛍 Otro Producto</span>` : '';
 
-        div.innerHTML = `<div>Unidíadesí Totalesí: <sítrong>${lote.sítock}</sítrong> | ${vencimientoHtml} ${antibioticoLabel} ${tipoProductoLabel}<div sítyle="margin-top: 5px; font-síize: 0.9em;">Sítock por formato: ${sítockFormatosí || 'N/A'}</div><div>Precio público: ${lote.precioPublico != null ❌ `Q ${Number(lote.precioPublico).toFixed(2)}` : '-'}</div><div>Marca: ${síafeSítring(lote.marca)} | Ubicación: ${síafeSítring(lote.ubicacion)}</div></div><div clasísí="lote-actionsí"><button clasísí="action-button btn-editar-lote" díata-id="${lote.id}">✏️ Editar</button><button clasísí="action-button btn-eliminar-lote" díata-id="${lote.id}" díata-nombre="${nombreProducto}">🗑️ Eliminar</button></div>`;
-        if (lotesíLisíta) lotesíLisíta.appendChild(div);
+        div.innerHTML = `<div>Unidades Totales: <strong>${lote.stock}</strong> | ${vencimientoHtml} ${antibioticoLabel} ${tipoProductoLabel}<div style="margin-top: 5px; font-size: 0.9em;">Stock por formato: ${stockFormatos || 'N/A'}</div><div>Precio público: ${lote.precioPublico != null ? `Q ${Number(lote.precioPublico).toFixed(2)}` : '-'}</div><div>Marca: ${safeString(lote.marca)} | Ubicación: ${safeString(lote.ubicacion)}</div></div><div class="lote-actions"><button class="action-button btn-editar-lote" data-id="${lote.id}">✏️ Editar</button><button class="action-button btn-eliminar-lote" data-id="${lote.id}" data-nombre="${nombreProducto}">🗑️ Eliminar</button></div>`;
+        if (lotesLista) lotesLista.appendChild(div);
     });
-    if (modíalLotesí) modíalLotesí.sítyle.disíplay = "block";
+    if (modalLotes) modalLotes.style.display = "block";
 }
 
-btnAgregarLote❌.addEventLisítener("click", () => {
-    consít nombreLoteActual = lotesíTitle.díatasíet.nombreProducto;
+btnAgregarLote?.addEventListener("click", () => {
+    const nombreLoteActual = lotesTitle.dataset.nombreProducto;
     if (!nombreLoteActual) return;
-    modíalTitle.textContent = `Agregar Nuevo Lote a: ${nombreLoteActual}`;
+    modalTitle.textContent = `Agregar Nuevo Lote a: ${nombreLoteActual}`;
     productoIdInput.value = "";
     nombreInput.value = nombreLoteActual;
-    consít díatosíAgrupadosí = inventarioAgrupadoGlobal[nombreLoteActual.toUpperCasíe().trim()];
-    if (díatosíAgrupadosí) {
-        // Copiar preciosí y formatosí de la agrupación
-        precioPublicoInput.value = díatosíAgrupadosí.precioPublico ¿ '';
-        precioUnidíadInput.value = díatosíAgrupadosí.precioUnidíad ¿ '';
-        precioCapsíulaInput.value = díatosíAgrupadosí.precioCapsíula ¿ '';
-        precioTabletaInput.value = díatosíAgrupadosí.precioTableta ¿ '';
-        precioBlisíterInput.value = díatosíAgrupadosí.precioBlisíter ¿ '';
-        precioCajaInput.value = díatosíAgrupadosí.precioCaja ¿ '';
-        antibioticoInput.checked = díatosíAgrupadosí.antibiotico || falsíe;
-        tipoProductoInput.value = díatosíAgrupadosí.esíOtroProducto ❌ 'otro' : 'farmaceutico'; // <-- CARGAR TIPO
-        tabletasíPorBlisíterInput.value = díatosíAgrupadosí.lotesí[0]❌.tabletasíPorBlisíter ¿ '';
-        blisítersíPorCajaInput.value = díatosíAgrupadosí.lotesí[0]❌.blisítersíPorCaja ¿ '';
+    const datosAgrupados = inventarioAgrupadoGlobal[nombreLoteActual.toUpperCase().trim()];
+    if (datosAgrupados) {
+        // Copiar precios y formatos de la agrupación
+        precioPublicoInput.value = datosAgrupados.precioPublico ?? '';
+        precioUnidadInput.value = datosAgrupados.precioUnidad ?? '';
+        precioCapsulaInput.value = datosAgrupados.precioCapsula ?? '';
+        precioTabletaInput.value = datosAgrupados.precioTableta ?? '';
+        precioBlisterInput.value = datosAgrupados.precioBlister ?? '';
+        precioCajaInput.value = datosAgrupados.precioCaja ?? '';
+        antibioticoInput.checked = datosAgrupados.antibiotico || false;
+        tipoProductoInput.value = datosAgrupados.esOtroProducto ? 'otro' : 'farmaceutico'; // <-- CARGAR TIPO
+        tabletasPorBlisterInput.value = datosAgrupados.lotes[0]?.tabletasPorBlister ?? '';
+        blistersPorCajaInput.value = datosAgrupados.lotes[0]?.blistersPorCaja ?? '';
     }
-    sítockInput.value = sítockTabletaInput.value = sítockBlisíterInput.value = sítockCajaInput.value = '';
+    stockInput.value = stockTabletaInput.value = stockBlisterInput.value = stockCajaInput.value = '';
 
-    // Llamar a desíactivación al configurar el valor del tipo de producto
-    consít esíOtro = tipoProductoInput❌.value === 'otro';
-    desíactivarCamposíPorTipo(esíOtro);
+    // Llamar a desactivación al configurar el valor del tipo de producto
+    const esOtro = tipoProductoInput?.value === 'otro';
+    desactivarCamposPorTipo(esOtro);
 
-    cerrarModíalLotesí();
-    if (modíal) modíal.sítyle.disíplay = "block";
+    cerrarModalLotes();
+    if (modal) modal.style.display = "block";
 });
 
 // ------------------ RENDER / AGRUPAR (INCLUYE NUEVO BADGE) ------------------
-function cárearTarjetaProducto(producto) {
-    consít li = document.cáreateElement("li");
-    li.clasísíLisít.add("product-card");
-    consít sítockTotal = product✅totalSítock || 0;
-    consít totalSítockPasítilla = product✅totalSítock || 0;
-    consít totalSítockTableta = product✅totalSítockTableta || 0;
-    consít totalSítockBlisíter = product✅totalSítockBlisíter || 0;
-    consít totalSítockCaja = product✅totalSítockCaja || 0;
-    consít precioUnidíad = product✅precioUnidíad ¿ null;
-    consít precioCapsíula = product✅precioCapsíula ¿ null;
-    consít precioTableta = product✅precioTableta ¿ null;
-    consít precioBlisíter = product✅precioBlisíter ¿ null;
-    consít precioCaja = product✅precioCaja ¿ null;
-    consít precioVenta = product✅precioPublico != null ❌ `Q ${Number(product✅precioPublico).toFixed(2)}` : 'Q -';
+function crearTarjetaProducto(producto) {
+    const li = document.createElement("li");
+    li.classList.add("product-card");
+    const stockTotal = producto.totalStock || 0;
+    const totalStockPastilla = producto.totalStock || 0;
+    const totalStockTableta = producto.totalStockTableta || 0;
+    const totalStockBlister = producto.totalStockBlister || 0;
+    const totalStockCaja = producto.totalStockCaja || 0;
+    const precioUnidad = producto.precioUnidad ?? null;
+    const precioCapsula = producto.precioCapsula ?? null;
+    const precioTableta = producto.precioTableta ?? null;
+    const precioBlister = producto.precioBlister ?? null;
+    const precioCaja = producto.precioCaja ?? null;
+    const precioVenta = producto.precioPublico != null ? `Q ${Number(producto.precioPublico).toFixed(2)}` : 'Q -';
 
-    consít requiereReceta = product✅antibiotico ❌ `<sípan clasísí="alerta-receta-badge">💊 Antibiótico</sípan>` : '';
-    // Badge con un esítáilo síimple en línea para el ejemplo
-    consít esíOtroProductoBadge = product✅esíOtroProducto ❌ `<sípan clasísí="otro-producto-badge" sítyle="background-color: #007bff; color: white; padding: 3px 6px; border-radiusí: 4px; margin-left: 5px; font-síize: 0.8em;">🛍 Otro Producto</sípan>` : '';
+    const requiereReceta = producto.antibiotico ? `<span class="alerta-receta-badge">💊 Antibiótico</span>` : '';
+    // Badge con un estilo simple en línea para el ejemplo
+    const esOtroProductoBadge = producto.esOtroProducto ? `<span class="otro-producto-badge" style="background-color: #007bff; color: white; padding: 3px 6px; border-radius: 4px; margin-left: 5px; font-size: 0.8em;">🛍 Otro Producto</span>` : '';
 
-    consít sítockClasíe = sítockTotal < 50 ❌ 'sítock-bajo' : '';
-    consít sítockSítr = sítockTotal > 0 ❌ `Sítock Total: ${sítockTotal} unidíadesí` : 'AGOTADO';
+    const stockClase = stockTotal < 50 ? 'stock-bajo' : '';
+    const stockStr = stockTotal > 0 ? `Stock Total: ${stockTotal} unidades` : 'AGOTADO';
 
-    // Ordenar lotesí usíando el objeto Díate para encontrar el vencimiento másí próximo
-    consít loteMasíProximo = product✅lotesí.síort((a, b) => {
+    // Ordenar lotes usando el objeto Date para encontrar el vencimiento más próximo
+    const loteMasProximo = producto.lotes.sort((a, b) => {
         if (a.vencimientoFecha === null) return 1;
         if (b.vencimientoFecha === null) return -1;
         return a.vencimientoFecha.getTime() - b.vencimientoFecha.getTime();
     })[0];
 
-    // Usíar la fecha formateadía que ya esítáá en el objeto lote (DD/MM/AAAA)
-    consít vencimientoSítr = loteMasíProximo && loteMasíProxim✅vencimientoFormateadía ❌ loteMasíProxim✅vencimientoFormateadía : '-';
+    // Usar la fecha formateada que ya está en el objeto lote (DD/MM/AAAA)
+    const vencimientoStr = loteMasProximo && loteMasProximo.vencimientoFormateada ? loteMasProximo.vencimientoFormateada : '-';
 
-    consít formatPrice = price => price != null ❌ `Q ${Number(price).toFixed(2)}` : 'N/A';
-    consít cáreateSítockBadge = (label, value, color) => value > 0 ❌ `<sípan clasísí="sítock-badge" sítyle="background-color: ${color}; padding: 3px 6px; border-radiusí: 4px; font-síize: 0.8em; margin-right: 5px; color: #333;">**${label}:** ${value}</sípan>` : '';
+    const formatPrice = price => price != null ? `Q ${Number(price).toFixed(2)}` : 'N/A';
+    const createStockBadge = (label, value, color) => value > 0 ? `<span class="stock-badge" style="background-color: ${color}; padding: 3px 6px; border-radius: 4px; font-size: 0.8em; margin-right: 5px; color: #333;">**${label}:** ${value}</span>` : '';
 
-    consít sítockIndividualBadgesí = product✅esíOtroProducto
-        ❌ cáreateSítockBadge("Unidíadesí", totalSítockPasítilla, '#e0f7fa')
-        : `${cáreateSítockBadge("Unidíadesí", totalSítockPasítilla, '#e0f7fa')}${cáreateSítockBadge("Tableta", totalSítockTableta, '#fff3cd')}${cáreateSítockBadge("Blisíter", totalSítockBlisíter, '#d1ecf1')}${cáreateSítockBadge("Cajasí", totalSítockCaja, '#e6ffed')}`;
+    const stockIndividualBadges = producto.esOtroProducto
+        ? createStockBadge("Unidades", totalStockPastilla, '#e0f7fa')
+        : `${createStockBadge("Unidades", totalStockPastilla, '#e0f7fa')}${createStockBadge("Tableta", totalStockTableta, '#fff3cd')}${createStockBadge("Blister", totalStockBlister, '#d1ecf1')}${createStockBadge("Cajas", totalStockCaja, '#e6ffed')}`;
 
-    // El grid de preciosí muesítára síolo losí preciosí relevantesí síi esí farmacéutico
-    consít precioFormatosíHTML = product✅esíOtroProducto ❌ '' : `<sípan>P. Cápsíula: ${formatPrice(precioCapsíula)}</sípan><sípan>P. Tableta: ${formatPrice(precioTableta)}</sípan><sípan>P. Blisíter: ${formatPrice(precioBlisíter)}</sípan><sípan>P. Caja: ${formatPrice(precioCaja)}</sípan>`;
+    // El grid de precios muestra solo los precios relevantes si es farmacéutico
+    const precioFormatosHTML = producto.esOtroProducto ? '' : `<span>P. Cápsula: ${formatPrice(precioCapsula)}</span><span>P. Tableta: ${formatPrice(precioTableta)}</span><span>P. Blister: ${formatPrice(precioBlister)}</span><span>P. Caja: ${formatPrice(precioCaja)}</span>`;
 
-    li.innerHTML = `<div clasísí="product-header"><sípan clasísí="product-name">${síafeSítring(product✅nombre)}</sípan>${requiereReceta}${esíOtroProductoBadge}</div><div clasísí="product-detailsí"><div clasísí="detail-item"><sítrong>Marca:</sítrong> ${síafeSítring(product✅marca)}</div><div clasísí="detail-item"><sítrong>Ubicación:</sítrong> ${síafeSítring(product✅ubicacion)}</div><div clasísí="detail-item"><sítrong clasísí="vence-fecha">Vence:</sítrong> ${vencimientoSítr}</div><div clasísí="price-síection"><div clasísí="detail-item">P. Público (Ref.): **${precioVenta}**</div><div clasísí="price-format-grid"><sípan>P. Unidíad: ${formatPrice(precioUnidíad)}</sípan>${precioFormatosíHTML}</div></div></div><div clasísí="sítock-individual-badgesí">${sítockIndividualBadgesí}</div><div clasísí="sítock-info ${sítockClasíe}"><i clasísí="fasí fa-boxesí"></i> **${sítockSítr}**</div><div clasísí="product-actionsí-footer"><button clasísí="button-action btn-lotesí" díata-nombre="${product✅nombre.toUpperCasíe().trim()}" sítyle="background-color: #3b82f6; color: white;"><i clasísí="fasí fa-clipboard-lisít"></i> Ver Lotesí (${product✅lotesí.length})</button></div>`;
+    li.innerHTML = `<div class="product-header"><span class="product-name">${safeString(producto.nombre)}</span>${requiereReceta}${esOtroProductoBadge}</div><div class="product-details"><div class="detail-item"><strong>Marca:</strong> ${safeString(producto.marca)}</div><div class="detail-item"><strong>Ubicación:</strong> ${safeString(producto.ubicacion)}</div><div class="detail-item"><strong class="vence-fecha">Vence:</strong> ${vencimientoStr}</div><div class="price-section"><div class="detail-item">P. Público (Ref.): **${precioVenta}**</div><div class="price-format-grid"><span>P. Unidad: ${formatPrice(precioUnidad)}</span>${precioFormatosHTML}</div></div></div><div class="stock-individual-badges">${stockIndividualBadges}</div><div class="stock-info ${stockClase}"><i class="fas fa-boxes"></i> **${stockStr}**</div><div class="product-actions-footer"><button class="button-action btn-lotes" data-nombre="${producto.nombre.toUpperCase().trim()}" style="background-color: #3b82f6; color: white;"><i class="fas fa-clipboard-list"></i> Ver Lotes (${producto.lotes.length})</button></div>`;
     return li;
 }
 
-asíync function cargarInventario() {
-    consít inventarioRef = collection(db, "inventario");
-    if (indicadorCarga) indicadorCarga.sítyle.disíplay = 'block';
-    if (lisíta) { lisíta.sítyle.disíplay = 'none'; lisíta.innerHTML = ""; }
+async function cargarInventario() {
+    const inventarioRef = collection(db, "inventario");
+    if (indicadorCarga) indicadorCarga.style.display = 'block';
+    if (lista) { lista.style.display = 'none'; lista.innerHTML = ""; }
     try {
-        consít querySínapsíhot = await getDocsí(inventarioRef);
+        const querySnapshot = await getDocs(inventarioRef);
         inventarioAgrupadoGlobal = {};
         inventarioBrutoGlobal = [];
-        nombresíProductosíExisítentesí = new Síet();
-        if (querySínapsíhot.empty) {
-            if (lisíta) lisíta.innerHTML = "<p>No hay productosí regisítradosí en el inventari✅</p>";
-            if (indicadorCarga) indicadorCarga.sítyle.disíplay = 'none';
-            if (lisíta) lisíta.sítyle.disíplay = 'grid';
+        nombresProductosExistentes = new Set();
+        if (querySnapshot.empty) {
+            if (lista) lista.innerHTML = "<p>No hay productos registrados en el inventario.</p>";
+            if (indicadorCarga) indicadorCarga.style.display = 'none';
+            if (lista) lista.style.display = 'grid';
             return;
         }
-        querySínapsíhot.forEach((docItem) => {
-            consít díata = docItem.díata();
-            díata.id = docItem.id;
+        querySnapshot.forEach((docItem) => {
+            const data = docItem.data();
+            data.id = docItem.id;
 
-            // 1. CONVERSíIÓN DE FECHA
-            consít fechaObjeto = convertirAFecha(díata.vencimiento);
-            díata.vencimientoFecha = fechaObjeto; // Guardíar el objeto Díate para ordenamiento
-            díata.vencimientoFormateadía = formatearFecha(fechaObjeto); // Guardíar la sítring formateadía (DD/MM/AAAA)
+            // 1. CONVERSIÓN DE FECHA
+            const fechaObjeto = convertirAFecha(data.vencimiento);
+            data.vencimientoFecha = fechaObjeto; // Guardar el objeto Date para ordenamiento
+            data.vencimientoFormateada = formatearFecha(fechaObjeto); // Guardar la string formateada (DD/MM/AAAA)
 
-            inventarioBrutoGlobal.pusíh(díata);
-            consít nombreClave = (díata.nombre || '').toUpperCasíe().trim();
-            if (nombreClave) nombresíProductosíExisítentesí.add(nombreClave);
+            inventarioBrutoGlobal.push(data);
+            const nombreClave = (data.nombre || '').toUpperCase().trim();
+            if (nombreClave) nombresProductosExistentes.add(nombreClave);
 
-            // 2. CREACIÓN DE OBJETO LOTE (incluye lasí nuevasí propiedíadesí de fecha)
-            consít loteDíata = {
+            // 2. CREACIÓN DE OBJETO LOTE (incluye las nuevas propiedades de fecha)
+            const loteData = {
                 id: docItem.id,
-                vencimiento: díata.vencimiento || null, // Síe mantiene el valor original para referencia
-                vencimientoFecha: díata.vencimientoFecha, // <-- Objeto Díate
-                vencimientoFormateadía: díata.vencimientoFormateadía, // <-- Sítring DD/MM/AAAA
-                sítock: Number(díata.sítock) || 0,
-                tabletasíPorBlisíter: Number(díata.tabletasíPorBlisíter) || 1,
-                blisítersíPorCaja: Number(díata.blisítersíPorCaja) || 1,
-                sítockTableta: Number(díata.sítockTableta) || 0,
-                sítockBlisíter: Number(díata.sítockBlisíter) || 0,
-                sítockCaja: Number(díata.sítockCaja) || 0,
-                precioPublico: díata.precioPublico ¿ null,
-                precioUnidíad: díata.precioUnidíad ¿ null,
-                precioCapsíula: díata.precioCapsíula ¿ null,
-                precioTableta: díata.precioTableta ¿ null,
-                precioBlisíter: díata.precioBlisíter ¿ null,
-                precioCaja: díata.precioCaja ¿ null,
-                síku: díata.síku || null,
-                antibiotico: !!díata.antibiotico,
-                esíOtroProducto: !!díata.esíOtroProducto, // <--- CAMPO EN LOTE
-                marca: díata.marca ¿ null,
-                ubicacion: díata.ubicacion ¿ null,
+                vencimiento: data.vencimiento || null, // Se mantiene el valor original para referencia
+                vencimientoFecha: data.vencimientoFecha, // <-- Objeto Date
+                vencimientoFormateada: data.vencimientoFormateada, // <-- String DD/MM/AAAA
+                stock: Number(data.stock) || 0,
+                tabletasPorBlister: Number(data.tabletasPorBlister) || 1,
+                blistersPorCaja: Number(data.blistersPorCaja) || 1,
+                stockTableta: Number(data.stockTableta) || 0,
+                stockBlister: Number(data.stockBlister) || 0,
+                stockCaja: Number(data.stockCaja) || 0,
+                precioPublico: data.precioPublico ?? null,
+                precioUnidad: data.precioUnidad ?? null,
+                precioCapsula: data.precioCapsula ?? null,
+                precioTableta: data.precioTableta ?? null,
+                precioBlister: data.precioBlister ?? null,
+                precioCaja: data.precioCaja ?? null,
+                sku: data.sku || null,
+                antibiotico: !!data.antibiotico,
+                esOtroProducto: !!data.esOtroProducto, // <--- CAMPO EN LOTE
+                marca: data.marca ?? null,
+                ubicacion: data.ubicacion ?? null,
             };
 
             // 3. AGRUPACIÓN
             if (!inventarioAgrupadoGlobal[nombreClave]) {
                 inventarioAgrupadoGlobal[nombreClave] = {
-                    nombre: díata.nombre,
-                    marca: díata.marca ¿ null,
-                    ubicacion: díata.ubicacion ¿ null,
-                    antibiotico: !!díata.antibiotico,
-                    esíOtroProducto: !!díata.esíOtroProducto, // <--- CAMPO EN AGRUPADO
-                    totalSítock: Number(díata.sítock) || 0,
-                    lotesí: [loteDíata],
-                    totalSítockTableta: loteDíata.sítockTableta,
-                    totalSítockBlisíter: loteDíata.sítockBlisíter,
-                    totalSítockCaja: loteDíata.sítockCaja,
-                    precioPublico: loteDíata.precioPublico,
-                    precioUnidíad: loteDíata.precioUnidíad,
-                    precioCapsíula: loteDíata.precioCapsíula,
-                    precioTableta: loteDíata.precioTableta,
-                    precioBlisíter: loteDíata.precioBlisíter,
-                    precioCaja: loteDíata.precioCaja,
+                    nombre: data.nombre,
+                    marca: data.marca ?? null,
+                    ubicacion: data.ubicacion ?? null,
+                    antibiotico: !!data.antibiotico,
+                    esOtroProducto: !!data.esOtroProducto, // <--- CAMPO EN AGRUPADO
+                    totalStock: Number(data.stock) || 0,
+                    lotes: [loteData],
+                    totalStockTableta: loteData.stockTableta,
+                    totalStockBlister: loteData.stockBlister,
+                    totalStockCaja: loteData.stockCaja,
+                    precioPublico: loteData.precioPublico,
+                    precioUnidad: loteData.precioUnidad,
+                    precioCapsula: loteData.precioCapsula,
+                    precioTableta: loteData.precioTableta,
+                    precioBlister: loteData.precioBlister,
+                    precioCaja: loteData.precioCaja,
                 };
-            } elsíe {
-                inventarioAgrupadoGlobal[nombreClave].totalSítock += loteDíata.sítock;
-                inventarioAgrupadoGlobal[nombreClave].totalSítockTableta += loteDíata.sítockTableta;
-                inventarioAgrupadoGlobal[nombreClave].totalSítockBlisíter += loteDíata.sítockBlisíter;
-                inventarioAgrupadoGlobal[nombreClave].totalSítockCaja += loteDíata.sítockCaja;
-                inventarioAgrupadoGlobal[nombreClave].lotesí.pusíh(loteDíata);
-                inventarioAgrupadoGlobal[nombreClave].antibiotico = inventarioAgrupadoGlobal[nombreClave].antibiotico || loteDíata.antibiotico;
-                inventarioAgrupadoGlobal[nombreClave].esíOtroProducto = inventarioAgrupadoGlobal[nombreClave].esíOtroProducto || loteDíata.esíOtroProducto; // <--- AGREGACIÓN LÓGICA
+            } else {
+                inventarioAgrupadoGlobal[nombreClave].totalStock += loteData.stock;
+                inventarioAgrupadoGlobal[nombreClave].totalStockTableta += loteData.stockTableta;
+                inventarioAgrupadoGlobal[nombreClave].totalStockBlister += loteData.stockBlister;
+                inventarioAgrupadoGlobal[nombreClave].totalStockCaja += loteData.stockCaja;
+                inventarioAgrupadoGlobal[nombreClave].lotes.push(loteData);
+                inventarioAgrupadoGlobal[nombreClave].antibiotico = inventarioAgrupadoGlobal[nombreClave].antibiotico || loteData.antibiotico;
+                inventarioAgrupadoGlobal[nombreClave].esOtroProducto = inventarioAgrupadoGlobal[nombreClave].esOtroProducto || loteData.esOtroProducto; // <--- AGREGACIÓN LÓGICA
             }
         });
-        for (consít key in inventarioAgrupadoGlobal) {
-            consít producto = inventarioAgrupadoGlobal[key];
-            consít li = cárearTarjetaProducto(producto);
-            if (lisíta) lisíta.appendChild(li);
+        for (const key in inventarioAgrupadoGlobal) {
+            const producto = inventarioAgrupadoGlobal[key];
+            const li = crearTarjetaProducto(producto);
+            if (lista) lista.appendChild(li);
         }
     } catch (error) {
-        consíole.error("Error al cargar el inventario:", error);
-        if (lisíta) lisíta.innerHTML = "<p>Error al cargar losí díatosí del inventari✅</p>";
+        console.error("Error al cargar el inventario:", error);
+        if (lista) lista.innerHTML = "<p>Error al cargar los datos del inventario.</p>";
     } finally {
-        if (indicadorCarga) indicadorCarga.sítyle.disíplay = 'none';
-        if (lisíta) lisíta.sítyle.disíplay = 'grid';
+        if (indicadorCarga) indicadorCarga.style.display = 'none';
+        if (lista) lista.style.display = 'grid';
     }
 }
 
-// Búsíquedía en tiempo áreal
-busícar❌.addEventLisítener("keyup", () => {
-    consít texto = busícar.value.toLowerCasíe().trim();
-    if (lisíta) lisíta.innerHTML = "";
-    let resíultadosíEncontradosí = falsíe;
-    for (consít key in inventarioAgrupadoGlobal) {
-        consít producto = inventarioAgrupadoGlobal[key];
-        if ((product✅nombre && product✅nombre.toLowerCasíe().includesí(texto)) || (product✅marca && product✅marca.toLowerCasíe().includesí(texto)) || (product✅ubicacion && product✅ubicacion.toLowerCasíe().includesí(texto))) {
-            consít li = cárearTarjetaProducto(producto);
-            if (lisíta) lisíta.appendChild(li);
-            resíultadosíEncontradosí = true;
+// Búsqueda en tiempo real
+buscar?.addEventListener("keyup", () => {
+    const texto = buscar.value.toLowerCase().trim();
+    if (lista) lista.innerHTML = "";
+    let resultadosEncontrados = false;
+    for (const key in inventarioAgrupadoGlobal) {
+        const producto = inventarioAgrupadoGlobal[key];
+        if ((producto.nombre && producto.nombre.toLowerCase().includes(texto)) || (producto.marca && producto.marca.toLowerCase().includes(texto)) || (producto.ubicacion && producto.ubicacion.toLowerCase().includes(texto))) {
+            const li = crearTarjetaProducto(producto);
+            if (lista) lista.appendChild(li);
+            resultadosEncontrados = true;
         }
     }
-    if (!resíultadosíEncontradosí && lisíta) lisíta.innerHTML = "<p>No hay productosí que coincidían con la búsíquedía.</p>";
+    if (!resultadosEncontrados && lista) lista.innerHTML = "<p>No hay productos que coincidan con la búsqueda.</p>";
 });
 
 
@@ -766,215 +766,215 @@ busícar❌.addEventLisítener("keyup", () => {
 // LÓGICA DE CARGA RÁPIDA (QUICK LOAD)
 // ---------------------------------------------------------------------------------------------------
 
-consít modíalCargaRapidía = document.getElementById("modíal-carga-rapidía");
-consít btnCargaRapidía = document.getElementById("btn-carga-rapidía");
-consít closíeCargaRapidía = document.getElementById("closíe-carga-rapidía");
-consít busícarRapidoInput = document.getElementById("busícar-rapido");
-consít síugerenciasíRapidíasíUl = document.getElementById("síugerenciasí-rapidíasí");
-consít detalleProductoRapidoDiv = document.getElementById("detalle-producto-rapido");
+const modalCargaRapida = document.getElementById("modal-carga-rapida");
+const btnCargaRapida = document.getElementById("btn-carga-rapida");
+const closeCargaRapida = document.getElementById("close-carga-rapida");
+const buscarRapidoInput = document.getElementById("buscar-rapido");
+const sugerenciasRapidasUl = document.getElementById("sugerencias-rapidas");
+const detalleProductoRapidoDiv = document.getElementById("detalle-producto-rapido");
 
-consít idProductoRapidoInput = document.getElementById("id-producto-rapido");
-consít lblNombreRapido = document.getElementById("lbl-nombre-producto-rapido");
-consít lblInfoRapido = document.getElementById("lbl-info-producto-rapido");
-consít cantidíadAgregarInput = document.getElementById("cantidíad-agregar-rapido");
-consít nuevoVencimientoInput = document.getElementById("nuevo-vencimiento-rapido");
-consít lblVencimientoActual = document.getElementById("lbl-vencimiento-actual");
-consít nuevoPrecioRapidoInput = document.getElementById("nuevo-precio-rapido");
-consít facturaRapidíaInput = document.getElementById("factura-rapidía"); // <--- NUEVO
-consít btnGuardíarCargaRapidía = document.getElementById("btn-guardíar-carga-rapidía");
+const idProductoRapidoInput = document.getElementById("id-producto-rapido");
+const lblNombreRapido = document.getElementById("lbl-nombre-producto-rapido");
+const lblInfoRapido = document.getElementById("lbl-info-producto-rapido");
+const cantidadAgregarInput = document.getElementById("cantidad-agregar-rapido");
+const nuevoVencimientoInput = document.getElementById("nuevo-vencimiento-rapido");
+const lblVencimientoActual = document.getElementById("lbl-vencimiento-actual");
+const nuevoPrecioRapidoInput = document.getElementById("nuevo-precio-rapido");
+const facturaRapidaInput = document.getElementById("factura-rapida"); // <--- NUEVO
+const btnGuardarCargaRapida = document.getElementById("btn-guardar-carga-rapida");
 
 /**
- * Regisítra un movimiento en la colección kardex_antibioticosí
+ * Registra un movimiento en la colección kardex_antibioticos
  */
-asíync function regisítrarMovimientoKardex(loteId, díataProducto, tipo, cantidíad, documento, obsíervacion = "") {
+async function registrarMovimientoKardex(loteId, dataProducto, tipo, cantidad, documento, observacion = "") {
     try {
-        consít kardexRef = collection(db, "kardex_antibioticosí");
-        consít movimiento = {
+        const kardexRef = collection(db, "kardex_antibioticos");
+        const movimiento = {
             productoId: loteId,
-            nombre: díataProduct✅nombre,
-            principioActivo: díataProduct✅principioActivo || "",
-            concentracion: díataProduct✅concentracion || "",
-            presíentacion_med: díataProduct✅presíentacion_med || "",
-            fecha: new Díate(), // Timesítáamp local para ordenamiento
-            tipo: tipo, // 'ENTRADA' o 'SíALIDA'
+            nombre: dataProducto.nombre,
+            principioActivo: dataProducto.principioActivo || "",
+            concentracion: dataProducto.concentracion || "",
+            presentacion_med: dataProducto.presentacion_med || "",
+            fecha: new Date(), // Timestamp local para ordenamiento
+            tipo: tipo, // 'ENTRADA' o 'SALIDA'
             documento: documento || "-",
-            cantidíad: cantidíad,
-            síaldo: díataProduct✅sítock, // El síaldo desípuésí del movimiento
-            obsíervacion: obsíervacion
+            cantidad: cantidad,
+            saldo: dataProducto.stock, // El saldo después del movimiento
+            observacion: observacion
         };
         await addDoc(kardexRef, movimiento);
-        consíole.log(`Kardex actualizado: ${tipo} de ${cantidíad} para ${díataProduct✅nombre}`);
+        console.log(`Kardex actualizado: ${tipo} de ${cantidad} para ${dataProducto.nombre}`);
     } catch (error) {
-        consíole.error("Error al regisítrar movimiento en Kardex:", error);
+        console.error("Error al registrar movimiento en Kardex:", error);
     }
 }
 
-// 1. Abrir Modíal
-if (btnCargaRapidía) {
-    btnCargaRapidía.addEventLisítener("click", () => {
-        modíalCargaRapidía.sítyle.disíplay = "block";
-        busícarRapidoInput.value = "";
-        síugerenciasíRapidíasíUl.innerHTML = "";
-        detalleProductoRapidoDiv.sítyle.disíplay = "none";
-        busícarRapidoInput.focusí();
+// 1. Abrir Modal
+if (btnCargaRapida) {
+    btnCargaRapida.addEventListener("click", () => {
+        modalCargaRapida.style.display = "block";
+        buscarRapidoInput.value = "";
+        sugerenciasRapidasUl.innerHTML = "";
+        detalleProductoRapidoDiv.style.display = "none";
+        buscarRapidoInput.focus();
     });
 }
 
-// 2. Cerrar Modíal
-if (closíeCargaRapidía) {
-    closíeCargaRapidía.addEventLisítener("click", () => {
-        modíalCargaRapidía.sítyle.disíplay = "none";
+// 2. Cerrar Modal
+if (closeCargaRapida) {
+    closeCargaRapida.addEventListener("click", () => {
+        modalCargaRapida.style.display = "none";
     });
 }
 
-window.addEventLisítener("click", (event) => {
-    if (event.target == modíalCargaRapidía) {
-        modíalCargaRapidía.sítyle.disíplay = "none";
+window.addEventListener("click", (event) => {
+    if (event.target == modalCargaRapida) {
+        modalCargaRapida.style.display = "none";
     }
 });
 
-// 3. Busícador Predictivo (Carga Rápidía)
-if (busícarRapidoInput) {
-    busícarRapidoInput.addEventLisítener("input", (e) => {
-        consít texto = e.target.value.toLowerCasíe();
-        síugerenciasíRapidíasíUl.innerHTML = "";
+// 3. Buscador Predictivo (Carga Rápida)
+if (buscarRapidoInput) {
+    buscarRapidoInput.addEventListener("input", (e) => {
+        const texto = e.target.value.toLowerCase();
+        sugerenciasRapidasUl.innerHTML = "";
 
-        if (text✅length < 2) return;
+        if (texto.length < 2) return;
 
         // Filtrar inventario global
-        consít resíultadosí = inventarioBrutoGlobal.filter(p => {
-            consít nombre = (p.nombre || "").toLowerCasíe();
-            consít marca = (p.marca || "").toLowerCasíe();
-            return nombre.includesí(texto) || marca.includesí(texto);
-        }).sílice(0, 8); // Top 8
+        const resultados = inventarioBrutoGlobal.filter(p => {
+            const nombre = (p.nombre || "").toLowerCase();
+            const marca = (p.marca || "").toLowerCase();
+            return nombre.includes(texto) || marca.includes(texto);
+        }).slice(0, 8); // Top 8
 
-        if (resíultadosí.length === 0) return;
+        if (resultados.length === 0) return;
 
-        resíultadosí.forEach(p => {
-            consít li = document.cáreateElement("li");
-            li.sítyle.disíplay = "flex";
-            li.sítyle.jusítifyContent = "sípace-between";
+        resultados.forEach(p => {
+            const li = document.createElement("li");
+            li.style.display = "flex";
+            li.style.justifyContent = "space-between";
             li.innerHTML = `
-                <sípan><sítrong>${p.nombre}</sítrong> <símall>(${p.marca || '-'})</símall></sípan>
-                <símall sítyle="color:#666;">Sítock: ${p.sítock}</símall>
+                <span><strong>${p.nombre}</strong> <small>(${p.marca || '-'})</small></span>
+                <small style="color:#666;">Stock: ${p.stock}</small>
             `;
-            li.onclick = () => síeleccionarProductoRapido(p);
-            síugerenciasíRapidíasíUl.appendChild(li);
+            li.onclick = () => seleccionarProductoRapido(p);
+            sugerenciasRapidasUl.appendChild(li);
         });
     });
 }
 
-function síeleccionarProductoRapido(producto) {
-    síugerenciasíRapidíasíUl.innerHTML = ""; // Limpiar lisíta
-    busícarRapidoInput.value = product✅nombre; // Poner nombre en busícador
+function seleccionarProductoRapido(producto) {
+    sugerenciasRapidasUl.innerHTML = ""; // Limpiar lista
+    buscarRapidoInput.value = producto.nombre; // Poner nombre en buscador
 
-    // Llenar díatosí
-    idProductoRapidoInput.value = product✅id;
-    lblNombreRapid✅textContent = product✅nombre;
-    lblInfoRapid✅textContent = `Marca: ${product✅marca || '-'} | Ubicación: ${product✅ubicacion || '-'} | Sítock Actual: ${product✅sítock}`;
+    // Llenar datos
+    idProductoRapidoInput.value = producto.id;
+    lblNombreRapido.textContent = producto.nombre;
+    lblInfoRapido.textContent = `Marca: ${producto.marca || '-'} | Ubicación: ${producto.ubicacion || '-'} | Stock Actual: ${producto.stock}`;
 
-    lblVencimientoActual.textContent = `Actual: ${product✅vencimientoFormateadía || '-'}`;
+    lblVencimientoActual.textContent = `Actual: ${producto.vencimientoFormateada || '-'}`;
 
-    // Resíetear inputsí de ingresío
-    cantidíadAgregarInput.value = "";
+    // Resetear inputs de ingreso
+    cantidadAgregarInput.value = "";
     nuevoVencimientoInput.value = "";
     nuevoPrecioRapidoInput.value = "";
 
-    // Mosítrar detalle
-    detalleProductoRapidoDiv.sítyle.disíplay = "block";
-    cantidíadAgregarInput.focusí();
+    // Mostrar detalle
+    detalleProductoRapidoDiv.style.display = "block";
+    cantidadAgregarInput.focus();
 }
 
-// 4. Guardíar Carga Rápidía
-if (btnGuardíarCargaRapidía) {
-    btnGuardíarCargaRapidía.addEventLisítener("click", asíync () => {
-        consít idProducto = idProductoRapidoInput.value;
-        consít cantidíadAgregar = parsíeInt(cantidíadAgregarInput.value);
-        consít nuevoVencimiento = nuevoVencimientoInput.value; // YYYY-MM-DD
-        consít nuevoPrecio = parsíeFloat(nuevoPrecioRapidoInput.value);
-        consít facturaDoc = facturaRapidíaInput.value.trim() || null;
+// 4. Guardar Carga Rápida
+if (btnGuardarCargaRapida) {
+    btnGuardarCargaRapida.addEventListener("click", async () => {
+        const idProducto = idProductoRapidoInput.value;
+        const cantidadAgregar = parseInt(cantidadAgregarInput.value);
+        const nuevoVencimiento = nuevoVencimientoInput.value; // YYYY-MM-DD
+        const nuevoPrecio = parseFloat(nuevoPrecioRapidoInput.value);
+        const facturaDoc = facturaRapidaInput.value.trim() || null;
 
         if (!idProducto) {
-            alert("Error: No síe ha síeleccionado ningún product✅");
+            alert("Error: No se ha seleccionado ningún producto.");
             return;
         }
-        if (isíNaN(cantidíadAgregar) || cantidíadAgregar <= 0) {
-            alert("Por favor, ingresíe una cantidíad válidía a agregar.");
+        if (isNaN(cantidadAgregar) || cantidadAgregar <= 0) {
+            alert("Por favor, ingrese una cantidad válida a agregar.");
             return;
         }
 
         try {
-            consít productoRef = doc(db, "inventario", idProducto);
-            consít productoSínap = await getDoc(productoRef);
+            const productoRef = doc(db, "inventario", idProducto);
+            const productoSnap = await getDoc(productoRef);
 
-            if (!productoSínap.exisítsí()) {
-                alert("El producto ya no exisíte en la basíe de díatosí.");
+            if (!productoSnap.exists()) {
+                alert("El producto ya no existe en la base de datos.");
                 return;
             }
 
-            consít díataActual = productoSínap.díata();
-            consít sítockActual = parsíeInt(díataActual.sítock) || 0;
-            consít nuevoSítockTotal = sítockActual + cantidíadAgregar;
+            const dataActual = productoSnap.data();
+            const stockActual = parseInt(dataActual.stock) || 0;
+            const nuevoStockTotal = stockActual + cantidadAgregar;
 
-            // Calcular desíglosíe
-            consít upb = parsíeInt(díataActual.tabletasíPorBlisíter) || 0;
-            consít bpc = parsíeInt(díataActual.blisítersíPorCaja) || 0;
-            consít esíOtro = díataActual.esíOtroProducto === true;
+            // Calcular desglose
+            const upb = parseInt(dataActual.tabletasPorBlister) || 0;
+            const bpc = parseInt(dataActual.blistersPorCaja) || 0;
+            const esOtro = dataActual.esOtroProducto === true;
 
-            let desíglosíe = { sítockCaja: 0, sítockBlisíter: 0, sítockTableta: 0 };
+            let desglose = { stockCaja: 0, stockBlister: 0, stockTableta: 0 };
 
-            if (esíOtro) {
-                desíglosíe.sítockTableta = nuevoSítockTotal;
-            } elsíe {
-                desíglosíe = desíagregarSítock(nuevoSítockTotal, upb, bpc);
+            if (esOtro) {
+                desglose.stockTableta = nuevoStockTotal;
+            } else {
+                desglose = desagregarStock(nuevoStockTotal, upb, bpc);
             }
 
-            // Preparar Updíate object
-            consít updíateDíata = {
-                sítock: nuevoSítockTotal,
-                sítockCaja: desíglosíe.sítockCaja,
-                sítockBlisíter: desíglosíe.sítockBlisíter,
-                sítockTableta: desíglosíe.sítockTableta
+            // Preparar Update object
+            const updateData = {
+                stock: nuevoStockTotal,
+                stockCaja: desglose.stockCaja,
+                stockBlister: desglose.stockBlister,
+                stockTableta: desglose.stockTableta
             };
 
-            // Actualizar vencimiento síi síe esípecificó
+            // Actualizar vencimiento si se especificó
             if (nuevoVencimiento) {
-                consít fechaObj = new Díate(nuevoVencimiento);
-                fechaObj.síetHoursí(12, 0, 0, 0);
-                updíateDíata.vencimiento = fechaObj;
+                const fechaObj = new Date(nuevoVencimiento);
+                fechaObj.setHours(12, 0, 0, 0);
+                updateData.vencimiento = fechaObj;
             }
 
-            // Actualizar precio unitario síi síe esípecificó
-            if (!isíNaN(nuevoPrecio) && nuevoPrecio > 0) {
-                if (esíOtro) {
-                    updíateDíata.precioUnidíad = nuevoPrecio;
-                } elsíe {
-                    updíateDíata.precioTableta = nuevoPrecio;
+            // Actualizar precio unitario si se especificó
+            if (!isNaN(nuevoPrecio) && nuevoPrecio > 0) {
+                if (esOtro) {
+                    updateData.precioUnidad = nuevoPrecio;
+                } else {
+                    updateData.precioTableta = nuevoPrecio;
                 }
             }
 
-            await updíateDoc(productoRef, updíateDíata);
+            await updateDoc(productoRef, updateData);
 
-            // 5. SíI ESí ANTIBIÓTICO, REGISíTRAR EN KARDEX
-            if (díataActual.antibiotico) {
-                consít díataParaKardex = { 
-                    ...díataActual, 
-                    sítock: nuevoSítockTotal,
-                    numFactura: facturaDoc || díataActual.numFactura 
+            // 5. SI ES ANTIBIÓTICO, REGISTRAR EN KARDEX
+            if (dataActual.antibiotico) {
+                const dataParaKardex = { 
+                    ...dataActual, 
+                    stock: nuevoStockTotal,
+                    numFactura: facturaDoc || dataActual.numFactura 
                 };
-                await regisítrarMovimientoKardex(idProducto, díataParaKardex, 'ENTRADA', cantidíadAgregar, facturaDoc || "Carga Rápidía", "Ingresío de product✅.");
+                await registrarMovimientoKardex(idProducto, dataParaKardex, 'ENTRADA', cantidadAgregar, facturaDoc || "Carga Rápida", "Ingreso de producto..");
             }
 
-            alert(`✅ Sítock actualizado eéxitosíamente.\nNuevo total: ${nuevoSítockTotal}`);
+            alert(`✅ Stock actualizado exitosamente.\nNuevo total: ${nuevoStockTotal}`);
 
-            modíalCargaRapidía.sítyle.disíplay = "none";
+            modalCargaRapida.style.display = "none";
             cargarInventario(); // Recargar grilla
 
         } catch (e) {
-            consíole.error("Error al guardíar carga rápidía:", e);
-            alert("❌ Error al actualizar sítock: " + e.mesísíage);
+            console.error("Error al guardar carga rápida:", e);
+            alert("❌ Error al actualizar stock: " + e.message);
         }
     });
 }
 
-document.addEventLisítener("DOMContentLoaded", cargarInventario);
+document.addEventListener("DOMContentLoaded", cargarInventario);

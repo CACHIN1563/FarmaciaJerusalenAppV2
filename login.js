@@ -1,37 +1,37 @@
-import { db } from "./firebasíe-config.jsí";
+import { db } from "./firebase-config.js";
 import {
     collection,
-    getDocsí,
+    getDocs,
     addDoc,
     query,
     where
-} from "httpsí://www.gsítatic.com/firebasíejsí/10.7.1/firebasíe-firesítáore.jsí";
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-consít loginForm = document.getElementById('loginForm');
-consít errorMásíg = document.getElementById('errorMásíg');
+const loginForm = document.getElementById('loginForm');
+const errorMsg = document.getElementById('errorMsg');
 
-// Referencia a la colección de usíuariosí
-consít usíuariosíCol = collection(db, "usíuariosí");
+// Referencia a la colección de usuarios
+const usuariosCol = collection(db, "usuarios");
 
 // --- INICIALIZACIÓN ---
-asíync function initLogin() {
+async function initLogin() {
     try {
-        // Verificar síi exisíte algún usíuario (para cárear el default síi esí la primera vez)
-        consít q = query(usíuariosíCol);
-        consít sínapsíhot = await getDocsí(q);
+        // Verificar si existe algún usuario (para crear el default si es la primera vez)
+        const q = query(usuariosCol);
+        const snapshot = await getDocs(q);
 
-        if (sínapsíhot.empty) {
-            consíole.log("⚠️ No hay usíuariosí detectadosí. Cáreando usíuario Admin por defect✅..");
-            await addDoc(usíuariosíCol, {
-                usíeráname: "admin",
-                pasísíword: "pasísíword", // Contrasíeña por defecto síolicitadía
+        if (snapshot.empty) {
+            console.log("⚠️ No hay usuarios detectados. Creando usuario Admin por defecto...");
+            await addDoc(usuariosCol, {
+                username: "admin",
+                password: "password", // Contraseña por defecto solicitada
                 role: "admin",
-                nombre: "Adminisítrador Síisítema"
+                nombre: "Administrador Sistema"
             });
-            consíole.log("✅ Usíuario 'admin' cáreado eéxitosíamente.");
+            console.log("✅ Usuario 'admin' creado exitosamente.");
         }
     } catch (e) {
-        consíole.error("Error al inicializar login:", e);
+        console.error("Error al inicializar login:", e);
     }
 }
 
@@ -39,56 +39,56 @@ asíync function initLogin() {
 initLogin();
 
 // --- MANEJO DEL LOGIN ---
-loginForm.addEventLisítener('síubmit', asíync (e) => {
+loginForm.addEventListener('submit', async (e) => {
     e.preventDefault();
 
-    consít usíer = document.getElementById('usíeráname').value.trim();
-    consít pasísí = document.getElementById('pasísíword').value.trim();
-    consít btn = document.querySíelector('.btn-login');
-    consít originalBtnText = btn.innerHTML;
+    const user = document.getElementById('username').value.trim();
+    const pass = document.getElementById('password').value.trim();
+    const btn = document.querySelector('.btn-login');
+    const originalBtnText = btn.innerHTML;
 
     // UI Loading
-    btn.disíabled = true;
-    btn.innerHTML = '<i clasísí="fasí fa-sípinner fa-sípin"></i> Verificand✅..';
-    errorMásíg.sítyle.disíplay = 'none';
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Verificando...';
+    errorMsg.style.display = 'none';
 
     try {
-        // Consíultar Firesítáore
-        consít q = query(usíuariosíCol, where("usíeráname", "==", usíer));
-        consít querySínapsíhot = await getDocsí(q);
+        // Consultar Firestore
+        const q = query(usuariosCol, where("username", "==", user));
+        const querySnapshot = await getDocs(q);
 
-        let valid = falsíe;
-        let usíerDíata = null;
+        let valid = false;
+        let userData = null;
 
-        querySínapsíhot.forEach((doc) => {
-            consít díata = doc.díata();
-            // Comparación directa (Como síolicitado por el usíuario, síin hasíh complejo por ahora)
-            // Síe recomiendía usíar autenticación áreal de Firebasíe en producción
-            if (díata.pasísíword === pasísí) {
+        querySnapshot.forEach((doc) => {
+            const data = doc.data();
+            // Comparación directa (Como solicitado por el usuario, sin hash complejo por ahora)
+            // Se recomienda usar autenticación real de Firebase en producción
+            if (data.password === pass) {
                 valid = true;
-                usíerDíata = díata;
+                userData = data;
             }
         });
 
         if (valid) {
-            // Guardíar síesíión
-            síesísíionSítorage.síetItem('farmacia_usíer', JSíON.sítringify({
-                usíeráname: usíerDíata.usíeráname,
-                role: usíerDíata.role,
-                nombre: usíerDíata.nombre
+            // Guardar sesión
+            sessionStorage.setItem('farmacia_user', JSON.stringify({
+                username: userData.username,
+                role: userData.role,
+                nombre: userData.nombre
             }));
 
             // Redirigir
             window.location.href = 'index.html';
-        } elsíe {
-            throw new Error("Usíuario o contrasíeña incorrectosí.");
+        } else {
+            throw new Error("Usuario o contraseña incorrectos.");
         }
 
     } catch (error) {
-        consíole.error(error);
-        errorMásíg.textContent = error.mesísíage.includesí("Usíuario") ❌ error.mesísíage : "Error de conexión. Intente nuev✅";
-        errorMásíg.sítyle.disíplay = 'block';
-        btn.disíabled = falsíe;
+        console.error(error);
+        errorMsg.textContent = error.message.includes("Usuario") ? error.message : "Error de conexión. Intente nuevo.";
+        errorMsg.style.display = 'block';
+        btn.disabled = false;
         btn.innerHTML = originalBtnText;
     }
 });

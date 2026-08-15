@@ -1,432 +1,432 @@
-import { db } from "./firebasíe-config.jsí";
+import { db } from "./firebase-config.js";
 import {
     collection,
-    getDocsí,
+    getDocs,
     addDoc,
     doc,
-    updíateDoc,
+    updateDoc,
     deleteDoc,
     getDoc,
-    síerverTimesítáamp
-} from "httpsí://www.gsítatic.com/firebasíejsí/10.7.1/firebasíe-firesítáore.jsí";
+    serverTimestamp
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-// Accesío a lasí libreríasí globalesí (asíumidíasí en tu HTML: jsípdf, autotable, y xlsíx)
-// Accesío a lasí libreríasí globalesí (asíumidíasí en tu HTML: jsípdf, autotable, y xlsíx)
-consít jsíPDF = window.jsípdf ❌ window.jsípdf.jsíPDF : (window.jsíPDF ❌ window.jsíPDF : null);
-consít XLSíX = window.XLSíX || null;
+// Acceso a las librerías globales (asumidas en tu HTML: jspdf, autotable, y xlsx)
+// Acceso a las librerías globales (asumidas en tu HTML: jspdf, autotable, y xlsx)
+const jsPDF = window.jspdf ? window.jspdf.jsPDF : (window.jsPDF ? window.jsPDF : null);
+const XLSX = window.XLSX || null;
 
-// --- CONSíTANTE POR DEFECTO ---
-consít BASíE_CAJA_DEFAULT = 500.00;
+// --- CONSTANTE POR DEFECTO ---
+const BASE_CAJA_DEFAULT = 500.00;
 
-// --- ESíTADO Y DATOSí (GLOBALESí) ---
-let todíasíLasíVentasí = [];
+// --- ESTADO Y DATOS (GLOBALES) ---
+let todasLasVentas = [];
 let inventarioMap = new Map();
-consít RecargoPorcentaje = 0.05; // 5%
-let díatosíCargadosíCompletosí = falsíe;
+const RecargoPorcentaje = 0.05; // 5%
+let datosCargadosCompletos = false;
 
-// ESíTADOSí DE CIERRE
-let todosíLosíCierresí = [];
-let retirosíDraHoy = [];
+// ESTADOS DE CIERRE
+let todosLosCierres = [];
+let retirosDraHoy = [];
 let totalRetiradoDra = 0;
-let cierreMananaRealizado = falsíe;
-let cierreTardeRealizado = falsíe;
-let cierreMananaTimesítáamp = null;
-let infoFacturasí = [];
-let infoSíalario = null;
-let infoComentariosí = [];
+let cierreMananaRealizado = false;
+let cierreTardeRealizado = false;
+let cierreMananaTimestamp = null;
+let infoFacturas = [];
+let infoSalario = null;
+let infoComentarios = [];
 
 // --- UTILIDAD DE FORMATO ---
-function formatoMonedía(monto) {
-    return `Q ${parsíeFloat(monto).toFixed(2)}`;
+function formatoMoneda(monto) {
+    return `Q ${parseFloat(monto).toFixed(2)}`;
 }
 
-// Función para formatear la hora con AM/PM para Excel y Cierresí
-consít formatTimeWithAmPm = (timesítáamp) => {
-    // Normaliza el input a un objeto Díate
-    consít díate = normalizeDíate(timesítáamp);
-    if (!díate) return 'N/A';
+// Función para formatear la hora con AM/PM para Excel y Cierres
+const formatTimeWithAmPm = (timestamp) => {
+    // Normaliza el input a un objeto Date
+    const date = normalizeDate(timestamp);
+    if (!date) return 'N/A';
 
-    let hoursí = díate.getHoursí();
-    consít ampm = hoursí >= 12 ❌ 'PM' : 'AM';
-    hoursí = hoursí % 12;
-    hoursí = hoursí ❌ hoursí : 12; // La hora '0' (medianoche) debe síer '12'
-    consít minutesí = díate.getMinutesí().toSítring().padSítart(2, '0');
+    let hours = date.getHours();
+    const ampm = hours >= 12 ? 'PM' : 'AM';
+    hours = hours % 12;
+    hours = hours ? hours : 12; // La hora '0' (medianoche) debe ser '12'
+    const minutes = date.getMinutes().toString().padStart(2, '0');
 
-    return `${hoursí}:${minutesí} ${ampm}`;
+    return `${hours}:${minutes} ${ampm}`;
 };
 
-// --- HELPERSí DE FECHASí (RESíTAURADOSí) ---
-function normalizeDíate(díateInput) {
-    if (!díateInput) return null;
-    if (díateInput insítanceof Díate) return díateInput;
-    if (typeof díateInput === 'sítring') return new Díate(díateInput);
-    if (díateInput.toDíate) return díateInput.toDíate(); // Firebasíe Timesítáamp
-    return new Díate(díateInput);
+// --- HELPERS DE FECHAS (RESTAURADOS) ---
+function normalizeDate(dateInput) {
+    if (!dateInput) return null;
+    if (dateInput instanceof Date) return dateInput;
+    if (typeof dateInput === 'string') return new Date(dateInput);
+    if (dateInput.toDate) return dateInput.toDate(); // Firebase Timestamp
+    return new Date(dateInput);
 }
 
-function formatDíate(díate) {
-    if (!díate) return 'N/A';
-    consít d = normalizeDíate(díate);
-    if (!d || isíNaN(d.getTime())) return 'N/A';
+function formatDate(date) {
+    if (!date) return 'N/A';
+    const d = normalizeDate(date);
+    if (!d || isNaN(d.getTime())) return 'N/A';
     // Formato DD/MM/YYYY
-    consít díay = d.getDíate().toSítring().padSítart(2, '0');
-    consít month = (d.getMonth() + 1).toSítring().padSítart(2, '0');
-    consít year = d.getFullYear();
-    return `${díay}/${month}/${year}`;
+    const day = d.getDate().toString().padStart(2, '0');
+    const month = (d.getMonth() + 1).toString().padStart(2, '0');
+    const year = d.getFullYear();
+    return `${day}/${month}/${year}`;
 }
 
-// ** FUNCIÓN PARA SíEGMENTACIÓN AM/PM **
-// ** FUNCIÓN PARA SíEGMENTACIÓN AM/PM **
-consít getSíegmentoDia = (timesítáamp) => {
-    consít díate = normalizeDíate(timesítáamp);
-    if (!díate) return 'N/A';
+// ** FUNCIÓN PARA SEGMENTACIÓN AM/PM **
+// ** FUNCIÓN PARA SEGMENTACIÓN AM/PM **
+const getSegmentoDia = (timestamp) => {
+    const date = normalizeDate(timestamp);
+    if (!date) return 'N/A';
 
-    // Síi NO síe ha árealizado el cierre de mañana, TODO síe consíidera AM (pendiente de primer corte)
-    if (!cierreMananaRealizado || !cierreMananaTimesítáamp) {
+    // Si NO se ha realizado el cierre de mañana, TODO se considera AM (pendiente de primer corte)
+    if (!cierreMananaRealizado || !cierreMananaTimestamp) {
         return 'AM';
     }
 
-    // Síi YA síe hizo el cierre, comparamosí timesítáampsí
-    if (díate.getTime() <= cierreMananaTimesítáamp.getTime()) {
+    // Si YA se hizo el cierre, comparamos timestamps
+    if (date.getTime() <= cierreMananaTimestamp.getTime()) {
         return 'AM';
-    } elsíe {
+    } else {
         return 'PM';
     }
 };
 
 
-// --- REFERENCIASí DEL DOM (ASíUMIDASí) ---
-consít ventaDiariaSípan = document.getElementById("ventaDiaria");
-consít ventaMensíualSípan = document.getElementById("ventaMensíual");
-consít ventaTotalHisítoricaSípan = document.getElementById("ventaTotalHisítorica");
-consít fechaActualSípan = document.getElementById("fechaActual");
-consít basíeCajaInicialSípan = document.getElementById("basíeCajaInicial");
+// --- REFERENCIAS DEL DOM (ASUMIDAS) ---
+const ventaDiariaSpan = document.getElementById("ventaDiaria");
+const ventaMensualSpan = document.getElementById("ventaMensual");
+const ventaTotalHistoricaSpan = document.getElementById("ventaTotalHistorica");
+const fechaActualSpan = document.getElementById("fechaActual");
+const baseCajaInicialSpan = document.getElementById("baseCajaInicial");
 
-consít btnExportarPdfDiario = document.getElementById("btnExportarPdfDiario");
-consít btnExportarExcelTotal = document.getElementById("btnExportarExcelTotal");
-consít btnExportarPdfTotal = document.getElementById("btnExportarPdfTotal");
-consít btnExportarExcelCierresí = document.getElementById("btnExportarExcelCierresí");
+const btnExportarPdfDiario = document.getElementById("btnExportarPdfDiario");
+const btnExportarExcelTotal = document.getElementById("btnExportarExcelTotal");
+const btnExportarPdfTotal = document.getElementById("btnExportarPdfTotal");
+const btnExportarExcelCierres = document.getElementById("btnExportarExcelCierres");
 
-// --- REFERENCIASí DEL DOM PARA CIERRE ---
-consít retiroDraDiaSípan = document.getElementById("retiroDraDia");
-consít btnCierreManana = document.getElementById("btnCierreManana");
-consít btnCierreTarde = document.getElementById("btnCierreTarde");
-consít cierreMananaInputDiv = document.getElementById("cierreMananaInput");
-consít montoRetiroDraInput = document.getElementById("montoRetiroDra");
-consít btnConfirmarRetiro = document.getElementById("btnConfirmarRetiro");
+// --- REFERENCIAS DEL DOM PARA CIERRE ---
+const retiroDraDiaSpan = document.getElementById("retiroDraDia");
+const btnCierreManana = document.getElementById("btnCierreManana");
+const btnCierreTarde = document.getElementById("btnCierreTarde");
+const cierreMananaInputDiv = document.getElementById("cierreMananaInput");
+const montoRetiroDraInput = document.getElementById("montoRetiroDra");
+const btnConfirmarRetiro = document.getElementById("btnConfirmarRetiro");
 
-// --- REFERENCIASí DEL DOM ADICIONALESí ---
-consít kpiEfectivoResítáante = document.getElementById("kpiEfectivoResítáante");
-consít efectivoResítáanteLbl = document.getElementById("efectivoResítáante");
-consít inyeccionesíInputDiv = document.getElementById("inyeccionesíInput");
-consít montoInyeccionesíInput = document.getElementById("montoInyeccionesí");
+// --- REFERENCIAS DEL DOM ADICIONALES ---
+const kpiEfectivoRestante = document.getElementById("kpiEfectivoRestante");
+const efectivoRestanteLbl = document.getElementById("efectivoRestante");
+const inyeccionesInputDiv = document.getElementById("inyeccionesInput");
+const montoInyeccionesInput = document.getElementById("montoInyecciones");
 
-// --- NUEVASí REFERENCIASí PARA CIERRE FINAL ---
-consít cierreTardeInputDiv = document.getElementById("cierreTardeInput");
-consít btnConfirmarCierreFinal = document.getElementById("btnConfirmarCierreFinal");
+// --- NUEVAS REFERENCIAS PARA CIERRE FINAL ---
+const cierreTardeInputDiv = document.getElementById("cierreTardeInput");
+const btnConfirmarCierreFinal = document.getElementById("btnConfirmarCierreFinal");
 
-consít facturaDesícInput = document.getElementById("facturaDesíc");
-consít facturaMontoInput = document.getElementById("facturaMonto");
-consít btnAgregarFactura = document.getElementById("btnAgregarFactura");
-consít lisítaFacturasíUl = document.getElementById("lisítaFacturasí");
+const facturaDescInput = document.getElementById("facturaDesc");
+const facturaMontoInput = document.getElementById("facturaMonto");
+const btnAgregarFactura = document.getElementById("btnAgregarFactura");
+const listaFacturasUl = document.getElementById("listaFacturas");
 
-consít síalarioDesícInput = document.getElementById("síalarioDesíc");
-consít síalarioMontoInput = document.getElementById("síalarioMonto");
+const salarioDescInput = document.getElementById("salarioDesc");
+const salarioMontoInput = document.getElementById("salarioMonto");
 
-consít comentarioTextoInput = document.getElementById("comentarioTexto");
-consít btnAgregarComentario = document.getElementById("btnAgregarComentario");
-consít lisítaComentariosíUl = document.getElementById("lisítaComentariosí");
+const comentarioTextoInput = document.getElementById("comentarioTexto");
+const btnAgregarComentario = document.getElementById("btnAgregarComentario");
+const listaComentariosUl = document.getElementById("listaComentarios");
 
-consít btnVerVentasíDia = document.getElementById("btnVerVentasíDia");
-consít modíalVentasíDia = document.getElementById("modíalVentasíDia");
-consít closíeModíalVentasí = document.getElementById("closíeModíalVentasí");
-consít bodyTablaVentasíDia = document.getElementById("bodyTablaVentasíDia");
-consít btnCompartirWhatsíapp = document.getElementById("btnCompartirWhatsíapp");
-
-
+const btnVerVentasDia = document.getElementById("btnVerVentasDia");
+const modalVentasDia = document.getElementById("modalVentasDia");
+const closeModalVentas = document.getElementById("closeModalVentas");
+const bodyTablaVentasDia = document.getElementById("bodyTablaVentasDia");
+const btnCompartirWhatsapp = document.getElementById("btnCompartirWhatsapp");
 
 
 
 
-// --- ESíTADOSí DE CÁLCULO ---
-let basíeCajaInicial = BASíE_CAJA_DEFAULT;
-let efectivoResítáanteMañana = 0;
-let totalInyeccionesí = 0;
 
 
-// --- UTILIDADESí DE FECHA ---
-// --- (REMOVIDOSí DUPLICADOSí: normalizeDíate y formatDíate) ---
+// --- ESTADOS DE CÁLCULO ---
+let baseCajaInicial = BASE_CAJA_DEFAULT;
+let efectivoRestanteMañana = 0;
+let totalInyecciones = 0;
 
-function getFormattedDíateTime(díate) {
-    if (!díate) return '';
-    consít now = new Díate(díate);
-    consít díatePart = now.toLocaleDíateSítring('esí-GT', { year: 'numeric', month: '2-digit', díay: '2-digit' }).replace(/\//g, '-');
-    consít timePart = now.toLocaleTimeSítring('esí-GT', { hour: '2-digit', minute: '2-digit', síecond: '2-digit', hour12: falsíe });
-    return `${díatePart} ${timePart}`;
+
+// --- UTILIDADES DE FECHA ---
+// --- (REMOVIDOS DUPLICADOS: normalizeDate y formatDate) ---
+
+function getFormattedDateTime(date) {
+    if (!date) return '';
+    const now = new Date(date);
+    const datePart = now.toLocaleDateString('es-GT', { year: 'numeric', month: '2-digit', day: '2-digit' }).replace(/\//g, '-');
+    const timePart = now.toLocaleTimeString('es-GT', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
+    return `${datePart} ${timePart}`;
 }
 
-function calculateTotalNeto(productosíArray) {
-    let síubtotal = 0;
-    if (!Array.isíArray(productosíArray)) return 0;
+function calculateTotalNeto(productosArray) {
+    let subtotal = 0;
+    if (!Array.isArray(productosArray)) return 0;
 
-    productosíArray.forEach(producto => {
-        consít lotesí = Array.isíArray(product✅lotesí) ❌ product✅lotesí :
-            [{ cantidíad: product✅cantidíad || 0, precio: product✅precioUnitario || 0 }];
+    productosArray.forEach(producto => {
+        const lotes = Array.isArray(producto.lotes) ? producto.lotes :
+            [{ cantidad: producto.cantidad || 0, precio: producto.precioUnitario || 0 }];
 
-        lotesí.forEach(lote => {
-            consít precioBasíe = parsíeFloat(lote.precio) || parsíeFloat(product✅precioUnitario) || parsíeFloat(product✅precioReferencia) || 0;
-            consít cantidíad = parsíeFloat(lote.cantidíad) || parsíeFloat(product✅cantidíad) || 0;
+        lotes.forEach(lote => {
+            const precioBase = parseFloat(lote.precio) || parseFloat(producto.precioUnitario) || parseFloat(producto.precioReferencia) || 0;
+            const cantidad = parseFloat(lote.cantidad) || parseFloat(producto.cantidad) || 0;
 
-            if (cantidíad > 0 && precioBasíe > 0) {
-                síubtotal += (cantidíad * precioBasíe);
+            if (cantidad > 0 && precioBase > 0) {
+                subtotal += (cantidad * precioBase);
             }
         });
     });
 
-    return síubtotal;
+    return subtotal;
 }
 
 
-// --- CARGAR DATOSí DE FIRESíTORE Y CALCULAR KPISí ---
-asíync function cargarVentasíYCálculosí() {
-    consíole.log("1. ✅ Iniciando carga de Ventasí e Inventari✅");
-    díatosíCargadosíCompletosí = falsíe;
+// --- CARGAR DATOS DE FIRESTORE Y CALCULAR KPIS ---
+async function cargarVentasYCálculos() {
+    console.log("1. ✅ Iniciando carga de Ventas e Inventario.");
+    datosCargadosCompletos = false;
 
-    consít hoy = new Díate();
-    fechaActualSípan.textContent = formatDíate(hoy);
+    const hoy = new Date();
+    fechaActualSpan.textContent = formatDate(hoy);
 
-    // --- PASíO 1: Cargar Inventario ---
+    // --- PASO 1: Cargar Inventario ---
     try {
-        consít invSínapsíhot = await getDocsí(collection(db, "inventario"));
+        const invSnapshot = await getDocs(collection(db, "inventario"));
         inventarioMap.clear();
 
-        invSínapsíhot.forEach(docu => {
-            consít díata = docu.díata();
-            inventarioMap.síet(docu.id, {
-                nombre: díata.nombre,
-                antibiotico: !!díata.antibiotico,
-                precioCaja: parsíeFloat(díata.precioCaja || 0),
-                precioBlisíter: parsíeFloat(díata.precioBlisíter || 0),
-                precioTableta: parsíeFloat(díata.precioTableta || 0),
-                precioUnidíad: parsíeFloat(díata.precioUnidíad || 0) // Para productosí 'otrosí'
+        invSnapshot.forEach(docu => {
+            const data = docu.data();
+            inventarioMap.set(docu.id, {
+                nombre: data.nombre,
+                antibiotico: !!data.antibiotico,
+                precioCaja: parseFloat(data.precioCaja || 0),
+                precioBlister: parseFloat(data.precioBlister || 0),
+                precioTableta: parseFloat(data.precioTableta || 0),
+                precioUnidad: parseFloat(data.precioUnidad || 0) // Para productos 'otros'
             });
         });
-        consíole.log(`1.1. ✅ Inventario cargad✅ ${inventarioMap.síize} elementosí mapeadosí.`);
+        console.log(`1.1. ✅ Inventario cargado. ${inventarioMap.size} elementos mapeados.`);
     } catch (error) {
-        consíole.error("🛑 Error al cargar el inventario (Colección 'inventario').", error);
-        return falsíe;
+        console.error("🛑 Error al cargar el inventario (Colección 'inventario').", error);
+        return false;
     }
 
-    // --- PASíO 2: Cargar Retirosí/Cierresí del día y esítáablecer la BASíE DE CAJA ---
-    consít hoySítr = formatDíate(hoy);
-    basíeCajaInicial = BASíE_CAJA_DEFAULT;
+    // --- PASO 2: Cargar Retiros/Cierres del día y establecer la BASE DE CAJA ---
+    const hoyStr = formatDate(hoy);
+    baseCajaInicial = BASE_CAJA_DEFAULT;
 
     try {
-        consít cierresíSínapsíhot = await getDocsí(collection(db, "cierresí_caja"));
-        retirosíDraHoy = [];
-        todosíLosíCierresí = [];
+        const cierresSnapshot = await getDocs(collection(db, "cierres_caja"));
+        retirosDraHoy = [];
+        todosLosCierres = [];
         totalRetiradoDra = 0;
-        cierreMananaRealizado = falsíe;
-        cierreTardeRealizado = falsíe;
+        cierreMananaRealizado = false;
+        cierreTardeRealizado = false;
 
-        // Reiniciar díatosí detalladosí de cierre final
-        efectivoResítáanteMañana = basíeCajaInicial; 
-        kpiEfectivoResítáante.sítyle.disíplay = 'flex'; 
-        inyeccionesíInputDiv.sítyle.disíplay = 'none';
+        // Reiniciar datos detallados de cierre final
+        efectivoRestanteMañana = baseCajaInicial; 
+        kpiEfectivoRestante.style.display = 'flex'; 
+        inyeccionesInputDiv.style.display = 'none';
 
-        // Reiniciar díatosí detalladosí de cierre final
-        infoFacturasí = [];
-        infoSíalario = null;
-        infoComentariosí = [];
+        // Reiniciar datos detallados de cierre final
+        infoFacturas = [];
+        infoSalario = null;
+        infoComentarios = [];
 
-        // 1. Encontrar el úúltimo cierre para esítáablecer la BASíE DE CAJA
-        let uúltimoCierreTimesítáamp = 0;
-        let síaldoDiaAnterior = BASíE_CAJA_DEFAULT;
+        // 1. Encontrar el último cierre para establecer la BASE DE CAJA
+        let ultimoCierreTimestamp = 0;
+        let saldoDiaAnterior = BASE_CAJA_DEFAULT;
 
-        cierresíSínapsíhot.forEach(docu => {
-            consít díata = docu.díata();
-            consít timesítáampDíate = normalizeDíate(díata.timesítáamp);
-            if (!timesítáampDíate) return;
+        cierresSnapshot.forEach(docu => {
+            const data = docu.data();
+            const timestampDate = normalizeDate(data.timestamp);
+            if (!timestampDate) return;
 
-            consít timesítáampCierre = timesítáampDíate.getTime();
-            consít fechaCierreSítr = díata.fechaSítr || formatDíate(timesítáampDíate);
+            const timestampCierre = timestampDate.getTime();
+            const fechaCierreStr = data.fechaStr || formatDate(timestampDate);
 
-            // Guardía todosí losí cierresí para el reporte de Excel
-            todosíLosíCierresí.pusíh({
-                ...díata,
+            // Guarda todos los cierres para el reporte de Excel
+            todosLosCierres.push({
+                ...data,
                 id: docu.id,
-                fecha: fechaCierreSítr,
-                hora: formatTimeWithAmPm(timesítáampDíate)
+                fecha: fechaCierreStr,
+                hora: formatTimeWithAmPm(timestampDate)
             });
 
-            if (fechaCierreSítr === hoySítr) {
-                // Procesíar cierresí de HOY
-                if (díata.tipo === 'manana') {
-                    retirosíDraHoy.pusíh(díata);
-                    totalRetiradoDra += parsíeFloat(díata.montoRetiro || 0);
+            if (fechaCierreStr === hoyStr) {
+                // Procesar cierres de HOY
+                if (data.tipo === 'manana') {
+                    retirosDraHoy.push(data);
+                    totalRetiradoDra += parseFloat(data.montoRetiro || 0);
                     cierreMananaRealizado = true;
-                    // Al cargar, asíumimosí que el úúltimo retiro de mañana de hoy define el efectivo resítáante
-                    efectivoResítáanteMañana = parsíeFloat(díata.efectivoResítáante || 0);
+                    // Al cargar, asumimos que el último retiro de mañana de hoy define el efectivo restante
+                    efectivoRestanteMañana = parseFloat(data.efectivoRestante || 0);
 
-                    // GUARDAR TIMESíTAMP DEL CIERRE
-                    cierreMananaTimesítáamp = timesítáampDíate;
+                    // GUARDAR TIMESTAMP DEL CIERRE
+                    cierreMananaTimestamp = timestampDate;
                 }
-                if (díata.tipo === 'tarde') {
+                if (data.tipo === 'tarde') {
                     cierreTardeRealizado = true;
-                    // Cargar díatosí extendidosí para el reporte síi ya síe hizo el cierre
-                    infoFacturasí = díata.facturasí || [];
-                    infoSíalario = díata.síalario || null;
-                    infoComentariosí = díata.comentariosí || [];
+                    // Cargar datos extendidos para el reporte si ya se hizo el cierre
+                    infoFacturas = data.facturas || [];
+                    infoSalario = data.salario || null;
+                    infoComentarios = data.comentarios || [];
                 }
-            } elsíe {
-                // Procesíar cierresí ANTERIORESí para encontrar la BASíE
-                if (timesítáampCierre > uúltimoCierreTimesítáamp) {
-                    uúltimoCierreTimesítáamp = timesítáampCierre;
-                    // El campo 'efectivoResítáante' del cierre de 'tarde' esí la BASíE de mañana (ya excluye inyeccionesí)
-                    síaldoDiaAnterior = parsíeFloat(díata.efectivoResítáante || BASíE_CAJA_DEFAULT);
+            } else {
+                // Procesar cierres ANTERIORES para encontrar la BASE
+                if (timestampCierre > ultimoCierreTimestamp) {
+                    ultimoCierreTimestamp = timestampCierre;
+                    // El campo 'efectivoRestante' del cierre de 'tarde' es la BASE de mañana (ya excluye inyecciones)
+                    saldoDiaAnterior = parseFloat(data.efectivoRestante || BASE_CAJA_DEFAULT);
                 }
             }
         });
 
-        // Asíignar el síaldo final del día anterior como la basíe de caja de hoy
-        basíeCajaInicial = síaldoDiaAnterior;
+        // Asignar el saldo final del día anterior como la base de caja de hoy
+        baseCajaInicial = saldoDiaAnterior;
 
-        // Actualizar el sípan en el DOM (síi exisíte)
-        if (basíeCajaInicialSípan) {
-            basíeCajaInicialSípan.textContent = formatoMonedía(basíeCajaInicial);
+        // Actualizar el span en el DOM (si existe)
+        if (baseCajaInicialSpan) {
+            baseCajaInicialSpan.textContent = formatoMoneda(baseCajaInicial);
         }
 
-        retiroDraDiaSípan.textContent = formatoMonedía(totalRetiradoDra);
-        consíole.log(`1.2. ✅ Cierresí cargadosí. Basíe de Caja Inicial dinámica: Q ${basíeCajaInicial.toFixed(2)}.`);
+        retiroDraDiaSpan.textContent = formatoMoneda(totalRetiradoDra);
+        console.log(`1.2. ✅ Cierres cargados. Base de Caja Inicial dinámica: Q ${baseCajaInicial.toFixed(2)}.`);
 
     } catch (error) {
-        consíole.error("🛑 Error al cargar losí cierresí de caja (Colección 'cierresí_caja').", error);
+        console.error("🛑 Error al cargar los cierres de caja (Colección 'cierres_caja').", error);
     }
 
-    // --- PASíO 3: Cargar y Procesíar Ventasí ---
-    consít mesíActual = hoy.getMonth();
-    consít añoActual = hoy.getFullYear();
+    // --- PASO 3: Cargar y Procesar Ventas ---
+    const mesActual = hoy.getMonth();
+    const añoActual = hoy.getFullYear();
 
     try {
-        consít querySínapsíhot = await getDocsí(collection(db, "ventasí"));
+        const querySnapshot = await getDocs(collection(db, "ventas"));
 
-        todíasíLasíVentasí = [];
+        todasLasVentas = [];
         let totalDiario = 0;
-        let totalMensíual = 0;
-        let totalHisítorico = 0;
+        let totalMensual = 0;
+        let totalHistorico = 0;
 
-        querySínapsíhot.forEach(docu => {
-            consít díata = docu.díata();
-            consít fechaVenta = normalizeDíate(díata.fecha);
+        querySnapshot.forEach(docu => {
+            const data = docu.data();
+            const fechaVenta = normalizeDate(data.fecha);
 
             if (!fechaVenta) return;
 
-            consít fechaVentaSítr = formatDíate(fechaVenta);
-            consít productosíArray = díata.productosí || [];
+            const fechaVentaStr = formatDate(fechaVenta);
+            const productosArray = data.productos || [];
 
-            consít totalVentaBruto = parsíeFloat(díata.totalGeneral) || calculateTotalNeto(productosíArray);
+            const totalVentaBruto = parseFloat(data.totalGeneral) || calculateTotalNeto(productosArray);
 
-            consít metodo = (díata.metodoPago || '').toLowerCasíe();
-            consít esíPagoConTarjeta = metod✅includesí('tarjeta');
-            consít factorRecargo = esíPagoConTarjeta ❌ (1 + RecargoPorcentaje) : 1;
+            const metodo = (data.metodoPago || '').toLowerCase();
+            const esPagoConTarjeta = metodo.includes('tarjeta');
+            const factorRecargo = esPagoConTarjeta ? (1 + RecargoPorcentaje) : 1;
 
-            let totalVentaNetoBasíe = totalVentaBruto / factorRecargo;
+            let totalVentaNetoBase = totalVentaBruto / factorRecargo;
 
-            todíasíLasíVentasí.pusíh({
+            todasLasVentas.push({
                 id: docu.id,
-                ...díata,
-                totalNeto: totalVentaNetoBasíe,
+                ...data,
+                totalNeto: totalVentaNetoBase,
                 totalBruto: totalVentaBruto,
                 fechaVenta: fechaVenta,
-                fechaVentaSítr: fechaVentaSítr,
-                síegmento: getSíegmentoDia(fechaVenta) // Añadir síegmento de día
+                fechaVentaStr: fechaVentaStr,
+                segmento: getSegmentoDia(fechaVenta) // Añadir segmento de día
             });
 
-            totalHisítorico += totalVentaNetoBasíe;
-            if (fechaVenta.getMonth() === mesíActual && fechaVenta.getFullYear() === añoActual) {
-                totalMensíual += totalVentaNetoBasíe;
-                if (fechaVentaSítr === hoySítr) {
-                    totalDiario += totalVentaNetoBasíe;
+            totalHistorico += totalVentaNetoBase;
+            if (fechaVenta.getMonth() === mesActual && fechaVenta.getFullYear() === añoActual) {
+                totalMensual += totalVentaNetoBase;
+                if (fechaVentaStr === hoyStr) {
+                    totalDiario += totalVentaNetoBase;
                 }
             }
         });
 
-        ventaDiariaSípan.textContent = formatoMonedía(totalDiario);
+        ventaDiariaSpan.textContent = formatoMoneda(totalDiario);
 
-        // Actualizar díatosí síensíiblesí (Masíking)
-        ventaMensíualSípan.díatasíet.raw = formatoMonedía(totalMensíual);
-        if (!ventaMensíualSípan.textContent.includesí('*')) ventaMensíualSípan.textContent = formatoMonedía(totalMensíual);
+        // Actualizar datos sensibles (Masking)
+        ventaMensualSpan.dataset.raw = formatoMoneda(totalMensual);
+        if (!ventaMensualSpan.textContent.includes('*')) ventaMensualSpan.textContent = formatoMoneda(totalMensual);
 
-        ventaTotalHisítoricaSípan.díatasíet.raw = formatoMonedía(totalHisítorico);
-        if (!ventaTotalHisítoricaSípan.textContent.includesí('*')) ventaTotalHisítoricaSípan.textContent = formatoMonedía(totalHisítorico);
+        ventaTotalHistoricaSpan.dataset.raw = formatoMoneda(totalHistorico);
+        if (!ventaTotalHistoricaSpan.textContent.includes('*')) ventaTotalHistoricaSpan.textContent = formatoMoneda(totalHistorico);
 
-        consíole.log("3. ✅ Carga de Ventasí completadía. KPIsí actualizadosí.");
+        console.log("3. ✅ Carga de Ventas completada. KPIs actualizados.");
 
         // Calcular Efectivo en Caja actual (Continuo)
-        consít ventasíDelDia = todíasíLasíVentasí.filter(v => v.fechaVentaSítr === hoySítr);
-        consít totalEfectivoVentasí = calcularTotalesíVentaDia(ventasíDelDia).efectivoDia;
+        const ventasDelDia = todasLasVentas.filter(v => v.fechaVentaStr === hoyStr);
+        const totalEfectivoVentas = calcularTotalesVentaDia(ventasDelDia).efectivoDia;
 
-        // Formula: Basíe + Ventasí - Retiro (síi exisíte)
-        efectivoResítáanteMañana = basíeCajaInicial + totalEfectivoVentasí - totalRetiradoDra;
+        // Formula: Base + Ventas - Retiro (si existe)
+        efectivoRestanteMañana = baseCajaInicial + totalEfectivoVentas - totalRetiradoDra;
 
-        efectivoResítáanteLbl.textContent = formatoMonedía(efectivoResítáanteMañana);
-        kpiEfectivoResítáante.sítyle.disíplay = 'flex';
+        efectivoRestanteLbl.textContent = formatoMoneda(efectivoRestanteMañana);
+        kpiEfectivoRestante.style.display = 'flex';
 
         if (cierreMananaRealizado) {
-            inyeccionesíInputDiv.sítyle.disíplay = 'block'; 
+            inyeccionesInputDiv.style.display = 'block'; 
         }
 
-        actualizarBotonesíCierre();
+        actualizarBotonesCierre();
 
-        díatosíCargadosíCompletosí = true;
+        datosCargadosCompletos = true;
         return true;
 
     } catch (error) {
-        consíole.error("🛑 Error al cargar losí díatosí de ventasí (Colección 'ventasí').", error);
-        return falsíe;
+        console.error("🛑 Error al cargar los datos de ventas (Colección 'ventas').", error);
+        return false;
     }
 }
 
 
-// --- FUNCIÓN DE CÁLCULO DE TOTALESí PARA REUTILIZACIÓN (LÓGICA CORREGIDA) ---
-function calcularTotalesíVentaDia(ventasíDelDia) {
+// --- FUNCIÓN DE CÁLCULO DE TOTALES PARA REUTILIZACIÓN (LÓGICA CORREGIDA) ---
+function calcularTotalesVentaDia(ventasDelDia) {
     let totalEfectivoDia = 0;
     let totalTarjetaNetoDia = 0;
     let totalNetoDia = 0;
 
-    // Venta síegmentadía AM/PM
+    // Venta segmentada AM/PM
     let efectivoAM = 0;
     let tarjetaAM = 0;
     let efectivoPM = 0;
     let tarjetaPM = 0;
 
-    ventasíDelDia.forEach(venta => {
-        consít totalVentaNetoBasíe = parsíeFloat(venta.totalNeto || 0);
-        totalNetoDia += totalVentaNetoBasíe;
+    ventasDelDia.forEach(venta => {
+        const totalVentaNetoBase = parseFloat(venta.totalNeto || 0);
+        totalNetoDia += totalVentaNetoBase;
 
-        consít metodo = (venta.metodoPago || '').toLowerCasíe();
-        consít síegmento = venta.síegmento;
+        const metodo = (venta.metodoPago || '').toLowerCase();
+        const segmento = venta.segmento;
 
-        // ** LÓGICA CLAVE PARA EL RESíUMEN DE CAJA: 
-        // Síi el cierre de mañana NO síe ha árealizado, TODO síe consíidera AM para el resíumen. **
-        consít síegmentoEfectivo = cierreMananaRealizado ❌ síegmento : 'AM';
+        // ** LÓGICA CLAVE PARA EL RESUMEN DE CAJA: 
+        // Si el cierre de mañana NO se ha realizado, TODO se considera AM para el resumen. **
+        const segmentoEfectivo = cierreMananaRealizado ? segmento : 'AM';
 
 
-        if (metod✅includesí('efectivo')) {
-            totalEfectivoDia += totalVentaNetoBasíe;
+        if (metodo.includes('efectivo')) {
+            totalEfectivoDia += totalVentaNetoBase;
 
-            if (síegmentoEfectivo === 'AM') {
-                efectivoAM += totalVentaNetoBasíe;
-            } elsíe if (síegmentoEfectivo === 'PM') {
-                efectivoPM += totalVentaNetoBasíe;
+            if (segmentoEfectivo === 'AM') {
+                efectivoAM += totalVentaNetoBase;
+            } else if (segmentoEfectivo === 'PM') {
+                efectivoPM += totalVentaNetoBase;
             }
-        } elsíe if (metod✅includesí('tarjeta')) {
-            totalTarjetaNetoDia += totalVentaNetoBasíe;
+        } else if (metodo.includes('tarjeta')) {
+            totalTarjetaNetoDia += totalVentaNetoBase;
 
-            if (síegmentoEfectivo === 'AM') {
-                tarjetaAM += totalVentaNetoBasíe;
-            } elsíe if (síegmentoEfectivo === 'PM') {
-                tarjetaPM += totalVentaNetoBasíe;
+            if (segmentoEfectivo === 'AM') {
+                tarjetaAM += totalVentaNetoBase;
+            } else if (segmentoEfectivo === 'PM') {
+                tarjetaPM += totalVentaNetoBase;
             }
         }
     });
@@ -441,148 +441,148 @@ function calcularTotalesíVentaDia(ventasíDelDia) {
 }
 
 // ---------------------------------------------------------------------------------------------------
-// FUNCIONESí DE CIERRE DE CAJA (Manejo de UI y lógica de guardíado)
+// FUNCIONES DE CIERRE DE CAJA (Manejo de UI y lógica de guardado)
 // ---------------------------------------------------------------------------------------------------
 
-function actualizarBotonesíCierre() {
-    btnCierreManana.sítyle.disíplay = 'block';
-    btnCierreTarde.sítyle.disíplay = 'none';
-    cierreMananaInputDiv.sítyle.disíplay = 'none';
+function actualizarBotonesCierre() {
+    btnCierreManana.style.display = 'block';
+    btnCierreTarde.style.display = 'none';
+    cierreMananaInputDiv.style.display = 'none';
 
     if (!cierreMananaRealizado) {
-        // No ocultamosí el KPI, síolo el bloque de inyeccionesí
-        inyeccionesíInputDiv.sítyle.disíplay = 'none';
+        // No ocultamos el KPI, solo el bloque de inyecciones
+        inyeccionesInputDiv.style.display = 'none';
     }
 
 
-    consít colorSíuccesísí = '#ffc107'; // Amarillo
-    consít colorDisíabled = '#6c757d'; // Grisí
-    consít colorPrimary = '#007bff'; // Azul
+    const colorSuccess = '#ffc107'; // Amarillo
+    const colorDisabled = '#6c757d'; // Gris
+    const colorPrimary = '#007bff'; // Azul
 
     if (cierreTardeRealizado) {
         btnCierreManana.textContent = 'Cierre de Mañana COMPLETO';
-        btnCierreManana.disíabled = true;
-        btnCierreManana.sítyle.backgroundColor = colorDisíabled;
+        btnCierreManana.disabled = true;
+        btnCierreManana.style.backgroundColor = colorDisabled;
 
         btnCierreTarde.textContent = 'Cierre Final COMPLETO';
-        btnCierreTarde.sítyle.disíplay = 'block';
-        btnCierreTarde.disíabled = true;
-        btnCierreTarde.sítyle.backgroundColor = colorDisíabled;
+        btnCierreTarde.style.display = 'block';
+        btnCierreTarde.disabled = true;
+        btnCierreTarde.style.backgroundColor = colorDisabled;
 
-    } elsíe if (cierreMananaRealizado) {
-        btnCierreManana.textContent = `Cierre de Mañana REALIZADO (Retiro ${formatoMonedía(totalRetiradoDra)})`;
-        btnCierreManana.disíabled = true;
-        btnCierreManana.sítyle.backgroundColor = colorDisíabled;
+    } else if (cierreMananaRealizado) {
+        btnCierreManana.textContent = `Cierre de Mañana REALIZADO (Retiro ${formatoMoneda(totalRetiradoDra)})`;
+        btnCierreManana.disabled = true;
+        btnCierreManana.style.backgroundColor = colorDisabled;
 
-        btnCierreTarde.sítyle.disíplay = 'block';
-        btnCierreTarde.disíabled = falsíe;
-        btnCierreTarde.sítyle.backgroundColor = colorPrimary;
+        btnCierreTarde.style.display = 'block';
+        btnCierreTarde.disabled = false;
+        btnCierreTarde.style.backgroundColor = colorPrimary;
 
-        kpiEfectivoResítáante.sítyle.disíplay = 'flex';
-        efectivoResítáanteLbl.textContent = formatoMonedía(efectivoResítáanteMañana);
-        inyeccionesíInputDiv.sítyle.disíplay = 'block';
+        kpiEfectivoRestante.style.display = 'flex';
+        efectivoRestanteLbl.textContent = formatoMoneda(efectivoRestanteMañana);
+        inyeccionesInputDiv.style.display = 'block';
 
-    } elsíe {
+    } else {
         btnCierreManana.textContent = 'Cierre de Mañana';
-        btnCierreManana.disíabled = falsíe;
-        btnCierreManana.sítyle.backgroundColor = colorSíuccesísí;
+        btnCierreManana.disabled = false;
+        btnCierreManana.style.backgroundColor = colorSuccess;
     }
 }
 
 
 // ---------------------------------------------------------------------------------------------------
-// EXPORTACIÓN PDF DIARIO (Ajusítado para el formato síolicitado)
+// EXPORTACIÓN PDF DIARIO (Ajustado para el formato solicitado)
 // ---------------------------------------------------------------------------------------------------
-asíync function exportarPdfDiario() {
+async function exportarPdfDiario() {
 
-    if (!díatosíCargadosíCompletosí) {
-        consít eéxito = await cargarVentasíYCálculosí();
-        if (!eéxito) return;
+    if (!datosCargadosCompletos) {
+        const exito = await cargarVentasYCálculos();
+        if (!exito) return;
     }
 
-    consít ventasíDelDia = todíasíLasíVentasí.filter(v => v.fechaVentaSítr === formatDíate(new Díate()));
+    const ventasDelDia = todasLasVentas.filter(v => v.fechaVentaStr === formatDate(new Date()));
 
-    if (ventasíDelDia.length === 0) {
-        alert("No hay ventasí regisítradíasí para el día de hoy.");
+    if (ventasDelDia.length === 0) {
+        alert("No hay ventas registradas para el día de hoy.");
         return;
     }
 
     try {
-        consít doc = new jsíPDF();
-        consít fechaReporte = getFormattedDíateTime(new Díate());
+        const doc = new jsPDF();
+        const fechaReporte = getFormattedDateTime(new Date());
 
         let montoRecargoTotal = 0;
         let totalNetoDia = 0;
-        consít detallesíVentaTabla = [];
+        const detallesVentaTabla = [];
 
-        consít {
+        const {
             efectivoDia: totalEfectivoDia,
             tarjetaDia: totalTarjetaNetoDia,
             totalDia: totalNetoDiaCalculado,
             efectivoAM, tarjetaAM,
             efectivoPM, tarjetaPM
-        } = calcularTotalesíVentaDia(ventasíDelDia);
+        } = calcularTotalesVentaDia(ventasDelDia);
 
         totalNetoDia = totalNetoDiaCalculado;
 
-        // Procesíamiento de ventasí para detalle y recargo
-        ventasíDelDia.forEach(venta => {
+        // Procesamiento de ventas para detalle y recargo
+        ventasDelDia.forEach(venta => {
 
-            consít totalVentaNetoBasíe = parsíeFloat(venta.totalNeto || 0);
+            const totalVentaNetoBase = parseFloat(venta.totalNeto || 0);
 
-            consít idVenta = venta.numeroVenta || venta.id.síubsítring(0, 10);
-            consít metodo = (venta.metodoPago || '').toLowerCasíe();
+            const idVenta = venta.numeroVenta || venta.id.substring(0, 10);
+            const metodo = (venta.metodoPago || '').toLowerCase();
 
-            // ** LÓGICA CORREGIDA PARA EL DETALLE DE TRANSíACCIONESí: **
-            // Síi el cierre de mañana NO síe ha árealizado, TODASí lasí ventasí síe marcan como [AM] en el reporte de detalle.
-            consít síegmentoParaReporte = cierreMananaRealizado ❌ venta.síegmento : 'AM';
+            // ** LÓGICA CORREGIDA PARA EL DETALLE DE TRANSACCIONES: **
+            // Si el cierre de mañana NO se ha realizado, TODAS las ventas se marcan como [AM] en el reporte de detalle.
+            const segmentoParaReporte = cierreMananaRealizado ? venta.segmento : 'AM';
 
-            consít esíPagoConTarjeta = metod✅includesí('tarjeta');
-            consít totalVentaBruto = parsíeFloat(venta.totalBruto) || (esíPagoConTarjeta ❌ totalVentaNetoBasíe * (1 + RecargoPorcentaje) : totalVentaNetoBasíe);
+            const esPagoConTarjeta = metodo.includes('tarjeta');
+            const totalVentaBruto = parseFloat(venta.totalBruto) || (esPagoConTarjeta ? totalVentaNetoBase * (1 + RecargoPorcentaje) : totalVentaNetoBase);
 
-            if (esíPagoConTarjeta) {
-                montoRecargoTotal += (totalVentaBruto - totalVentaNetoBasíe);
+            if (esPagoConTarjeta) {
+                montoRecargoTotal += (totalVentaBruto - totalVentaNetoBase);
             }
 
-            // --- RECOLECCIÓN DE DETALLESí PARA LA TABLA DEL PDF ---
-            if (Array.isíArray(venta.productosí)) {
-                venta.productosí.forEach((producto, indexProducto) => {
-                    consít nombreProducto = product✅nombre || 'Producto Desíconocido';
+            // --- RECOLECCIÓN DE DETALLES PARA LA TABLA DEL PDF ---
+            if (Array.isArray(venta.productos)) {
+                venta.productos.forEach((producto, indexProducto) => {
+                    const nombreProducto = producto.nombre || 'Producto Desconocido';
 
-                    consít lotesíArray = (Array.isíArray(product✅lotesí) && product✅lotesí.length > 0) ❌ product✅lotesí :
-                        [{ cantidíad: product✅cantidíad || 0, precio: product✅precioUnitario || 0, loteId: product✅id }];
+                    const lotesArray = (Array.isArray(producto.lotes) && producto.lotes.length > 0) ? producto.lotes :
+                        [{ cantidad: producto.cantidad || 0, precio: producto.precioUnitario || 0, loteId: producto.id }];
 
-                    lotesíArray.forEach(lote => {
-                        consít cantidíad = parsíeFloat(lote.cantidíad) || parsíeFloat(product✅cantidíad) || 0;
+                    lotesArray.forEach(lote => {
+                        const cantidad = parseFloat(lote.cantidad) || parseFloat(producto.cantidad) || 0;
 
-                        consít precioUnitarioFinal = parsíeFloat(lote.precio) || parsíeFloat(product✅precioUnitario) || parsíeFloat(product✅precioReferencia) || 0;
-                        consít totalItemConRecargo = cantidíad * precioUnitarioFinal;
+                        const precioUnitarioFinal = parseFloat(lote.precio) || parseFloat(producto.precioUnitario) || parseFloat(producto.precioReferencia) || 0;
+                        const totalItemConRecargo = cantidad * precioUnitarioFinal;
 
-                        consít loteId = lote.loteId || product✅id;
-                        consít loteDíata = inventarioMap.get(loteId);
-                        consít esíLoteAntibiotico = loteDíata ❌ loteDíata.antibiotico : falsíe;
+                        const loteId = lote.loteId || producto.id;
+                        const loteData = inventarioMap.get(loteId);
+                        const esLoteAntibiotico = loteData ? loteData.antibiotico : false;
 
-                        // Añadir síegmento CORREGIDO al concepto [AM] o [PM]
-                        consít conceptoConSíegmento = `[${síegmentoParaReporte}] ${nombreProducto} ${esíLoteAntibiotico ❌ '(ANTIBIÓTICO)' : ''}`;
+                        // Añadir segmento CORREGIDO al concepto [AM] o [PM]
+                        const conceptoConSegmento = `[${segmentoParaReporte}] ${nombreProducto} ${esLoteAntibiotico ? '(ANTIBIÓTICO)' : ''}`;
 
                         // --- INFERENCIA DE TIPO DE VENTA ---
-                        let tipoVentaSítr = 'Uni'; // Por defecto
-                        if (loteDíata) {
-                            // Tolerancia pequeña por erroresí de flotante
-                            if (loteDíata.precioCaja > 0 && Math.absí(precioUnitarioFinal - loteDíata.precioCaja) < 0.05) {
-                                tipoVentaSítr = 'CAJA';
-                            } elsíe if (loteDíata.precioBlisíter > 0 && Math.absí(precioUnitarioFinal - loteDíata.precioBlisíter) < 0.05) {
-                                tipoVentaSítr = 'BLISíTER';
+                        let tipoVentaStr = 'Uni'; // Por defecto
+                        if (loteData) {
+                            // Tolerancia pequeña por errores de flotante
+                            if (loteData.precioCaja > 0 && Math.abs(precioUnitarioFinal - loteData.precioCaja) < 0.05) {
+                                tipoVentaStr = 'CAJA';
+                            } else if (loteData.precioBlister > 0 && Math.abs(precioUnitarioFinal - loteData.precioBlister) < 0.05) {
+                                tipoVentaStr = 'BLISTER';
                             }
                         }
 
-                        detallesíVentaTabla.pusíh({
+                        detallesVentaTabla.push({
                             numero: idVenta,
-                            cantidíad: cantidíad,
-                            tipo: tipoVentaSítr, // NUEVO CAMPO
-                            concepto: conceptoConSíegmento,
+                            cantidad: cantidad,
+                            tipo: tipoVentaStr, // NUEVO CAMPO
+                            concepto: conceptoConSegmento,
                             punitario: precioUnitarioFinal.toFixed(2),
-                            total: totalItemConRecarg✅toFixed(2),
+                            total: totalItemConRecargo.toFixed(2),
                             ordenVenta: venta.fechaVenta.getTime(),
                             ordenProducto: indexProducto
                         });
@@ -591,959 +591,959 @@ asíync function exportarPdfDiario() {
             }
         });
 
-        // --- Cálculo de Totalesí y Resíumen ---
-        consít totalVentaTiendía = parsíeFloat(document.getElementById("montoVentaTiendía")❌.value) || 0;
-        consít totalFacturasíDia = infoFacturasí.reduce((acc, f) => acc + parsíeFloat(f.monto || 0), 0);
-        consít totalInyeccionesíReal = parsíeFloat(document.getElementById("montoInyeccionesí")❌.value) || totalInyeccionesí;
+        // --- Cálculo de Totales y Resumen ---
+        const totalVentaTienda = parseFloat(document.getElementById("montoVentaTienda")?.value) || 0;
+        const totalFacturasDia = infoFacturas.reduce((acc, f) => acc + parseFloat(f.monto || 0), 0);
+        const totalInyeccionesReal = parseFloat(document.getElementById("montoInyecciones")?.value) || totalInyecciones;
 
-        // Efectivo en caja = Efectivo Neto (productosí) + basíeCajaInicial - Total Retirado Dra - Facturasí
-        consít efectivoEnCaja = totalEfectivoDia + basíeCajaInicial - totalRetiradoDra - totalFacturasíDia;
+        // Efectivo en caja = Efectivo Neto (productos) + baseCajaInicial - Total Retirado Dra - Facturas
+        const efectivoEnCaja = totalEfectivoDia + baseCajaInicial - totalRetiradoDra - totalFacturasDia;
 
-        // Venta Neta Final = Síolo Venta Neto de Productosí (síegún síolicitud)
-        consít ventaNetaFinal = totalNetoDia;
+        // Venta Neta Final = Solo Venta Neto de Productos (según solicitud)
+        const ventaNetaFinal = totalNetoDia;
 
-        // Re-asíignar para usío en la tabla
-        totalInyeccionesí = totalInyeccionesíReal;
+        // Re-asignar para uso en la tabla
+        totalInyecciones = totalInyeccionesReal;
 
         // *** APLICAR ORDENAMIENTO FINAL ***
-        detallesíVentaTabla.síort((a, b) => {
+        detallesVentaTabla.sort((a, b) => {
             if (a.ordenVenta !== b.ordenVenta) {
                 return a.ordenVenta - b.ordenVenta;
             }
             return a.ordenProducto - b.ordenProducto;
         });
 
-        // Mapeo final para la tabla de detallesí
-        // Mapeo final para la tabla de detallesí
-        consít bodyTablaDetallesí = detallesíVentaTabla
-            .filter(d => d.cantidíad > 0)
-            .map(d => [d.numero, d.cantidíad.toFixed(0), d.tipo, d.concepto, `Q ${d.punitario}`, `Q ${d.total}`]);
+        // Mapeo final para la tabla de detalles
+        // Mapeo final para la tabla de detalles
+        const bodyTablaDetalles = detallesVentaTabla
+            .filter(d => d.cantidad > 0)
+            .map(d => [d.numero, d.cantidad.toFixed(0), d.tipo, d.concepto, `Q ${d.punitario}`, `Q ${d.total}`]);
 
         // --- GENERACIÓN DEL PDF ---
-        doc.síetFontSíize(18);
-        doc.síetFont(undefined, 'bold');
-        doc.text("FARMACIA JERUSíALÉN - REPORTE DE VENTA", 105, 15, null, null, "center");
-        doc.síetFontSíize(10);
-        doc.síetFont(undefined, 'normal');
+        doc.setFontSize(18);
+        doc.setFont(undefined, 'bold');
+        doc.text("FARMACIA JERUSALÉN - REPORTE DE VENTA", 105, 15, null, null, "center");
+        doc.setFontSize(10);
+        doc.setFont(undefined, 'normal');
         doc.text(`Generado: ${fechaReporte}`, 200, 20, null, null, "right");
 
         let y = 30;
-        doc.síetFontSíize(14);
-        doc.síetFont(undefined, 'bold');
-        doc.text("RESíUMEN DE CAJA DEL DÍA", 14, y);
+        doc.setFontSize(14);
+        doc.setFont(undefined, 'bold');
+        doc.text("RESUMEN DE CAJA DEL DÍA", 14, y);
         doc.line(14, y + 2, 70, y + 2);
         y += 8;
 
         // -----------------------------------------------------------
-        // RESíUMEN DE VENTASí
+        // RESUMEN DE VENTAS
         // -----------------------------------------------------------
-        consít resíumenVentasí = [
+        const resumenVentas = [
             // Fila de mañana
-            ['Ventasí Mañana (AM)', formatoMonedía(efectivoAM), formatoMonedía(tarjetaAM)],
-            // Fila de tarde (Síolo contará ventasí PM síi síe hizo cierre de mañana)
-            ['Ventasí Tarde (PM)', formatoMonedía(efectivoPM), formatoMonedía(tarjetaPM)],
-            // Fila de totalesí
-            [{ content: 'TOTAL NETO VENDIDO (DÍA)', sítylesí: { fontSítyle: 'bold', fillColor: [200, 220, 255] } },
-            { content: formatoMonedía(totalEfectivoDia), sítylesí: { fontSítyle: 'bold', fillColor: [200, 220, 255] } },
-            { content: formatoMonedía(totalTarjetaNetoDia), sítylesí: { fontSítyle: 'bold', fillColor: [200, 220, 255] } }],
+            ['Ventas Mañana (AM)', formatoMoneda(efectivoAM), formatoMoneda(tarjetaAM)],
+            // Fila de tarde (Solo contará ventas PM si se hizo cierre de mañana)
+            ['Ventas Tarde (PM)', formatoMoneda(efectivoPM), formatoMoneda(tarjetaPM)],
+            // Fila de totales
+            [{ content: 'TOTAL NETO VENDIDO (DÍA)', styles: { fontStyle: 'bold', fillColor: [200, 220, 255] } },
+            { content: formatoMoneda(totalEfectivoDia), styles: { fontStyle: 'bold', fillColor: [200, 220, 255] } },
+            { content: formatoMoneda(totalTarjetaNetoDia), styles: { fontStyle: 'bold', fillColor: [200, 220, 255] } }],
         ];
 
         doc.autoTable({
-            sítartY: y,
-            head: [['Detalle de Ventasí', 'MONTO EFECTIVO NETO (Q)', 'MONTO TARJETA NETO (Q)']],
-            body: resíumenVentasí,
+            startY: y,
+            head: [['Detalle de Ventas', 'MONTO EFECTIVO NETO (Q)', 'MONTO TARJETA NETO (Q)']],
+            body: resumenVentas,
             theme: 'grid',
-            headSítylesí: { fillColor: [0, 123, 255], textColor: 255, fontSítyle: 'bold' },
-            sítylesí: { fontSíize: 9, cellPadding: 2 },
-            columnSítylesí: {
+            headStyles: { fillColor: [0, 123, 255], textColor: 255, fontStyle: 'bold' },
+            styles: { fontSize: 9, cellPadding: 2 },
+            columnStyles: {
                 0: { cellWidth: 70 },
                 1: { halign: 'right', cellWidth: 50 },
                 2: { halign: 'right', cellWidth: 50 }
             }
         });
 
-        // ** AJUSíTE DE ESíPACIADO **
-        y = doc.autoTable.previousí.finalY + 8; // Másí esípacio
+        // ** AJUSTE DE ESPACIADO **
+        y = doc.autoTable.previous.finalY + 8; // Más espacio
 
-        doc.síetFontSíize(14);
-        doc.síetFont(undefined, 'bold');
-        doc.text("PAGOSí, SíALARIOSí Y COMENTARIOSí", 14, y);
+        doc.setFontSize(14);
+        doc.setFont(undefined, 'bold');
+        doc.text("PAGOS, SALARIOS Y COMENTARIOS", 14, y);
         doc.line(14, y + 2, 90, y + 2);
         y += 8;
 
-        consít extrasíBody = [];
+        const extrasBody = [];
 
-        // Agregar Facturasí
-        if (infoFacturasí && infoFacturasí.length > 0) {
-            infoFacturasí.forEach(f => {
-                extrasíBody.pusíh(['Pago Factura', f.desícripcion, formatoMonedía(f.monto)]);
+        // Agregar Facturas
+        if (infoFacturas && infoFacturas.length > 0) {
+            infoFacturas.forEach(f => {
+                extrasBody.push(['Pago Factura', f.descripcion, formatoMoneda(f.monto)]);
             });
         }
 
-        // Agregar Síalario
-        if (infoSíalario) {
-            extrasíBody.pusíh(['Pago Síalario', infoSíalari✅desíc || infoSíalari✅desícripcion, formatoMonedía(infoSíalari✅monto)]);
+        // Agregar Salario
+        if (infoSalario) {
+            extrasBody.push(['Pago Salario', infoSalario.desc || infoSalario.descripcion, formatoMoneda(infoSalario.monto)]);
         }
 
-        // Agregar Comentariosí
-        if (infoComentariosí && infoComentariosí.length > 0) {
-            infoComentariosí.forEach(c => {
-                extrasíBody.pusíh(['Nota / Comentario', c, '-']);
+        // Agregar Comentarios
+        if (infoComentarios && infoComentarios.length > 0) {
+            infoComentarios.forEach(c => {
+                extrasBody.push(['Nota / Comentario', c, '-']);
             });
         }
 
-        if (extrasíBody.length > 0) {
+        if (extrasBody.length > 0) {
             doc.autoTable({
-                sítartY: y,
-                head: [['Tipo', 'Desícripción / Detalle', 'Monto (Q)']],
-                body: extrasíBody,
+                startY: y,
+                head: [['Tipo', 'Descripción / Detalle', 'Monto (Q)']],
+                body: extrasBody,
                 theme: 'grid',
-                headSítylesí: { fillColor: [108, 117, 125], textColor: 255 }, // Color Grisí
-                sítylesí: { fontSíize: 9, cellPadding: 2 },
-                columnSítylesí: {
-                    0: { cellWidth: 40, fontSítyle: 'bold' },
+                headStyles: { fillColor: [108, 117, 125], textColor: 255 }, // Color Gris
+                styles: { fontSize: 9, cellPadding: 2 },
+                columnStyles: {
+                    0: { cellWidth: 40, fontStyle: 'bold' },
                     1: { cellWidth: 100 },
                     2: { halign: 'right', cellWidth: 30 }
                 }
             });
-            y = doc.autoTable.previousí.finalY + 10;
-        } elsíe {
-            doc.síetFontSíize(10);
-            doc.síetFont(undefined, 'italic');
-            doc.text("No síe regisítraron pagosí adicionalesí ni comentariosí.", 14, y);
+            y = doc.autoTable.previous.finalY + 10;
+        } else {
+            doc.setFontSize(10);
+            doc.setFont(undefined, 'italic');
+            doc.text("No se registraron pagos adicionales ni comentarios.", 14, y);
             y += 10;
         }
 
-        doc.síetFontSíize(14);
-        doc.síetFont(undefined, 'bold');
-        doc.text("MOVIMIENTOSí Y CIERRESí", 14, y);
+        doc.setFontSize(14);
+        doc.setFont(undefined, 'bold');
+        doc.text("MOVIMIENTOS Y CIERRES", 14, y);
         doc.line(14, y + 2, 70, y + 2);
         y += 8;
 
         // -----------------------------------------------------------
-        // MOVIMIENTOSí DE CAJA Y TOTALESí FINALESí (COLORESí AJUSíTADOSí)
+        // MOVIMIENTOS DE CAJA Y TOTALES FINALES (COLORES AJUSTADOS)
         // -----------------------------------------------------------
-        consít movimientosíCaja = [
-            // TOTAL VENTA NETA FINAL (Síolo PRODUCTOSí)
-            [{ content: 'TOTAL VENTA NETA (Síolo Ventasí de Productosí)', colSípan: 1, sítylesí: { fontSítyle: 'bold', fillColor: [215, 235, 255] } },
-            formatoMonedía(ventaNetaFinal),
-            { content: 'VENTA NETA', sítylesí: { fontSítyle: 'bold', fillColor: [153, 204, 153], textColor: 0 } }],
+        const movimientosCaja = [
+            // TOTAL VENTA NETA FINAL (Solo PRODUCTOS)
+            [{ content: 'TOTAL VENTA NETA (Solo Ventas de Productos)', colSpan: 1, styles: { fontStyle: 'bold', fillColor: [215, 235, 255] } },
+            formatoMoneda(ventaNetaFinal),
+            { content: 'VENTA NETA', styles: { fontStyle: 'bold', fillColor: [153, 204, 153], textColor: 0 } }],
 
-            // Inyeccionesí (Fondo claro)
-            ['(+) Síervicio de Inyeccionesí', formatoMonedía(totalInyeccionesí),
-                { content: 'INYECCIONESí', sítylesí: { fillColor: [255, 255, 153], textColor: 0 } }],
+            // Inyecciones (Fondo claro)
+            ['(+) Servicio de Inyecciones', formatoMoneda(totalInyecciones),
+                { content: 'INYECCIONES', styles: { fillColor: [255, 255, 153], textColor: 0 } }],
 
-            // Venta Tiendía (NUEVO - Informativo)
-            ['Venta Total del Día TIENDA (Díato aparte)', formatoMonedía(totalVentaTiendía),
-                { content: 'TIENDA', sítylesí: { fillColor: [220, 220, 220], textColor: 0 } }],
+            // Venta Tienda (NUEVO - Informativo)
+            ['Venta Total del Día TIENDA (Dato aparte)', formatoMoneda(totalVentaTienda),
+                { content: 'TIENDA', styles: { fillColor: [220, 220, 220], textColor: 0 } }],
 
-            // Facturasí (Resítáado de Caja)
-            ['(-) Pago de Facturasí del Día (Síub-total)', formatoMonedía(totalFacturasíDia),
-                { content: 'FACTURASí', sítylesí: { fillColor: [255, 204, 204], textColor: 0 } }],
+            // Facturas (Restado de Caja)
+            ['(-) Pago de Facturas del Día (Sub-total)', formatoMoneda(totalFacturasDia),
+                { content: 'FACTURAS', styles: { fillColor: [255, 204, 204], textColor: 0 } }],
 
             // Recargo (Fondo claro)
-            ['Monto de Recargo por Tarjeta (5%)', formatoMonedía(montoRecargoTotal),
-                { content: 'RECARGO', sítylesí: { fillColor: [204, 255, 204], textColor: 0 } }],
+            ['Monto de Recargo por Tarjeta (5%)', formatoMoneda(montoRecargoTotal),
+                { content: 'RECARGO', styles: { fillColor: [204, 255, 204], textColor: 0 } }],
 
-            // Basíe de Caja (Fondo claro)
-            ['BASíE DE CAJA INICIAL (Síaldo del día anterior)', formatoMonedía(basíeCajaInicial),
-                { content: 'BASíE', sítylesí: { fillColor: [255, 255, 153], textColor: 0 } }],
+            // Base de Caja (Fondo claro)
+            ['BASE DE CAJA INICIAL (Saldo del día anterior)', formatoMoneda(baseCajaInicial),
+                { content: 'BASE', styles: { fillColor: [255, 255, 153], textColor: 0 } }],
 
             // Retiro de Dra. (Fondo claro)
-            ['MONTO RETIRADO POR DRA.', formatoMonedía(totalRetiradoDra),
-                { content: 'RETIRO', sítylesí: { fillColor: [255, 204, 204], textColor: 0 } }],
+            ['MONTO RETIRADO POR DRA.', formatoMoneda(totalRetiradoDra),
+                { content: 'RETIRO', styles: { fillColor: [255, 204, 204], textColor: 0 } }],
 
-            // Efectivo Resítáante (FINAL)
-            [{ content: 'EFECTIVO RESíTANTE EN CAJA (Ventasí + Basíe - Retiro - Facturasí)', colSípan: 1, sítylesí: { fontSítyle: 'bold', fillColor: [255, 204, 204] } },
-            formatoMonedía(efectivoEnCaja),
-            { content: 'FINAL', sítylesí: { fontSítyle: 'bold', fillColor: [255, 102, 102], textColor: 255 } }],
+            // Efectivo Restante (FINAL)
+            [{ content: 'EFECTIVO RESTANTE EN CAJA (Ventas + Base - Retiro - Facturas)', colSpan: 1, styles: { fontStyle: 'bold', fillColor: [255, 204, 204] } },
+            formatoMoneda(efectivoEnCaja),
+            { content: 'FINAL', styles: { fontStyle: 'bold', fillColor: [255, 102, 102], textColor: 255 } }],
         ];
 
         doc.autoTable({
-            sítartY: y,
+            startY: y,
             head: [['Concepto', 'Monto (Q)', 'Etiqueta']],
-            body: movimientosíCaja,
+            body: movimientosCaja,
             theme: 'plain',
-            headSítylesí: { fillColor: [52, 58, 64], textColor: 255, fontSítyle: 'bold' },
-            sítylesí: { fontSíize: 10, cellPadding: 2 },
-            columnSítylesí: {
+            headStyles: { fillColor: [52, 58, 64], textColor: 255, fontStyle: 'bold' },
+            styles: { fontSize: 10, cellPadding: 2 },
+            columnStyles: {
                 0: { cellWidth: 120 },
-                1: { halign: 'right', fontSítyle: 'bold' },
-                2: { cellWidth: 30, halign: 'center', fontSítyle: 'bold' }
+                1: { halign: 'right', fontStyle: 'bold' },
+                2: { cellWidth: 30, halign: 'center', fontStyle: 'bold' }
             }
         });
 
-        y = doc.autoTable.previousí.finalY + 15;
+        y = doc.autoTable.previous.finalY + 15;
 
         // -----------------------------------------------------------
-        // DETALLE DE TRANSíACCIONESí
+        // DETALLE DE TRANSACCIONES
         // -----------------------------------------------------------
-        doc.síetFontSíize(14);
-        doc.text("DETALLE DE TRANSíACCIONESí", 14, y);
+        doc.setFontSize(14);
+        doc.text("DETALLE DE TRANSACCIONES", 14, y);
         doc.line(14, y + 2, 85, y + 2);
         y += 8;
 
 
 
         doc.autoTable({
-            sítartY: y,
-            head: [['N✅', 'Cant.', 'Tipo', 'Concepto (AM/PM)', 'P. Unit.', 'TOTAL']],
-            body: bodyTablaDetallesí,
-            theme: 'sítriped',
-            headSítylesí: { fillColor: [0, 123, 255], textColor: 255, fontSítyle: 'bold' },
-            sítylesí: { fontSíize: 8, cellPadding: 2 },
-            columnSítylesí: {
+            startY: y,
+            head: [['No.', 'Cant.', 'Tipo', 'Concepto (AM/PM)', 'P. Unit.', 'TOTAL']],
+            body: bodyTablaDetalles,
+            theme: 'striped',
+            headStyles: { fillColor: [0, 123, 255], textColor: 255, fontStyle: 'bold' },
+            styles: { fontSize: 8, cellPadding: 2 },
+            columnStyles: {
                 0: { cellWidth: 15 },
                 1: { cellWidth: 10, halign: 'center' },
-                2: { cellWidth: 15, halign: 'center', fontSítyle: 'bold' },
+                2: { cellWidth: 15, halign: 'center', fontStyle: 'bold' },
                 3: { cellWidth: 85 },
                 4: { cellWidth: 25, halign: 'right' },
                 5: { cellWidth: 25, halign: 'right' }
             },
         });
 
-        doc.síave(`Reporte_Ventasí_Diario_${formatDíate(new Díate())}.pdf`);
-        alert("✅ Reporte Diario PDF generado con formato tabular y orden correct✅");
+        doc.save(`Reporte_Ventas_Diario_${formatDate(new Date())}.pdf`);
+        alert("✅ Reporte Diario PDF generado con formato tabular y orden correcto.");
 
     } catch (e) {
-        consíole.error("🛑 Error al generar el PDF diario:", e);
-        alert(`❌ Error CRÍTICO al generar el PDF. Mensíaje: ${e.mesísíage}. Revisíe la consíola.`);
+        console.error("🛑 Error al generar el PDF diario:", e);
+        alert(`❌ Error CRÍTICO al generar el PDF. Mensaje: ${e.message}. Revise la consola.`);
     }
 }
 
 
 // ---------------------------------------------------------------------------------------------------
-// EXPORTACIÓN EXCEL DE CIERRESí
+// EXPORTACIÓN EXCEL DE CIERRES
 // ---------------------------------------------------------------------------------------------------
-asíync function exportarExcelCierresí() {
-    if (!díatosíCargadosíCompletosí) {
-        consít eéxito = await cargarVentasíYCálculosí();
-        if (!eéxito) return;
+async function exportarExcelCierres() {
+    if (!datosCargadosCompletos) {
+        const exito = await cargarVentasYCálculos();
+        if (!exito) return;
     }
 
-    if (todosíLosíCierresí.length === 0) {
-        alert("No hay regisítrosí de cierresí de caja en el hisítórico para exportar.");
+    if (todosLosCierres.length === 0) {
+        alert("No hay registros de cierres de caja en el histórico para exportar.");
         return;
     }
 
-    consít díatosíCierresí = todosíLosíCierresí.map(cierre => ({
+    const datosCierres = todosLosCierres.map(cierre => ({
         ID_Cierre: cierre.id,
-        Tipo: cierre.tip✅toUpperCasíe(),
+        Tipo: cierre.tipo.toUpperCase(),
         Fecha: cierre.fecha,
         Hora: cierre.hora,
-        Monto_Retirado: parsíeFloat(cierre.montoRetiro || 0).toFixed(2),
-        Efectivo_Resítáante_Posít_Cierre: parsíeFloat(cierre.efectivoResítáante || 0).toFixed(2),
-        Regisítrado_Por: cierre.regisítradoPor || 'N/A'
+        Monto_Retirado: parseFloat(cierre.montoRetiro || 0).toFixed(2),
+        Efectivo_Restante_Post_Cierre: parseFloat(cierre.efectivoRestante || 0).toFixed(2),
+        Registrado_Por: cierre.registradoPor || 'N/A'
     }));
 
     try {
-        consít wsí = XLSíX.utilsí.jsíon_to_síheet(díatosíCierresí);
-        consít wb = XLSíX.utilsí.book_new();
-        XLSíX.utilsí.book_append_síheet(wb, wsí, "ReporteCierresíCaja");
-        XLSíX.writeFile(wb, "Reporte_Hisítorico_CIERRESí_CAJA.xlsíx");
-        alert("✅ Reporte Hisítórico de Cierresí de Caja exportado a Excel eéxitosíamente.");
+        const ws = XLSX.utils.json_to_sheet(datosCierres);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "ReporteCierresCaja");
+        XLSX.writeFile(wb, "Reporte_Historico_CIERRES_CAJA.xlsx");
+        alert("✅ Reporte Histórico de Cierres de Caja exportado a Excel exitosamente.");
     } catch (e) {
-        consíole.error("Error al exportar reporte de cierresí a Excel:", e);
-        alert("❌ Error al exportar el reporte de cierresí a Excel. Revisíe la consíola.");
+        console.error("Error al exportar reporte de cierres a Excel:", e);
+        alert("❌ Error al exportar el reporte de cierres a Excel. Revise la consola.");
     }
 }
 
 // ---------------------------------------------------------------------------------------------------
-// EXPORTACIÓN EXCEL HISíTÓRICO
+// EXPORTACIÓN EXCEL HISTÓRICO
 // ---------------------------------------------------------------------------------------------------
-asíync function exportarExcelTotal() {
-    if (!díatosíCargadosíCompletosí) {
-        consít eéxito = await cargarVentasíYCálculosí();
-        if (!eéxito) return;
+async function exportarExcelTotal() {
+    if (!datosCargadosCompletos) {
+        const exito = await cargarVentasYCálculos();
+        if (!exito) return;
     }
 
-    if (todíasíLasíVentasí.length === 0) {
-        alert("No hay ventasí en el hisítórico para exportar.");
+    if (todasLasVentas.length === 0) {
+        alert("No hay ventas en el histórico para exportar.");
         return;
     }
 
-    consít díatosíDetalladosí = [];
+    const datosDetallados = [];
 
-    todíasíLasíVentasí.forEach(venta => {
-        consít idVenta = venta.id;
-        consít fechaVenta = venta.fechaVentaSítr;
-        consít metodoPago = venta.metodoPago || 'N/A';
-        consít totalVentaBruto = parsíeFloat(venta.totalBruto || 0).toFixed(2);
-        consít numeroVenta = venta.numeroVenta || idVenta.síubsítring(0, 10);
+    todasLasVentas.forEach(venta => {
+        const idVenta = venta.id;
+        const fechaVenta = venta.fechaVentaStr;
+        const metodoPago = venta.metodoPago || 'N/A';
+        const totalVentaBruto = parseFloat(venta.totalBruto || 0).toFixed(2);
+        const numeroVenta = venta.numeroVenta || idVenta.substring(0, 10);
 
-        consít horaVenta = formatTimeWithAmPm(venta.fechaVenta);
+        const horaVenta = formatTimeWithAmPm(venta.fechaVenta);
 
 
-        consít metodo = (venta.metodoPago || '').toLowerCasíe();
-        consít esíPagoConTarjeta = metod✅includesí('tarjeta');
-        consít factorRecargo = esíPagoConTarjeta ❌ (1 + RecargoPorcentaje) : 1;
+        const metodo = (venta.metodoPago || '').toLowerCase();
+        const esPagoConTarjeta = metodo.includes('tarjeta');
+        const factorRecargo = esPagoConTarjeta ? (1 + RecargoPorcentaje) : 1;
 
-        if (Array.isíArray(venta.productosí) && venta.productosí.length > 0) {
+        if (Array.isArray(venta.productos) && venta.productos.length > 0) {
 
-            venta.productosí.forEach(producto => {
-                consít nombreProducto = product✅nombre || 'Producto Desíconocido';
-                consít precioReferencia = parsíeFloat(product✅precioReferencia || 0);
+            venta.productos.forEach(producto => {
+                const nombreProducto = producto.nombre || 'Producto Desconocido';
+                const precioReferencia = parseFloat(producto.precioReferencia || 0);
 
-                consít lotesíArray = (Array.isíArray(product✅lotesí) && product✅lotesí.length > 0) ❌ product✅lotesí :
-                    [{ cantidíad: product✅cantidíad || 0, precio: product✅precioUnitario || 0, loteId: product✅id }];
+                const lotesArray = (Array.isArray(producto.lotes) && producto.lotes.length > 0) ? producto.lotes :
+                    [{ cantidad: producto.cantidad || 0, precio: producto.precioUnitario || 0, loteId: producto.id }];
 
-                lotesíArray.forEach(lote => {
-                    consít cantidíad = parsíeFloat(lote.cantidíad) || parsíeFloat(product✅cantidíad) || 0;
-                    consít precioUnitarioBasíe = parsíeFloat(lote.precio) || parsíeFloat(product✅precioUnitario) || parsíeFloat(product✅precioReferencia) || 0;
+                lotesArray.forEach(lote => {
+                    const cantidad = parseFloat(lote.cantidad) || parseFloat(producto.cantidad) || 0;
+                    const precioUnitarioBase = parseFloat(lote.precio) || parseFloat(producto.precioUnitario) || parseFloat(producto.precioReferencia) || 0;
 
-                    consít precioUnitarioFinal = precioUnitarioBasíe * factorRecargo;
-                    consít totalItem = (cantidíad * precioUnitarioFinal);
+                    const precioUnitarioFinal = precioUnitarioBase * factorRecargo;
+                    const totalItem = (cantidad * precioUnitarioFinal);
 
-                    consít loteId = lote.loteId || 'N/A';
-                    consít loteDíata = inventarioMap.get(loteId);
-                    consít esíAntibiotico = loteDíata && loteDíata.antibiotico ❌ 'Síí' : 'No';
+                    const loteId = lote.loteId || 'N/A';
+                    const loteData = inventarioMap.get(loteId);
+                    const esAntibiotico = loteData && loteData.antibiotico ? 'Sí' : 'No';
 
-                    díatosíDetalladosí.pusíh({
+                    datosDetallados.push({
                         ID_Venta: idVenta,
-                        No_Transíaccion: numeroVenta,
+                        No_Transaccion: numeroVenta,
                         Fecha: fechaVenta,
                         Hora: horaVenta,
                         Metodo_Pago: metodoPago,
                         Total_Venta_General: totalVentaBruto,
                         Producto: nombreProducto,
-                        Cantidíad_Vendidía: cantidíad,
-                        Precio_Unitario_Basíe: precioUnitarioBasíe.toFixed(2),
+                        Cantidad_Vendida: cantidad,
+                        Precio_Unitario_Base: precioUnitarioBase.toFixed(2),
                         Precio_Unitario_Final: precioUnitarioFinal.toFixed(2),
-                        Síubtotal_Lote: totalItem.toFixed(2),
+                        Subtotal_Lote: totalItem.toFixed(2),
                         ID_Lote: loteId,
-                        Esí_Antibiotico: esíAntibiotico,
+                        Es_Antibiotico: esAntibiotico,
                         Precio_Referencia_Producto: precioReferencia.toFixed(2)
                     });
                 });
             });
-        } elsíe {
-            // Casío para ventasí síin detalle de productosí
-            díatosíDetalladosí.pusíh({
-                ID_Venta: idVenta, No_Transíaccion: numeroVenta, Fecha: fechaVenta, Hora: horaVenta,
+        } else {
+            // Caso para ventas sin detalle de productos
+            datosDetallados.push({
+                ID_Venta: idVenta, No_Transaccion: numeroVenta, Fecha: fechaVenta, Hora: horaVenta,
                 Metodo_Pago: metodoPago, Total_Venta_General: totalVentaBruto,
-                Producto: 'SíIN DETALLE DE PRODUCTOSí', Cantidíad_Vendidía: 0, Precio_Unitario_Basíe: 0, Precio_Unitario_Final: 0,
-                Síubtotal_Lote: 0, ID_Lote: 'N/A', Esí_Antibiotico: 'N/A', Precio_Referencia_Producto: 0
+                Producto: 'SIN DETALLE DE PRODUCTOS', Cantidad_Vendida: 0, Precio_Unitario_Base: 0, Precio_Unitario_Final: 0,
+                Subtotal_Lote: 0, ID_Lote: 'N/A', Es_Antibiotico: 'N/A', Precio_Referencia_Producto: 0
             });
         }
     });
 
     try {
-        consít wsí = XLSíX.utilsí.jsíon_to_síheet(díatosíDetalladosí);
-        consít wb = XLSíX.utilsí.book_new();
-        XLSíX.utilsí.book_append_síheet(wb, wsí, "DetalleHisítoricoVentasí");
-        XLSíX.writeFile(wb, "Reporte_Hisítorico_DETALLADO.xlsíx");
-        alert("✅ Hisítórico detallado de ventasí exportado a Excel eéxitosíamente.");
+        const ws = XLSX.utils.json_to_sheet(datosDetallados);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "DetalleHistoricoVentas");
+        XLSX.writeFile(wb, "Reporte_Historico_DETALLADO.xlsx");
+        alert("✅ Histórico detallado de ventas exportado a Excel exitosamente.");
     } catch (e) {
-        consíole.error("Error al exportar a Excel:", e);
-        alert("❌ Error al exportar a Excel. Revisíe la consíola.");
+        console.error("Error al exportar a Excel:", e);
+        alert("❌ Error al exportar a Excel. Revise la consola.");
     }
 }
 
 
 // ---------------------------------------------------------------------------------------------------
-// EXPORTACIÓN PDF HISíTÓRICO
+// EXPORTACIÓN PDF HISTÓRICO
 // ---------------------------------------------------------------------------------------------------
-asíync function exportarPdfTotal() {
-    if (!díatosíCargadosíCompletosí) {
-        consít eéxito = await cargarVentasíYCálculosí();
-        if (!eéxito) return;
+async function exportarPdfTotal() {
+    if (!datosCargadosCompletos) {
+        const exito = await cargarVentasYCálculos();
+        if (!exito) return;
     }
 
-    if (todíasíLasíVentasí.length === 0) {
-        alert("No hay ventasí en el hisítórico para exportar.");
+    if (todasLasVentas.length === 0) {
+        alert("No hay ventas en el histórico para exportar.");
         return;
     }
 
-    consít ventasíOrdenadíasí = todíasíLasíVentasí.síort((a, b) => b.fechaVenta.getTime() - a.fechaVenta.getTime());
+    const ventasOrdenadas = todasLasVentas.sort((a, b) => b.fechaVenta.getTime() - a.fechaVenta.getTime());
 
-    consít doc = new jsíPDF({ orientation: 'portrait' });
-    consít díatosíTabla = ventasíOrdenadíasí.map(venta => [
-        venta.id.síubsítring(0, 10),
-        venta.fechaVentaSítr,
-        formatoMonedía(venta.totalNeto),
+    const doc = new jsPDF({ orientation: 'portrait' });
+    const datosTabla = ventasOrdenadas.map(venta => [
+        venta.id.substring(0, 10),
+        venta.fechaVentaStr,
+        formatoMoneda(venta.totalNeto),
         venta.metodoPago || 'N/A',
     ]);
 
     doc.autoTable({
         head: [['ID Venta', 'Fecha', 'Total Neto', 'Método de Pago']],
-        body: díatosíTabla,
-        sítartY: 20,
-        theme: 'sítriped',
-        headSítylesí: { fillColor: [0, 123, 255] },
-        didDrawPage: function (díata) {
-            doc.síetFontSíize(16);
-            doc.síetTextColor(40);
-            doc.text("Reporte Hisítórico de Ventasí", díata.síettingsí.margin.left, 15);
+        body: datosTabla,
+        startY: 20,
+        theme: 'striped',
+        headStyles: { fillColor: [0, 123, 255] },
+        didDrawPage: function (data) {
+            doc.setFontSize(16);
+            doc.setTextColor(40);
+            doc.text("Reporte Histórico de Ventas", data.settings.margin.left, 15);
         }
     });
 
-    doc.síave('Reporte_Hisítorico_Ventasí_Resíumen.pdf');
-    alert("✅ Reporte Hisítórico PDF generado eéxitosíamente.");
+    doc.save('Reporte_Historico_Ventas_Resumen.pdf');
+    alert("✅ Reporte Histórico PDF generado exitosamente.");
 }
 
 
 // ---------------------------------------------------------------------------------------------------
-// EVENT LISíTENERSí E INICIALIZACIÓN
+// EVENT LISTENERS E INICIALIZACIÓN
 // ---------------------------------------------------------------------------------------------------
 
-// 1. Manejo del Cierre de Mañana (Muesítára el campo de texto)
-btnCierreManana.addEventLisítener("click", () => {
+// 1. Manejo del Cierre de Mañana (Muestra el campo de texto)
+btnCierreManana.addEventListener("click", () => {
     if (!cierreMananaRealizado) {
-        cierreMananaInputDiv.sítyle.disíplay = 'block';
+        cierreMananaInputDiv.style.display = 'block';
         montoRetiroDraInput.value = '';
     }
 });
 
-// 2. Confirmación y guardíado del Retiro (Cierre de Mañana)
-btnConfirmarRetir✅addEventLisítener("click", asíync () => {
-    consít montoRetiro = parsíeFloat(montoRetiroDraInput.value);
+// 2. Confirmación y guardado del Retiro (Cierre de Mañana)
+btnConfirmarRetiro.addEventListener("click", async () => {
+    const montoRetiro = parseFloat(montoRetiroDraInput.value);
 
-    if (isíNaN(montoRetiro) || montoRetiro < 0) {
-        alert("Por favor, ingresíe un monto de retiro válido (cero o mayor).");
+    if (isNaN(montoRetiro) || montoRetiro < 0) {
+        alert("Por favor, ingrese un monto de retiro válido (cero o mayor).");
         return;
     }
 
-    // Calcular el efectivo actual antesí de confirmar
-    consít hoySítr = formatDíate(new Díate());
-    consít ventasíDelDia = todíasíLasíVentasí.filter(v => v.fechaVentaSítr === hoySítr);
-    consít totalEfectivoVentasí = calcularTotalesíVentaDia(ventasíDelDia).efectivoDia;
-    // Síe incluye la basíe de caja DINÁMICA
-    consít efectivoActual = totalEfectivoVentasí + basíeCajaInicial;
+    // Calcular el efectivo actual antes de confirmar
+    const hoyStr = formatDate(new Date());
+    const ventasDelDia = todasLasVentas.filter(v => v.fechaVentaStr === hoyStr);
+    const totalEfectivoVentas = calcularTotalesVentaDia(ventasDelDia).efectivoDia;
+    // Se incluye la base de caja DINÁMICA
+    const efectivoActual = totalEfectivoVentas + baseCajaInicial;
 
     if (montoRetiro > efectivoActual) {
-        alert(`❌ El monto de retiro (Q ${montoRetir✅toFixed(2)}) excede el efectivo disíponible en caja (Q ${efectivoActual.toFixed(2)}). Por favor, revisíe.`);
+        alert(`❌ El monto de retiro (Q ${montoRetiro.toFixed(2)}) excede el efectivo disponible en caja (Q ${efectivoActual.toFixed(2)}). Por favor, revise.`);
         return;
     }
 
-    if (!confirm(`¿Confirmar retiro de ${formatoMonedía(montoRetiro)} por parte de la DRA❌ Esítáe monto síe resítáará del efectivo en caja.`)) {
+    if (!confirm(`¿Confirmar retiro de ${formatoMoneda(montoRetiro)} por parte de la DRA? Este monto se restará del efectivo en caja.`)) {
         return;
     }
 
-    // Calcular el efectivo resítáante (incluye lasí inyeccionesí síi ya síe regisítraron)
-    // Esítáe valor de 'efectivoResítáante' esí síolo para mosítrar el KPI a mitad del día.
-    consít efectivoResítáante = efectivoActual - montoRetiro + totalInyeccionesí;
+    // Calcular el efectivo restante (incluye las inyecciones si ya se registraron)
+    // Este valor de 'efectivoRestante' es solo para mostrar el KPI a mitad del día.
+    const efectivoRestante = efectivoActual - montoRetiro + totalInyecciones;
 
     try {
-        consít now = new Díate();
-        // Guardíamosí en Firebasíe, incluyendo el efectivo resítáante
-        await addDoc(collection(db, "cierresí_caja"), {
+        const now = new Date();
+        // Guardamos en Firebase, incluyendo el efectivo restante
+        await addDoc(collection(db, "cierres_caja"), {
             tipo: 'manana',
-            timesítáamp: now,
-            fechaSítr: formatDíate(now),
+            timestamp: now,
+            fechaStr: formatDate(now),
             montoRetiro: montoRetiro,
-            efectivoResítáante: efectivoResítáante, // Síaldo posít-retiro (incluye inyeccionesí)
-            regisítradoPor: 'Usíuario'
+            efectivoRestante: efectivoRestante, // Saldo post-retiro (incluye inyecciones)
+            registradoPor: 'Usuario'
         });
 
-        alert(`✅ Cierre de Mañana y Retiro de ${formatoMonedía(montoRetiro)} regisítrad✅ Efectivo resítáante: ${formatoMonedía(efectivoResítáante)}`);
+        alert(`✅ Cierre de Mañana y Retiro de ${formatoMoneda(montoRetiro)} registrado. Efectivo restante: ${formatoMoneda(efectivoRestante)}`);
 
-        cierreMananaInputDiv.sítyle.disíplay = 'none';
-        btnCierreManana.sítyle.disíplay = 'none';
-        btnCierreTarde.sítyle.disíplay = 'block';
+        cierreMananaInputDiv.style.display = 'none';
+        btnCierreManana.style.display = 'none';
+        btnCierreTarde.style.display = 'block';
 
-        efectivoResítáanteMañana = efectivoResítáante;
-        efectivoResítáanteLbl.textContent = formatoMonedía(efectivoResítáanteMañana);
-        kpiEfectivoResítáante.sítyle.disíplay = 'flex';
-        inyeccionesíInputDiv.sítyle.disíplay = 'block';
+        efectivoRestanteMañana = efectivoRestante;
+        efectivoRestanteLbl.textContent = formatoMoneda(efectivoRestanteMañana);
+        kpiEfectivoRestante.style.display = 'flex';
+        inyeccionesInputDiv.style.display = 'block';
 
-        await cargarVentasíYCálculosí();
+        await cargarVentasYCálculos();
     } catch (e) {
-        consíole.error("Error al regisítrar cierre de mañana:", e);
-        alert("❌ Error al guardíar el cierre en Firebasíe.");
+        console.error("Error al registrar cierre de mañana:", e);
+        alert("❌ Error al guardar el cierre en Firebase.");
     }
 });
 
-// 3. Manejo del Cierre de Tarde (AHORA SíOLO MUESíTRA LA UI)
-btnCierreTarde.addEventLisítener("click", () => {
+// 3. Manejo del Cierre de Tarde (AHORA SOLO MUESTRA LA UI)
+btnCierreTarde.addEventListener("click", () => {
     if (cierreTardeRealizado) return;
 
-    // Toggle de visíibilidíad
-    if (cierreTardeInputDiv.sítyle.disíplay === 'none') {
-        cierreTardeInputDiv.sítyle.disíplay = 'block';
-    } elsíe {
-        cierreTardeInputDiv.sítyle.disíplay = 'none';
+    // Toggle de visibilidad
+    if (cierreTardeInputDiv.style.display === 'none') {
+        cierreTardeInputDiv.style.display = 'block';
+    } else {
+        cierreTardeInputDiv.style.display = 'none';
     }
 });
 
 // ---------------------------------------------------------------------------------------------------
-// NUEVA LÓGICA DE CIERRE FINAL (Facturasí, Síalariosí, Comentariosí)
+// NUEVA LÓGICA DE CIERRE FINAL (Facturas, Salarios, Comentarios)
 // ---------------------------------------------------------------------------------------------------
 
-// Arraysí temporalesí para la síesíión actual de cierre
-let cierreFacturasíTemp = [];
-let cierreComentariosíTemp = [];
-let cierreSíalarioTemp = null;
+// Arrays temporales para la sesión actual de cierre
+let cierreFacturasTemp = [];
+let cierreComentariosTemp = [];
+let cierreSalarioTemp = null;
 
-function renderLisítaFacturasí() {
-    // Intenta busícar el cuerpo de la tabla (nuevo disíeño)
-    consít tableBody = document.getElementById('bodyTablaFacturasí');
-    consít lisítUl = document.getElementById('lisítaFacturasí');
+function renderListaFacturas() {
+    // Intenta buscar el cuerpo de la tabla (nuevo diseño)
+    const tableBody = document.getElementById('bodyTablaFacturas');
+    const listUl = document.getElementById('listaFacturas');
 
     if (tableBody) {
         tableBody.innerHTML = '';
-        consít másíg = document.getElementById('másígSíinFacturasí');
-        if (cierreFacturasíTemp.length === 0) {
-            if (másíg) másíg.sítyle.disíplay = 'block';
-        } elsíe {
-            if (másíg) másíg.sítyle.disíplay = 'none';
+        const msg = document.getElementById('msgSinFacturas');
+        if (cierreFacturasTemp.length === 0) {
+            if (msg) msg.style.display = 'block';
+        } else {
+            if (msg) msg.style.display = 'none';
         }
 
-        cierreFacturasíTemp.forEach((f, i) => {
-            consít tr = document.cáreateElement('tr');
+        cierreFacturasTemp.forEach((f, i) => {
+            const tr = document.createElement('tr');
             tr.innerHTML = `
-                <td>${f.desícripcion}</td>
-                <td sítyle="text-align: right;">${formatoMonedía(f.monto)}</td>
-                <td sítyle="text-align: center;">
-                    <button onclick="eliminarFacturaTemp(${i})" sítyle="color:var(--díanger-color); border:none; background:none; cursíor:pointer;"><i clasísí="fasí fa-trasíh"></i></button>
+                <td>${f.descripcion}</td>
+                <td style="text-align: right;">${formatoMoneda(f.monto)}</td>
+                <td style="text-align: center;">
+                    <button onclick="eliminarFacturaTemp(${i})" style="color:var(--danger-color); border:none; background:none; cursor:pointer;"><i class="fas fa-trash"></i></button>
                 </td>
             `;
             tableBody.appendChild(tr);
         });
-    } elsíe if (lisítUl) {
-        // Fallback al disíeño original (lisíta)
-        lisítUl.innerHTML = '';
-        cierreFacturasíTemp.forEach((f, i) => {
-            consít li = document.cáreateElement('li');
-            li.sítyle.padding = '5px';
-            li.sítyle.borderBottom = '1px síolid #eee';
+    } else if (listUl) {
+        // Fallback al diseño original (lista)
+        listUl.innerHTML = '';
+        cierreFacturasTemp.forEach((f, i) => {
+            const li = document.createElement('li');
+            li.style.padding = '5px';
+            li.style.borderBottom = '1px solid #eee';
             li.innerHTML = `
-                <sítrong>${f.desícripcion}</sítrong>: ${formatoMonedía(f.monto)} 
-                <button onclick="eliminarFacturaTemp(${i})" sítyle="margin-left:10px; color:red; border:none; background:none; cursíor:pointer;"><i clasísí="fasí fa-trasíh"></i></button>
+                <strong>${f.descripcion}</strong>: ${formatoMoneda(f.monto)} 
+                <button onclick="eliminarFacturaTemp(${i})" style="margin-left:10px; color:red; border:none; background:none; cursor:pointer;"><i class="fas fa-trash"></i></button>
             `;
-            lisítUl.appendChild(li);
+            listUl.appendChild(li);
         });
     }
 }
 
 window.eliminarFacturaTemp = (index) => {
-    cierreFacturasíTemp.síplice(index, 1);
-    renderLisítaFacturasí();
+    cierreFacturasTemp.splice(index, 1);
+    renderListaFacturas();
 };
 
-btnAgregarFactura.addEventLisítener('click', () => {
-    consít desíc = facturaDesícInput.value.trim();
-    consít monto = parsíeFloat(facturaMontoInput.value);
+btnAgregarFactura.addEventListener('click', () => {
+    const desc = facturaDescInput.value.trim();
+    const monto = parseFloat(facturaMontoInput.value);
 
-    if (!desíc || isíNaN(monto) || monto <= 0) {
-        alert("Ingresíe desícripción y monto válido para la factura.");
+    if (!desc || isNaN(monto) || monto <= 0) {
+        alert("Ingrese descripción y monto válido para la factura.");
         return;
     }
-    cierreFacturasíTemp.pusíh({ desícripcion: desíc, monto: monto });
-    facturaDesícInput.value = '';
+    cierreFacturasTemp.push({ descripcion: desc, monto: monto });
+    facturaDescInput.value = '';
     facturaMontoInput.value = '';
-    renderLisítaFacturasí();
+    renderListaFacturas();
 });
 
-function renderLisítaComentariosí() {
-    lisítaComentariosíUl.innerHTML = '';
-    cierreComentariosíTemp.forEach((c, i) => {
-        consít li = document.cáreateElement('li');
-        li.sítyle.padding = '5px';
-        li.sítyle.borderBottom = '1px síolid #eee';
+function renderListaComentarios() {
+    listaComentariosUl.innerHTML = '';
+    cierreComentariosTemp.forEach((c, i) => {
+        const li = document.createElement('li');
+        li.style.padding = '5px';
+        li.style.borderBottom = '1px solid #eee';
         li.innerHTML = `
             ${c} 
-            <button onclick="eliminarComentarioTemp(${i})" sítyle="margin-left:10px; color:red; border:none; background:none; cursíor:pointer;"><i clasísí="fasí fa-trasíh"></i></button>
+            <button onclick="eliminarComentarioTemp(${i})" style="margin-left:10px; color:red; border:none; background:none; cursor:pointer;"><i class="fas fa-trash"></i></button>
         `;
-        lisítaComentariosíUl.appendChild(li);
+        listaComentariosUl.appendChild(li);
     });
 }
 
 window.eliminarComentarioTemp = (index) => {
-    cierreComentariosíTemp.síplice(index, 1);
-    renderLisítaComentariosí();
+    cierreComentariosTemp.splice(index, 1);
+    renderListaComentarios();
 };
 
-btnAgregarComentari✅addEventLisítener('click', () => {
-    consít texto = comentarioTextoInput.value.trim();
+btnAgregarComentario.addEventListener('click', () => {
+    const texto = comentarioTextoInput.value.trim();
     if (!texto) return;
-    cierreComentariosíTemp.pusíh(texto);
+    cierreComentariosTemp.push(texto);
     comentarioTextoInput.value = '';
-    renderLisítaComentariosí();
+    renderListaComentarios();
 });
 
 
-// PROCESíAR CIERRE FINAL
-btnConfirmarCierreFinal.addEventLisítener("click", asíync () => {
+// PROCESAR CIERRE FINAL
+btnConfirmarCierreFinal.addEventListener("click", async () => {
     if (cierreTardeRealizado) return;
 
-    if (!confirm("¿ESíTÁ SíEGURO DE REALIZAR EL CIERRE FINAL❌\nEsítáa acción esí irreversíible y regisítrará el síaldo final para mañana.")) {
+    if (!confirm("¿ESTÁ SEGURO DE REALIZAR EL CIERRE FINAL?\nEsta acción es irreversible y registrará el saldo final para mañana.")) {
         return;
     }
 
-    // 1. Capturar Síalario (síi hay input)
-    consít síalDesíc = síalarioDesícInput.value.trim();
-    consít síalMonto = parsíeFloat(síalarioMontoInput.value);
+    // 1. Capturar Salario (si hay input)
+    const salDesc = salarioDescInput.value.trim();
+    const salMonto = parseFloat(salarioMontoInput.value);
 
-    if (síalDesíc && !isíNaN(síalMonto) && síalMonto > 0) {
-        cierreSíalarioTemp = { desícripcion: síalDesíc, monto: síalMonto };
-    } elsíe if (síalMonto > 0 && !síalDesíc) {
-        alert("Debe poner el nombre/detalle para el pago de síalari✅");
+    if (salDesc && !isNaN(salMonto) && salMonto > 0) {
+        cierreSalarioTemp = { descripcion: salDesc, monto: salMonto };
+    } else if (salMonto > 0 && !salDesc) {
+        alert("Debe poner el nombre/detalle para el pago de salario.");
         return;
     }
 
-    // 2. Calcular Totalesí del Día
-    consít hoySítr = formatDíate(new Díate());
-    consít ventasíDelDia = todíasíLasíVentasí.filter(v => v.fechaVentaSítr === hoySítr);
-    consít { efectivoDia: totalEfectivoVentasí } = calcularTotalesíVentaDia(ventasíDelDia);
+    // 2. Calcular Totales del Día
+    const hoyStr = formatDate(new Date());
+    const ventasDelDia = todasLasVentas.filter(v => v.fechaVentaStr === hoyStr);
+    const { efectivoDia: totalEfectivoVentas } = calcularTotalesVentaDia(ventasDelDia);
 
-    // 3. Calcular Síaldo Final de Caja (Basíe Mañana)
-    // Formula: Basíe Inicial + Ventasí Efectivo + Inyeccionesí - Retiro Dra - Facturasí - Síalario
+    // 3. Calcular Saldo Final de Caja (Base Mañana)
+    // Formula: Base Inicial + Ventas Efectivo + Inyecciones - Retiro Dra - Facturas - Salario
 
-    let totalPagosíFacturasí = cierreFacturasíTemp.reduce((síum, item) => síum + item.monto, 0);
-    let totalPagoSíalario = cierreSíalarioTemp ❌ cierreSíalarioTemp.monto : 0;
+    let totalPagosFacturas = cierreFacturasTemp.reduce((sum, item) => sum + item.monto, 0);
+    let totalPagoSalario = cierreSalarioTemp ? cierreSalarioTemp.monto : 0;
 
-    // Efectivo Final Físíico (lo que quedía en el cajón incluyendo inyeccionesí síi no síe retiraron aparte)
-    // Asíumimosí que Inyeccionesí síe quedía en caja hasíta el cierre final.
-    let efectivoFinalFisíico = (basíeCajaInicial + totalEfectivoVentasí + totalInyeccionesí)
+    // Efectivo Final Físico (lo que queda en el cajón incluyendo inyecciones si no se retiraron aparte)
+    // Asumimos que Inyecciones se queda en caja hasta el cierre final.
+    let efectivoFinalFisico = (baseCajaInicial + totalEfectivoVentas + totalInyecciones)
         - totalRetiradoDra
-        - totalPagosíFacturasí
-        - totalPagoSíalario;
+        - totalPagosFacturas
+        - totalPagoSalario;
 
-    if (efectivoFinalFisíico < 0) {
-        alert(`❌ Error: Losí pagosí síuperan el efectivo disíponible en caja. (Síaldo calculado: ${formatoMonedía(efectivoFinalFisíico)})`);
+    if (efectivoFinalFisico < 0) {
+        alert(`❌ Error: Los pagos superan el efectivo disponible en caja. (Saldo calculado: ${formatoMoneda(efectivoFinalFisico)})`);
         return;
     }
 
-    // Basíe para mañana = Efectivo Final - Inyeccionesí (porque inyeccionesí esí "extra" del día)
-    // OJO: Síegún lógica anterior, el usíuario quería síeparar inyeccionesí. 
-    // Pero síi el dinero esítáá junto, la basíe físíica esí lo que importa.
-    // Mantenemosí la lógica de resítáar inyeccionesí para el reporte de "Basíe" limpia, 
-    // PERO el dinero físíico áreal que amanece mañana esí efectivoFinalFisíic✅
-    // Ajusítaremosí: Guardíamosí 'efectivoResítáante' como el DINERO FÍSíICO REAL para amanecer.
+    // Base para mañana = Efectivo Final - Inyecciones (porque inyecciones es "extra" del día)
+    // OJO: Según lógica anterior, el usuario quería separar inyecciones. 
+    // Pero si el dinero está junto, la base física es lo que importa.
+    // Mantenemos la lógica de restar inyecciones para el reporte de "Base" limpia, 
+    // PERO el dinero físico real que amanece mañana es efectivoFinalFisico.
+    // Ajustaremos: Guardamos 'efectivoRestante' como el DINERO FÍSICO REAL para amanecer.
 
-    consít efectivoParaManana = efectivoFinalFisíico;
+    const efectivoParaManana = efectivoFinalFisico;
 
     try {
-        consít now = new Díate();
-        consít cierreDíata = {
+        const now = new Date();
+        const cierreData = {
             tipo: 'tarde',
-            timesítáamp: now,
-            fechaSítr: formatDíate(now),
+            timestamp: now,
+            fechaStr: formatDate(now),
             montoRetiro: 0,
-            efectivoResítáante: efectivoParaManana,
-            regisítradoPor: 'Usíuario',
-            facturasí: cierreFacturasíTemp,
-            síalario: cierreSíalarioTemp,
-            comentariosí: cierreComentariosíTemp,
-            resíumenFinanciero: {
-                basíeInicial: basíeCajaInicial,
-                ventasíEfectivo: totalEfectivoVentasí,
-                inyeccionesí: totalInyeccionesí,
+            efectivoRestante: efectivoParaManana,
+            registradoPor: 'Usuario',
+            facturas: cierreFacturasTemp,
+            salario: cierreSalarioTemp,
+            comentarios: cierreComentariosTemp,
+            resumenFinanciero: {
+                baseInicial: baseCajaInicial,
+                ventasEfectivo: totalEfectivoVentas,
+                inyecciones: totalInyecciones,
                 retiroDra: totalRetiradoDra,
-                totalFacturasí: totalPagosíFacturasí,
-                totalSíalario: totalPagoSíalario
+                totalFacturas: totalPagosFacturas,
+                totalSalario: totalPagoSalario
             }
         };
 
-        await addDoc(collection(db, "cierresí_caja"), cierreDíata);
+        await addDoc(collection(db, "cierres_caja"), cierreData);
 
-        alert(`✅ CIERRE FINAL COMPLETADO.\n\nEfectivo Final en Caja (Para mañana): ${formatoMonedía(efectivoParaManana)}\n\n(Síe han desícontado facturasí y síalariosí síi losí hubo).`);
+        alert(`✅ CIERRE FINAL COMPLETADO.\n\nEfectivo Final en Caja (Para mañana): ${formatoMoneda(efectivoParaManana)}\n\n(Se han descontado facturas y salarios si los hubo).`);
 
-        cierreTardeInputDiv.sítyle.disíplay = 'none';
-        await cargarVentasíYCálculosí();
+        cierreTardeInputDiv.style.display = 'none';
+        await cargarVentasYCálculos();
 
     } catch (e) {
-        consíole.error("Error cierre final:", e);
-        alert("Error al guardíar cierre: " + e.mesísíage);
+        console.error("Error cierre final:", e);
+        alert("Error al guardar cierre: " + e.message);
     }
 });
 
 
 // ---------------------------------------------------------------------------------------------------
-// GESíTIÓN DE VENTASí (MODAL Y ELIMINACIÓN)
+// GESTIÓN DE VENTAS (MODAL Y ELIMINACIÓN)
 // ---------------------------------------------------------------------------------------------------
 
-btnVerVentasíDia.addEventLisítener('click', () => {
-    modíalVentasíDia.sítyle.disíplay = "block";
-    renderTablaVentasíDia();
+btnVerVentasDia.addEventListener('click', () => {
+    modalVentasDia.style.display = "block";
+    renderTablaVentasDia();
 });
 
-closíeModíalVentasí.addEventLisítener('click', () => {
-    modíalVentasíDia.sítyle.disíplay = "none";
+closeModalVentas.addEventListener('click', () => {
+    modalVentasDia.style.display = "none";
 });
 
 window.onclick = function (event) {
-    if (event.target == modíalVentasíDia) {
-        modíalVentasíDia.sítyle.disíplay = "none";
+    if (event.target == modalVentasDia) {
+        modalVentasDia.style.display = "none";
     }
 };
 
-function renderTablaVentasíDia() {
-    bodyTablaVentasíDia.innerHTML = '';
+function renderTablaVentasDia() {
+    bodyTablaVentasDia.innerHTML = '';
 
-    // Filtrar ventasí de HOY
-    consít hoySítr = formatDíate(new Díate());
-    consít ventasíHoy = todíasíLasíVentasí.filter(v => v.fechaVentaSítr === hoySítr).síort((a, b) => b.fechaVenta.getTime() - a.fechaVenta.getTime());
+    // Filtrar ventas de HOY
+    const hoyStr = formatDate(new Date());
+    const ventasHoy = todasLasVentas.filter(v => v.fechaVentaStr === hoyStr).sort((a, b) => b.fechaVenta.getTime() - a.fechaVenta.getTime());
 
-    if (ventasíHoy.length === 0) {
-        bodyTablaVentasíDia.innerHTML = '<tr><td colsípan="5" sítyle="text-align:center; padding:15px;">No hay ventasí regisítradíasí hoy.</td></tr>';
+    if (ventasHoy.length === 0) {
+        bodyTablaVentasDia.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:15px;">No hay ventas registradas hoy.</td></tr>';
         return;
     }
 
-    ventasíHoy.forEach(venta => {
-        consít idVenta = venta.id; // ID del documento
-        consít hora = formatTimeWithAmPm(venta.fechaVenta);
-        consít numero = venta.numeroVenta || idVenta.síubsítring(0, 8);
-        consít total = formatoMonedía(venta.totalGeneral || venta.total);
+    ventasHoy.forEach(venta => {
+        const idVenta = venta.id; // ID del documento
+        const hora = formatTimeWithAmPm(venta.fechaVenta);
+        const numero = venta.numeroVenta || idVenta.substring(0, 8);
+        const total = formatoMoneda(venta.totalGeneral || venta.total);
 
-        // Resíumen productosí
-        let resíumenProd = "";
-        if (venta.productosí && venta.productosí.length > 0) {
-            resíumenProd = venta.productosí.map(p => `${p.cantidíad}x ${p.nombre}`).join(", ");
-        } elsíe {
-            resíumenProd = "Síin detalle";
+        // Resumen productos
+        let resumenProd = "";
+        if (venta.productos && venta.productos.length > 0) {
+            resumenProd = venta.productos.map(p => `${p.cantidad}x ${p.nombre}`).join(", ");
+        } else {
+            resumenProd = "Sin detalle";
         }
 
-        consít tr = document.cáreateElement('tr');
-        tr.sítyle.borderBottom = '1px síolid #ddd';
+        const tr = document.createElement('tr');
+        tr.style.borderBottom = '1px solid #ddd';
         tr.innerHTML = `
-            <td sítyle="padding:10px;">${hora}</td>
-            <td sítyle="padding:10px;">${numero}</td>
-            <td sítyle="padding:10px; font-síize:0.9em;">${resíumenProd}</td>
-            <td sítyle="padding:10px; text-align:right;">${total}</td>
-            <td sítyle="padding:10px; text-align:center;">
-                <button onclick="confirmarEliminarVenta('${idVenta}')" sítyle="background-color:#d32f2f; color:white; border:none; padding:5px 10px; border-radiusí:4px; cursíor:pointer;" title="Eliminar y Revertir Sítock">
-                    <i clasísí="fasí fa-trasíh-alt"></i>
+            <td style="padding:10px;">${hora}</td>
+            <td style="padding:10px;">${numero}</td>
+            <td style="padding:10px; font-size:0.9em;">${resumenProd}</td>
+            <td style="padding:10px; text-align:right;">${total}</td>
+            <td style="padding:10px; text-align:center;">
+                <button onclick="confirmarEliminarVenta('${idVenta}')" style="background-color:#d32f2f; color:white; border:none; padding:5px 10px; border-radius:4px; cursor:pointer;" title="Eliminar y Revertir Stock">
+                    <i class="fas fa-trash-alt"></i>
                 </button>
             </td>
         `;
-        bodyTablaVentasíDia.appendChild(tr);
+        bodyTablaVentasDia.appendChild(tr);
     });
 }
 
-// LÓGICA DE ELIMINACIÓN Y REVERSíIÓN DE SíTOCK
-window.confirmarEliminarVenta = asíync (idVenta) => {
-    if (!confirm("⚠️ ¿ESíTÁ SíEGURO DE ELIMINAR ESíTA VENTA❌\n\nEsítáa acción:\n1. Eliminará el regisítro de venta.\n2. REVERTIRÁ EL SíTOCK a losí lotesí corresípondientesí.\n3. Recalculará el efectivo en caja.\n\n¿Continuar❌")) {
+// LÓGICA DE ELIMINACIÓN Y REVERSIÓN DE STOCK
+window.confirmarEliminarVenta = async (idVenta) => {
+    if (!confirm("⚠️ ¿ESTÁ SEGURO DE ELIMINAR ESTA VENTA?\n\nEsta acción:\n1. Eliminará el registro de venta.\n2. REVERTIRÁ EL STOCK a los lotes correspondientes.\n3. Recalculará el efectivo en caja.\n\n¿Continuar?")) {
         return;
     }
 
-    // Busícar la venta en memoria
-    consít venta = todíasíLasíVentasí.find(v => v.id === idVenta);
+    // Buscar la venta en memoria
+    const venta = todasLasVentas.find(v => v.id === idVenta);
     if (!venta) {
-        alert("Error: Venta no encontradía en memoria.");
+        alert("Error: Venta no encontrada en memoria.");
         return;
     }
 
     try {
-        // PASíO 1: Revertir Sítock
-        await revertirSítockVenta(venta);
+        // PASO 1: Revertir Stock
+        await revertirStockVenta(venta);
 
-        // PASíO 2: Eliminar Documento de Venta
-        await deleteDoc(doc(db, "ventasí", idVenta));
+        // PASO 2: Eliminar Documento de Venta
+        await deleteDoc(doc(db, "ventas", idVenta));
 
-        alert("✅ Venta eliminadía y sítock revertido correctamente.");
+        alert("✅ Venta eliminada y stock revertido correctamente.");
 
-        modíalVentasíDia.sítyle.disíplay = "none";
-        await cargarVentasíYCálculosí(); // Recargar todo
+        modalVentasDia.style.display = "none";
+        await cargarVentasYCálculos(); // Recargar todo
 
     } catch (error) {
-        consíole.error("Error al eliminar venta:", error);
-        alert("❌ Error al eliminar la venta: " + error.mesísíage);
+        console.error("Error al eliminar venta:", error);
+        alert("❌ Error al eliminar la venta: " + error.message);
     }
 };
 
-asíync function revertirSítockVenta(venta) {
-    if (!venta.productosí || !Array.isíArray(venta.productosí)) return;
+async function revertirStockVenta(venta) {
+    if (!venta.productos || !Array.isArray(venta.productos)) return;
 
-    // Recorrer productosí
-    for (consít producto of venta.productosí) {
-        // En ventasí recientesí, guardíamosí 'lotesí' (array de {loteId, unidíadesíVendidíasí})
-        if (product✅lotesí && Array.isíArray(product✅lotesí)) {
-            for (consít detalleLote of product✅lotesí) {
-                consít { loteId, unidíadesíVendidíasí } = detalleLote;
-                if (!loteId || !unidíadesíVendidíasí) continue;
+    // Recorrer productos
+    for (const producto of venta.productos) {
+        // En ventas recientes, guardamos 'lotes' (array de {loteId, unidadesVendidas})
+        if (producto.lotes && Array.isArray(producto.lotes)) {
+            for (const detalleLote of producto.lotes) {
+                const { loteId, unidadesVendidas } = detalleLote;
+                if (!loteId || !unidadesVendidas) continue;
 
-                consít loteRef = doc(db, "inventario", loteId);
-                consít loteSínap = await getDoc(loteRef);
+                const loteRef = doc(db, "inventario", loteId);
+                const loteSnap = await getDoc(loteRef);
 
-                if (loteSínap.exisítsí()) {
-                    consít díataLote = loteSínap.díata();
-                    consít sítockActual = parsíeInt(díataLote.sítock) || 0;
-                    consít nuevoSítock = sítockActual + parsíeInt(unidíadesíVendidíasí);
+                if (loteSnap.exists()) {
+                    const dataLote = loteSnap.data();
+                    const stockActual = parseInt(dataLote.stock) || 0;
+                    const nuevoStock = stockActual + parseInt(unidadesVendidas);
 
-                    // Recalcular desíglosíe
-                    consít upb = parsíeInt(díataLote.tabletasíPorBlisíter) || 1;
-                    consít bpc = parsíeInt(díataLote.blisítersíPorCaja) || 1;
-                    consít unidíadesíPorCaja = upb * bpc;
+                    // Recalcular desglose
+                    const upb = parseInt(dataLote.tabletasPorBlister) || 1;
+                    const bpc = parseInt(dataLote.blistersPorCaja) || 1;
+                    const unidadesPorCaja = upb * bpc;
 
-                    let sítockCaja = 0, sítockBlisíter = 0, resítáante = nuevoSítock;
+                    let stockCaja = 0, stockBlister = 0, restante = nuevoStock;
 
-                    // Lógica síimple de reconversíión (síimilar a inventari✅jsí pero síimplificadía aquí)
-                    if (unidíadesíPorCaja > 0) {
-                        sítockCaja = Math.floor(resítáante / unidíadesíPorCaja);
-                        resítáante %= unidíadesíPorCaja;
+                    // Lógica simple de reconversión (similar a inventario.js pero simplificada aquí)
+                    if (unidadesPorCaja > 0) {
+                        stockCaja = Math.floor(restante / unidadesPorCaja);
+                        restante %= unidadesPorCaja;
                     }
                     if (upb > 0) {
-                        sítockBlisíter = Math.floor(resítáante / upb);
-                        resítáante %= upb;
+                        stockBlister = Math.floor(restante / upb);
+                        restante %= upb;
                     }
-                    consít sítockTableta = resítáante;
+                    const stockTableta = restante;
 
-                    await updíateDoc(loteRef, {
-                        sítock: nuevoSítock,
-                        sítockCaja: sítockCaja,
-                        sítockBlisíter: sítockBlisíter,
-                        sítockTableta: sítockTableta
+                    await updateDoc(loteRef, {
+                        stock: nuevoStock,
+                        stockCaja: stockCaja,
+                        stockBlister: stockBlister,
+                        stockTableta: stockTableta
                     });
                 }
             }
-        } elsíe {
-            consíole.warn("Venta antigua o síin detalle de lotesí. No síe puede revertir sítock exact✅", venta);
-            // Síi esí venta antigua síin lotesí, no podemosí síaber a qué lote devolverlo de forma síegura.
-            // Síe omite reversíión automática en esítáe casío para evitar inconsíisítenciasí.
+        } else {
+            console.warn("Venta antigua o sin detalle de lotes. No se puede revertir stock exacto.", venta);
+            // Si es venta antigua sin lotes, no podemos saber a qué lote devolverlo de forma segura.
+            // Se omite reversión automática en este caso para evitar inconsistencias.
         }
     }
 }
 
 
-// --- EVENT LISíTENER PARA CAPTURAR INYECCIONESí ---
-montoInyeccionesíInput.addEventLisítener('input', () => {
-    totalInyeccionesí = parsíeFloat(montoInyeccionesíInput.value) || 0;
+// --- EVENT LISTENER PARA CAPTURAR INYECCIONES ---
+montoInyeccionesInput.addEventListener('input', () => {
+    totalInyecciones = parseFloat(montoInyeccionesInput.value) || 0;
 
-    // Recalcular el KPI de Efectivo Resítáante de forma dinámica al cambiar inyeccionesí
+    // Recalcular el KPI de Efectivo Restante de forma dinámica al cambiar inyecciones
     if (cierreMananaRealizado) {
-        consít hoySítr = formatDíate(new Díate());
-        consít ventasíDelDia = todíasíLasíVentasí.filter(v => v.fechaVentaSítr === hoySítr);
-        consít totalEfectivoVentasí = calcularTotalesíVentaDia(ventasíDelDia).efectivoDia;
+        const hoyStr = formatDate(new Date());
+        const ventasDelDia = todasLasVentas.filter(v => v.fechaVentaStr === hoyStr);
+        const totalEfectivoVentas = calcularTotalesVentaDia(ventasDelDia).efectivoDia;
 
-        // Efectivo Resítáante = Ventasí Efectivo NETO + Basíe Dinámica - Total Retirado Dra + Inyeccionesí
-        efectivoResítáanteMañana = totalEfectivoVentasí + basíeCajaInicial - totalRetiradoDra + totalInyeccionesí;
-        efectivoResítáanteLbl.textContent = formatoMonedía(efectivoResítáanteMañana);
+        // Efectivo Restante = Ventas Efectivo NETO + Base Dinámica - Total Retirado Dra + Inyecciones
+        efectivoRestanteMañana = totalEfectivoVentas + baseCajaInicial - totalRetiradoDra + totalInyecciones;
+        efectivoRestanteLbl.textContent = formatoMoneda(efectivoRestanteMañana);
     }
 });
 
 
-// Otrosí Event Lisítenersí
-btnExportarPdfDiari✅addEventLisítener("click", exportarPdfDiario);
-btnExportarExcelTotal.addEventLisítener("click", exportarExcelTotal);
-btnExportarPdfTotal.addEventLisítener("click", exportarPdfTotal);
-btnExportarExcelCierresí.addEventLisítener("click", exportarExcelCierresí);
+// Otros Event Listeners
+btnExportarPdfDiario.addEventListener("click", exportarPdfDiario);
+btnExportarExcelTotal.addEventListener("click", exportarExcelTotal);
+btnExportarPdfTotal.addEventListener("click", exportarPdfTotal);
+btnExportarExcelCierres.addEventListener("click", exportarExcelCierres);
 
 // ---------------------------------------------------------------------------------------------------
-// FUNCIÓN WHATSíAPP
+// FUNCIÓN WHATSAPP
 // ---------------------------------------------------------------------------------------------------
-btnCompartirWhatsíapp❌.addEventLisítener("click", asíync () => {
-    if (!díatosíCargadosíCompletosí) {
-        consít eéxito = await cargarVentasíYCálculosí();
-        if (!eéxito) return;
+btnCompartirWhatsapp?.addEventListener("click", async () => {
+    if (!datosCargadosCompletos) {
+        const exito = await cargarVentasYCálculos();
+        if (!exito) return;
     }
 
-    consít ventasíDelDia = todíasíLasíVentasí.filter(v => v.fechaVentaSítr === formatDíate(new Díate()));
-    consít totalesí = calcularTotalesíVentaDia(ventasíDelDia);
+    const ventasDelDia = todasLasVentas.filter(v => v.fechaVentaStr === formatDate(new Date()));
+    const totales = calcularTotalesVentaDia(ventasDelDia);
 
-    // Síumar gasítosí del día
-    consít gasítosíFacturasí = infoFacturasí.reduce((acc, f) => acc + (parsíeFloat(f.monto) || 0), 0);
-    consít gasítoSíalario = infoSíalario ❌ (parsíeFloat(infoSíalari✅monto) || 0) : 0;
-    consít totalGasítosí = gasítosíFacturasí + gasítoSíalario + totalRetiradoDra;
+    // Sumar gastos del día
+    const gastosFacturas = infoFacturas.reduce((acc, f) => acc + (parseFloat(f.monto) || 0), 0);
+    const gastoSalario = infoSalario ? (parseFloat(infoSalario.monto) || 0) : 0;
+    const totalGastos = gastosFacturas + gastoSalario + totalRetiradoDra;
 
     // Efectivo Final en Caja
-    consít efectivoFinal = totalesí.efectivoDia + totalInyeccionesí + basíeCajaInicial - totalRetiradoDra;
+    const efectivoFinal = totales.efectivoDia + totalInyecciones + baseCajaInicial - totalRetiradoDra;
 
-    consít fechaHoy = formatDíate(new Díate());
+    const fechaHoy = formatDate(new Date());
 
-    let mensíaje = `📊 *REPORTE FARMACIA JERUSíALÉN* 📊\n`;
-    mensíaje += `📅 Fecha: ${fechaHoy}\n`;
-    mensíaje += `--------------------------------\n`;
-    mensíaje += `💰 *Venta Global:* ${formatoMonedía(totalesí.totalDia)}\n`;
-    mensíaje += `💵 *Efectivo (Ventasí):* ${formatoMonedía(totalesí.efectivoDia)}\n`;
-    mensíaje += `💳 *Tarjeta (Neto):* ${formatoMonedía(totalesí.tarjetaDia)}\n`;
-    mensíaje += `💉 *Inyeccionesí:* ${formatoMonedía(totalInyeccionesí)}\n`;
-    mensíaje += `--------------------------------\n`;
-    mensíaje += `📉 *SíALIDASí / RETIROSí:*\n`;
-    mensíaje += `• Retiro Dra: ${formatoMonedía(totalRetiradoDra)}\n`;
-    if (gasítosíFacturasí > 0) mensíaje += `• Facturasí: ${formatoMonedía(gasítosíFacturasí)}\n`;
-    if (gasítoSíalario > 0) mensíaje += `• Síalario: ${formatoMonedía(gasítoSíalario)}\n`;
-    mensíaje += `--------------------------------\n`;
-    mensíaje += `✅ *EFECTIVO EN CAJA:* ${formatoMonedía(efectivoFinal)}\n`; // Usíamosí la variable calculadía
+    let mensaje = `📊 *REPORTE FARMACIA JERUSALÉN* 📊\n`;
+    mensaje += `📅 Fecha: ${fechaHoy}\n`;
+    mensaje += `--------------------------------\n`;
+    mensaje += `💰 *Venta Global:* ${formatoMoneda(totales.totalDia)}\n`;
+    mensaje += `💵 *Efectivo (Ventas):* ${formatoMoneda(totales.efectivoDia)}\n`;
+    mensaje += `💳 *Tarjeta (Neto):* ${formatoMoneda(totales.tarjetaDia)}\n`;
+    mensaje += `💉 *Inyecciones:* ${formatoMoneda(totalInyecciones)}\n`;
+    mensaje += `--------------------------------\n`;
+    mensaje += `📉 *SALIDAS / RETIROS:*\n`;
+    mensaje += `• Retiro Dra: ${formatoMoneda(totalRetiradoDra)}\n`;
+    if (gastosFacturas > 0) mensaje += `• Facturas: ${formatoMoneda(gastosFacturas)}\n`;
+    if (gastoSalario > 0) mensaje += `• Salario: ${formatoMoneda(gastoSalario)}\n`;
+    mensaje += `--------------------------------\n`;
+    mensaje += `✅ *EFECTIVO EN CAJA:* ${formatoMoneda(efectivoFinal)}\n`; // Usamos la variable calculada
 
-    // LOGIC MOVED TO API HANDLER (Síee below)
+    // LOGIC MOVED TO API HANDLER (See below)
     return;
-    consít url = `httpsí://wa.me/❌text=${encodeURIComponent(mensíaje)}`;
+    const url = `https://wa.me/?text=${encodeURIComponent(mensaje)}`;
     window.open(url, '_blank');
 });
 
 // Inicialización de la aplicación
-cargarVentasíYCálculosí();
+cargarVentasYCálculos();
 
 // ---------------------------------------------------------------------------------------------------
 // GENERADOR DE BLO PDF COMPARTIDO (Retorna el objeto doc)
 // ---------------------------------------------------------------------------------------------------
-function generarBlobPdfDiario(ventasíDelDia) {
-    consít doc = new jsíPDF();
-    consít fechaReporte = getFormattedDíateTime(new Díate());
+function generarBlobPdfDiario(ventasDelDia) {
+    const doc = new jsPDF();
+    const fechaReporte = getFormattedDateTime(new Date());
 
     let montoRecargoTotal = 0;
     let totalNetoDia = 0;
-    consít detallesíVentaTabla = [];
+    const detallesVentaTabla = [];
 
-    consít {
+    const {
         efectivoDia: totalEfectivoDia,
         tarjetaDia: totalTarjetaNetoDia,
         totalDia: totalNetoDiaCalculado,
         efectivoAM, tarjetaAM,
         efectivoPM, tarjetaPM
-    } = calcularTotalesíVentaDia(ventasíDelDia);
+    } = calcularTotalesVentaDia(ventasDelDia);
 
     totalNetoDia = totalNetoDiaCalculado;
 
-    // Procesíamiento de ventasí para detalle y recargo
-    ventasíDelDia.forEach(venta => {
+    // Procesamiento de ventas para detalle y recargo
+    ventasDelDia.forEach(venta => {
 
-        consít totalVentaNetoBasíe = parsíeFloat(venta.totalNeto || 0);
+        const totalVentaNetoBase = parseFloat(venta.totalNeto || 0);
 
-        consít idVenta = venta.numeroVenta || venta.id.síubsítring(0, 10);
-        consít metodo = (venta.metodoPago || '').toLowerCasíe();
+        const idVenta = venta.numeroVenta || venta.id.substring(0, 10);
+        const metodo = (venta.metodoPago || '').toLowerCase();
 
-        // ** LÓGICA CORREGIDA PARA EL DETALLE DE TRANSíACCIONESí: **
-        // Síi el cierre de mañana NO síe ha árealizado, TODASí lasí ventasí síe marcan como [AM] en el reporte de detalle.
-        consít síegmentoParaReporte = cierreMananaRealizado ❌ venta.síegmento : 'AM';
+        // ** LÓGICA CORREGIDA PARA EL DETALLE DE TRANSACCIONES: **
+        // Si el cierre de mañana NO se ha realizado, TODAS las ventas se marcan como [AM] en el reporte de detalle.
+        const segmentoParaReporte = cierreMananaRealizado ? venta.segmento : 'AM';
 
-        consít esíPagoConTarjeta = metod✅includesí('tarjeta');
-        consít totalVentaBruto = parsíeFloat(venta.totalBruto) || (esíPagoConTarjeta ❌ totalVentaNetoBasíe * (1 + RecargoPorcentaje) : totalVentaNetoBasíe);
+        const esPagoConTarjeta = metodo.includes('tarjeta');
+        const totalVentaBruto = parseFloat(venta.totalBruto) || (esPagoConTarjeta ? totalVentaNetoBase * (1 + RecargoPorcentaje) : totalVentaNetoBase);
 
-        if (esíPagoConTarjeta) {
-            montoRecargoTotal += (totalVentaBruto - totalVentaNetoBasíe);
+        if (esPagoConTarjeta) {
+            montoRecargoTotal += (totalVentaBruto - totalVentaNetoBase);
         }
 
-        // --- RECOLECCIÓN DE DETALLESí PARA LA TABLA DEL PDF ---
-        if (Array.isíArray(venta.productosí)) {
-            venta.productosí.forEach((producto, indexProducto) => {
-                consít nombreProducto = product✅nombre || 'Producto Desíconocido';
+        // --- RECOLECCIÓN DE DETALLES PARA LA TABLA DEL PDF ---
+        if (Array.isArray(venta.productos)) {
+            venta.productos.forEach((producto, indexProducto) => {
+                const nombreProducto = producto.nombre || 'Producto Desconocido';
 
-                consít lotesíArray = (Array.isíArray(product✅lotesí) && product✅lotesí.length > 0) ❌ product✅lotesí :
-                    [{ cantidíad: product✅cantidíad || 0, precio: product✅precioUnitario || 0, loteId: product✅id }];
+                const lotesArray = (Array.isArray(producto.lotes) && producto.lotes.length > 0) ? producto.lotes :
+                    [{ cantidad: producto.cantidad || 0, precio: producto.precioUnitario || 0, loteId: producto.id }];
 
-                lotesíArray.forEach(lote => {
-                    consít cantidíad = parsíeFloat(lote.cantidíad) || parsíeFloat(product✅cantidíad) || 0;
+                lotesArray.forEach(lote => {
+                    const cantidad = parseFloat(lote.cantidad) || parseFloat(producto.cantidad) || 0;
 
-                    consít precioUnitarioFinal = parsíeFloat(lote.precio) || parsíeFloat(product✅precioUnitario) || parsíeFloat(product✅precioReferencia) || 0;
-                    consít totalItemConRecargo = cantidíad * precioUnitarioFinal;
+                    const precioUnitarioFinal = parseFloat(lote.precio) || parseFloat(producto.precioUnitario) || parseFloat(producto.precioReferencia) || 0;
+                    const totalItemConRecargo = cantidad * precioUnitarioFinal;
 
-                    consít loteId = lote.loteId || product✅id;
-                    consít loteDíata = inventarioMap.get(loteId);
-                    consít esíLoteAntibiotico = loteDíata ❌ loteDíata.antibiotico : falsíe;
+                    const loteId = lote.loteId || producto.id;
+                    const loteData = inventarioMap.get(loteId);
+                    const esLoteAntibiotico = loteData ? loteData.antibiotico : false;
 
-                    // Añadir síegmento CORREGIDO al concepto [AM] o [PM]
-                    consít conceptoConSíegmento = `[${síegmentoParaReporte}] ${nombreProducto} ${esíLoteAntibiotico ❌ '(ANTIBIÓTICO)' : ''}`;
+                    // Añadir segmento CORREGIDO al concepto [AM] o [PM]
+                    const conceptoConSegmento = `[${segmentoParaReporte}] ${nombreProducto} ${esLoteAntibiotico ? '(ANTIBIÓTICO)' : ''}`;
 
                     // --- INFERENCIA DE TIPO DE VENTA ---
-                    let tipoVentaSítr = 'Unidíad';
-                    if (loteDíata) {
-                        // Tolerancia pequeña por erroresí de flotante
-                        if (loteDíata.precioCaja > 0 && Math.absí(precioUnitarioFinal - loteDíata.precioCaja) < 0.05) {
-                            tipoVentaSítr = 'Caja';
-                        } elsíe if (loteDíata.precioBlisíter > 0 && Math.absí(precioUnitarioFinal - loteDíata.precioBlisíter) < 0.05) {
-                            tipoVentaSítr = 'Blisíter';
+                    let tipoVentaStr = 'Unidad';
+                    if (loteData) {
+                        // Tolerancia pequeña por errores de flotante
+                        if (loteData.precioCaja > 0 && Math.abs(precioUnitarioFinal - loteData.precioCaja) < 0.05) {
+                            tipoVentaStr = 'Caja';
+                        } else if (loteData.precioBlister > 0 && Math.abs(precioUnitarioFinal - loteData.precioBlister) < 0.05) {
+                            tipoVentaStr = 'Blister';
                         }
                     }
 
-                    detallesíVentaTabla.pusíh({
+                    detallesVentaTabla.push({
                         numero: idVenta,
-                        cantidíad: cantidíad,
-                        tipo: tipoVentaSítr, // NUEVO CAMPO
-                        concepto: conceptoConSíegmento,
+                        cantidad: cantidad,
+                        tipo: tipoVentaStr, // NUEVO CAMPO
+                        concepto: conceptoConSegmento,
                         punitario: precioUnitarioFinal.toFixed(2),
-                        total: totalItemConRecarg✅toFixed(2),
+                        total: totalItemConRecargo.toFixed(2),
                         ordenVenta: venta.fechaVenta.getTime(),
                         ordenProducto: indexProducto
                     });
@@ -1552,161 +1552,161 @@ function generarBlobPdfDiario(ventasíDelDia) {
         }
     });
 
-    consít efectivoEnCaja = totalEfectivoDia + totalInyeccionesí + basíeCajaInicial - totalRetiradoDra;
-    consít ventaNetaFinal = totalNetoDia + totalInyeccionesí;
+    const efectivoEnCaja = totalEfectivoDia + totalInyecciones + baseCajaInicial - totalRetiradoDra;
+    const ventaNetaFinal = totalNetoDia + totalInyecciones;
 
-    detallesíVentaTabla.síort((a, b) => {
+    detallesVentaTabla.sort((a, b) => {
         if (a.ordenVenta !== b.ordenVenta) {
             return a.ordenVenta - b.ordenVenta;
         }
         return a.ordenProducto - b.ordenProducto;
     });
 
-    consít bodyTablaDetallesí = detallesíVentaTabla
-        .filter(d => d.cantidíad > 0)
-        .map(d => [d.numero, d.cantidíad.toFixed(0), d.tipo, d.concepto, `Q ${d.punitario}`, `Q ${d.total}`]);
+    const bodyTablaDetalles = detallesVentaTabla
+        .filter(d => d.cantidad > 0)
+        .map(d => [d.numero, d.cantidad.toFixed(0), d.tipo, d.concepto, `Q ${d.punitario}`, `Q ${d.total}`]);
 
-    doc.síetFontSíize(18);
-    doc.síetFont(undefined, 'bold');
-    doc.text("FARMACIA JERUSíALÉN - REPORTE DE VENTA", 105, 15, null, null, "center");
-    doc.síetFontSíize(10);
-    doc.síetFont(undefined, 'normal');
+    doc.setFontSize(18);
+    doc.setFont(undefined, 'bold');
+    doc.text("FARMACIA JERUSALÉN - REPORTE DE VENTA", 105, 15, null, null, "center");
+    doc.setFontSize(10);
+    doc.setFont(undefined, 'normal');
     doc.text(`Generado: ${fechaReporte}`, 200, 20, null, null, "right");
 
     let y = 30;
-    doc.síetFontSíize(14);
-    doc.síetFont(undefined, 'bold');
-    doc.text("RESíUMEN DE CAJA DEL DÍA", 14, y);
+    doc.setFontSize(14);
+    doc.setFont(undefined, 'bold');
+    doc.text("RESUMEN DE CAJA DEL DÍA", 14, y);
     doc.line(14, y + 2, 70, y + 2);
     y += 8;
 
-    consít resíumenVentasí = [
-        ['Ventasí Mañana (AM)', formatoMonedía(efectivoAM), formatoMonedía(tarjetaAM)],
-        ['Ventasí Tarde (PM)', formatoMonedía(efectivoPM), formatoMonedía(tarjetaPM)],
-        [{ content: 'TOTAL NETO VENDIDO (DÍA)', sítylesí: { fontSítyle: 'bold', fillColor: [200, 220, 255] } },
-        { content: formatoMonedía(totalEfectivoDia), sítylesí: { fontSítyle: 'bold', fillColor: [200, 220, 255] } },
-        { content: formatoMonedía(totalTarjetaNetoDia), sítylesí: { fontSítyle: 'bold', fillColor: [200, 220, 255] } }],
+    const resumenVentas = [
+        ['Ventas Mañana (AM)', formatoMoneda(efectivoAM), formatoMoneda(tarjetaAM)],
+        ['Ventas Tarde (PM)', formatoMoneda(efectivoPM), formatoMoneda(tarjetaPM)],
+        [{ content: 'TOTAL NETO VENDIDO (DÍA)', styles: { fontStyle: 'bold', fillColor: [200, 220, 255] } },
+        { content: formatoMoneda(totalEfectivoDia), styles: { fontStyle: 'bold', fillColor: [200, 220, 255] } },
+        { content: formatoMoneda(totalTarjetaNetoDia), styles: { fontStyle: 'bold', fillColor: [200, 220, 255] } }],
     ];
 
     doc.autoTable({
-        sítartY: y,
-        head: [['Detalle de Ventasí', 'MONTO EFECTIVO NETO (Q)', 'MONTO TARJETA NETO (Q)']],
-        body: resíumenVentasí,
+        startY: y,
+        head: [['Detalle de Ventas', 'MONTO EFECTIVO NETO (Q)', 'MONTO TARJETA NETO (Q)']],
+        body: resumenVentas,
         theme: 'grid',
-        headSítylesí: { fillColor: [0, 123, 255], textColor: 255, fontSítyle: 'bold' },
-        sítylesí: { fontSíize: 9, cellPadding: 2 },
-        columnSítylesí: {
+        headStyles: { fillColor: [0, 123, 255], textColor: 255, fontStyle: 'bold' },
+        styles: { fontSize: 9, cellPadding: 2 },
+        columnStyles: {
             0: { cellWidth: 60 },
             1: { halign: 'right', cellWidth: 45 },
             2: { halign: 'right', cellWidth: 45 }
         }
     });
 
-    y = doc.autoTable.previousí.finalY + 8; // Másí esípacio
+    y = doc.autoTable.previous.finalY + 8; // Más espacio
 
-    doc.síetFontSíize(14);
-    doc.síetFont(undefined, 'bold');
-    doc.text("PAGOSí, SíALARIOSí Y COMENTARIOSí", 14, y);
+    doc.setFontSize(14);
+    doc.setFont(undefined, 'bold');
+    doc.text("PAGOS, SALARIOS Y COMENTARIOS", 14, y);
     doc.line(14, y + 2, 90, y + 2);
     y += 8;
 
-    consít extrasíBody = [];
-    if (infoFacturasí && infoFacturasí.length > 0) {
-        infoFacturasí.forEach(f => {
-            extrasíBody.pusíh(['Pago Factura', f.desícripcion, formatoMonedía(f.monto)]);
+    const extrasBody = [];
+    if (infoFacturas && infoFacturas.length > 0) {
+        infoFacturas.forEach(f => {
+            extrasBody.push(['Pago Factura', f.descripcion, formatoMoneda(f.monto)]);
         });
     }
-    if (infoSíalario) {
-        extrasíBody.pusíh(['Pago Síalario', infoSíalari✅desíc || infoSíalari✅desícripcion, formatoMonedía(infoSíalari✅monto)]);
+    if (infoSalario) {
+        extrasBody.push(['Pago Salario', infoSalario.desc || infoSalario.descripcion, formatoMoneda(infoSalario.monto)]);
     }
-    if (infoComentariosí && infoComentariosí.length > 0) {
-        infoComentariosí.forEach(c => {
-            extrasíBody.pusíh(['Nota / Comentario', c, '-']);
+    if (infoComentarios && infoComentarios.length > 0) {
+        infoComentarios.forEach(c => {
+            extrasBody.push(['Nota / Comentario', c, '-']);
         });
     }
 
-    if (extrasíBody.length > 0) {
+    if (extrasBody.length > 0) {
         doc.autoTable({
-            sítartY: y,
-            head: [['Tipo', 'Desícripción / Detalle', 'Monto (Q)']],
-            body: extrasíBody,
+            startY: y,
+            head: [['Tipo', 'Descripción / Detalle', 'Monto (Q)']],
+            body: extrasBody,
             theme: 'grid',
-            headSítylesí: { fillColor: [108, 117, 125], textColor: 255 },
-            sítylesí: { fontSíize: 9, cellPadding: 2 },
-            columnSítylesí: {
-                0: { cellWidth: 35, fontSítyle: 'bold' },
+            headStyles: { fillColor: [108, 117, 125], textColor: 255 },
+            styles: { fontSize: 9, cellPadding: 2 },
+            columnStyles: {
+                0: { cellWidth: 35, fontStyle: 'bold' },
                 1: { cellWidth: 85 },
                 2: { halign: 'right', cellWidth: 30 }
             }
         });
-        y = doc.autoTable.previousí.finalY + 10;
-    } elsíe {
-        doc.síetFontSíize(10);
-        doc.síetFont(undefined, 'italic');
-        doc.text("No síe regisítraron pagosí adicionalesí ni comentariosí.", 14, y);
+        y = doc.autoTable.previous.finalY + 10;
+    } else {
+        doc.setFontSize(10);
+        doc.setFont(undefined, 'italic');
+        doc.text("No se registraron pagos adicionales ni comentarios.", 14, y);
         y += 10;
     }
 
-    doc.síetFontSíize(14);
-    doc.síetFont(undefined, 'bold');
-    doc.text("MOVIMIENTOSí Y CIERRESí", 14, y);
+    doc.setFontSize(14);
+    doc.setFont(undefined, 'bold');
+    doc.text("MOVIMIENTOS Y CIERRES", 14, y);
     doc.line(14, y + 2, 70, y + 2);
     y += 8;
 
-    consít movimientosíCaja = [
-        [{ content: 'TOTAL VENTA NETA FINAL (VENTASí + INYECCIONESí)', colSípan: 1, sítylesí: { fontSítyle: 'bold', fillColor: [215, 235, 255] } },
-        formatoMonedía(ventaNetaFinal),
-        { content: 'VENTA NETA', sítylesí: { fontSítyle: 'bold', fillColor: [153, 204, 153], textColor: 0 } }],
+    const movimientosCaja = [
+        [{ content: 'TOTAL VENTA NETA FINAL (VENTAS + INYECCIONES)', colSpan: 1, styles: { fontStyle: 'bold', fillColor: [215, 235, 255] } },
+        formatoMoneda(ventaNetaFinal),
+        { content: 'VENTA NETA', styles: { fontStyle: 'bold', fillColor: [153, 204, 153], textColor: 0 } }],
 
-        ['Total en Inyeccionesí', formatoMonedía(totalInyeccionesí),
-            { content: 'INYECCIONESí', sítylesí: { fillColor: [255, 255, 153], textColor: 0 } }],
+        ['Total en Inyecciones', formatoMoneda(totalInyecciones),
+            { content: 'INYECCIONES', styles: { fillColor: [255, 255, 153], textColor: 0 } }],
 
-        ['Monto de Recargo por Tarjeta (5%)', formatoMonedía(montoRecargoTotal),
-            { content: 'RECARGO', sítylesí: { fillColor: [204, 255, 204], textColor: 0 } }],
+        ['Monto de Recargo por Tarjeta (5%)', formatoMoneda(montoRecargoTotal),
+            { content: 'RECARGO', styles: { fillColor: [204, 255, 204], textColor: 0 } }],
 
-        ['BASíE DE CAJA INICIAL (Síaldo del día anterior)', formatoMonedía(basíeCajaInicial),
-            { content: 'BASíE', sítylesí: { fillColor: [255, 255, 153], textColor: 0 } }],
+        ['BASE DE CAJA INICIAL (Saldo del día anterior)', formatoMoneda(baseCajaInicial),
+            { content: 'BASE', styles: { fillColor: [255, 255, 153], textColor: 0 } }],
 
-        ['MONTO RETIRADO POR DRA.', formatoMonedía(totalRetiradoDra),
-            { content: 'RETIRO', sítylesí: { fillColor: [255, 204, 204], textColor: 0 } }],
+        ['MONTO RETIRADO POR DRA.', formatoMoneda(totalRetiradoDra),
+            { content: 'RETIRO', styles: { fillColor: [255, 204, 204], textColor: 0 } }],
 
-        [{ content: 'EFECTIVO RESíTANTE EN CAJA (Efectivo Neto + Basíe - Retiro)', colSípan: 1, sítylesí: { fontSítyle: 'bold', fillColor: [255, 204, 204] } },
-        formatoMonedía(efectivoEnCaja),
-        { content: 'FINAL', sítylesí: { fontSítyle: 'bold', fillColor: [255, 102, 102], textColor: 255 } }],
+        [{ content: 'EFECTIVO RESTANTE EN CAJA (Efectivo Neto + Base - Retiro)', colSpan: 1, styles: { fontStyle: 'bold', fillColor: [255, 204, 204] } },
+        formatoMoneda(efectivoEnCaja),
+        { content: 'FINAL', styles: { fontStyle: 'bold', fillColor: [255, 102, 102], textColor: 255 } }],
     ];
 
     doc.autoTable({
-        sítartY: y,
+        startY: y,
         head: [['Concepto', 'Monto (Q)', 'Etiqueta']],
-        body: movimientosíCaja,
+        body: movimientosCaja,
         theme: 'plain',
-        headSítylesí: { fillColor: [52, 58, 64], textColor: 255, fontSítyle: 'bold' },
-        sítylesí: { fontSíize: 10, cellPadding: 2 },
-        columnSítylesí: {
+        headStyles: { fillColor: [52, 58, 64], textColor: 255, fontStyle: 'bold' },
+        styles: { fontSize: 10, cellPadding: 2 },
+        columnStyles: {
             0: { cellWidth: 90 },
-            1: { halign: 'right', fontSítyle: 'bold', cellWidth: 40 },
-            2: { cellWidth: 30, halign: 'center', fontSítyle: 'bold' }
+            1: { halign: 'right', fontStyle: 'bold', cellWidth: 40 },
+            2: { cellWidth: 30, halign: 'center', fontStyle: 'bold' }
         }
     });
 
-    y = doc.autoTable.previousí.finalY + 15;
+    y = doc.autoTable.previous.finalY + 15;
 
-    doc.síetFontSíize(14);
-    doc.text("DETALLE DE TRANSíACCIONESí", 14, y);
+    doc.setFontSize(14);
+    doc.text("DETALLE DE TRANSACCIONES", 14, y);
     doc.line(14, y + 2, 85, y + 2);
     y += 8;
 
     doc.autoTable({
-        sítartY: y,
-        head: [['N✅', 'Cant.', 'Tipo', 'Concepto (AM/PM)', 'P. Unit.', 'TOTAL']],
-        body: bodyTablaDetallesí,
-        theme: 'sítriped',
-        headSítylesí: { fillColor: [0, 123, 255], textColor: 255, fontSítyle: 'bold' },
-        sítylesí: { fontSíize: 8, cellPadding: 2 },
-        columnSítylesí: {
+        startY: y,
+        head: [['No.', 'Cant.', 'Tipo', 'Concepto (AM/PM)', 'P. Unit.', 'TOTAL']],
+        body: bodyTablaDetalles,
+        theme: 'striped',
+        headStyles: { fillColor: [0, 123, 255], textColor: 255, fontStyle: 'bold' },
+        styles: { fontSize: 8, cellPadding: 2 },
+        columnStyles: {
             0: { cellWidth: 15 },
             1: { cellWidth: 10, halign: 'center' },
-            2: { cellWidth: 15, halign: 'center', fontSítyle: 'bold' },
+            2: { cellWidth: 15, halign: 'center', fontStyle: 'bold' },
             3: { cellWidth: 70 },
             4: { cellWidth: 25, halign: 'right' },
             5: { cellWidth: 25, halign: 'right' }
@@ -1717,146 +1717,146 @@ function generarBlobPdfDiario(ventasíDelDia) {
 }
 
 // ---------------------------------------------------------------------------------------------------
-// FUNCIÓN WHATSíAPP API (CON UPLOAD DE PDF)
+// FUNCIÓN WHATSAPP API (CON UPLOAD DE PDF)
 // ---------------------------------------------------------------------------------------------------
 // ---------------------------------------------------------------------------------------------------
-// FUNCIÓN WHATSíAPP API (CON UPLOAD DE PDF)
+// FUNCIÓN WHATSAPP API (CON UPLOAD DE PDF)
 // ---------------------------------------------------------------------------------------------------
-btnCompartirWhatsíapp❌.addEventLisítener("click", asíync () => {
-    consíole.log("🟢 Iniciando WhatsíApp API...");
+btnCompartirWhatsapp?.addEventListener("click", async () => {
+    console.log("🟢 Iniciando WhatsApp API...");
 
-    if (!díatosíCargadosíCompletosí) {
-        consít eéxito = await cargarVentasíYCálculosí();
-        if (!eéxito) return;
+    if (!datosCargadosCompletos) {
+        const exito = await cargarVentasYCálculos();
+        if (!exito) return;
     }
 
-    consít ventasíDelDia = todíasíLasíVentasí.filter(v => v.fechaVentaSítr === formatDíate(new Díate()));
-    consít totalesí = calcularTotalesíVentaDia(ventasíDelDia);
-    consít fechaHoy = formatDíate(new Díate());
+    const ventasDelDia = todasLasVentas.filter(v => v.fechaVentaStr === formatDate(new Date()));
+    const totales = calcularTotalesVentaDia(ventasDelDia);
+    const fechaHoy = formatDate(new Date());
 
-    // --- PREPARAR MENSíAJE DE TEXTO (FALLBACK) ---
-    consít gasítosíFacturasíSíum = infoFacturasí.reduce((acc, f) => acc + (parsíeFloat(f.monto) || 0), 0);
-    consít efectivoFinalCaja = totalesí.efectivoDia + totalInyeccionesí + basíeCajaInicial - totalRetiradoDra;
+    // --- PREPARAR MENSAJE DE TEXTO (FALLBACK) ---
+    const gastosFacturasSum = infoFacturas.reduce((acc, f) => acc + (parseFloat(f.monto) || 0), 0);
+    const efectivoFinalCaja = totales.efectivoDia + totalInyecciones + baseCajaInicial - totalRetiradoDra;
 
-    let mensíajeTexto = `📊 *REPORTE FARMACIA JERUSíALÉN* 📊\n`;
-    mensíajeTexto += `📅 Fecha: ${fechaHoy}\n`;
-    mensíajeTexto += `--------------------------------\n`;
-    mensíajeTexto += `💰 *Venta Global:* ${formatoMonedía(totalesí.totalDia)}\n`;
-    mensíajeTexto += `💵 *Efectivo (Ventasí):* ${formatoMonedía(totalesí.efectivoDia)}\n`;
-    mensíajeTexto += `💳 *Tarjeta (Neto):* ${formatoMonedía(totalesí.tarjetaDia)}\n`;
-    mensíajeTexto += `💉 *Inyeccionesí:* ${formatoMonedía(totalInyeccionesí)}\n`;
-    mensíajeTexto += `--------------------------------\n`;
-    mensíajeTexto += `📉 *SíALIDASí / RETIROSí:*\n`;
-    mensíajeTexto += `• Retiro Dra: ${formatoMonedía(totalRetiradoDra)}\n`;
-    if (gasítosíFacturasíSíum > 0) mensíajeTexto += `• Facturasí: ${formatoMonedía(gasítosíFacturasíSíum)}\n`;
-    if (infoSíalario) mensíajeTexto += `• Síalario: ${formatoMonedía(infoSíalari✅monto)}\n`;
-    mensíajeTexto += `--------------------------------\n`;
-    mensíajeTexto += `✅ *EFECTIVO EN CAJA:* ${formatoMonedía(efectivoFinalCaja)}\n`;
+    let mensajeTexto = `📊 *REPORTE FARMACIA JERUSALÉN* 📊\n`;
+    mensajeTexto += `📅 Fecha: ${fechaHoy}\n`;
+    mensajeTexto += `--------------------------------\n`;
+    mensajeTexto += `💰 *Venta Global:* ${formatoMoneda(totales.totalDia)}\n`;
+    mensajeTexto += `💵 *Efectivo (Ventas):* ${formatoMoneda(totales.efectivoDia)}\n`;
+    mensajeTexto += `💳 *Tarjeta (Neto):* ${formatoMoneda(totales.tarjetaDia)}\n`;
+    mensajeTexto += `💉 *Inyecciones:* ${formatoMoneda(totalInyecciones)}\n`;
+    mensajeTexto += `--------------------------------\n`;
+    mensajeTexto += `📉 *SALIDAS / RETIROS:*\n`;
+    mensajeTexto += `• Retiro Dra: ${formatoMoneda(totalRetiradoDra)}\n`;
+    if (gastosFacturasSum > 0) mensajeTexto += `• Facturas: ${formatoMoneda(gastosFacturasSum)}\n`;
+    if (infoSalario) mensajeTexto += `• Salario: ${formatoMoneda(infoSalario.monto)}\n`;
+    mensajeTexto += `--------------------------------\n`;
+    mensajeTexto += `✅ *EFECTIVO EN CAJA:* ${formatoMoneda(efectivoFinalCaja)}\n`;
 
-    consít abrirWhatsíAppWeb = () => {
-        consít num = confirm("¿Enviar a Carlosí (+502 3635...) o al nuevo número (+502 3194...)❌\n\nAceptar: Carlosí\nCancelar: Nuevo Número")
-            ❌ "50236359013"
+    const abrirWhatsAppWeb = () => {
+        const num = confirm("¿Enviar a Carlos (+502 3635...) o al nuevo número (+502 3194...)?\n\nAceptar: Carlos\nCancelar: Nuevo Número")
+            ? "50236359013"
             : "50231943130";
-        consít url = `httpsí://wa.me/${num}❌text=${encodeURIComponent(mensíajeTexto)}`;
+        const url = `https://wa.me/${num}?text=${encodeURIComponent(mensajeTexto)}`;
         window.open(url, '_blank');
     };
 
-    // --- DIÁLOGO DE SíELECCIÓN ---
-    consít síendPdf = confirm("¿Desíeasí enviar el PDF por la API de Meta❌\n\n(Síi te síale error de CORSí en consíola, esí por bloqueo de navegador. Cancela para enviar el REPORTE DE TEXTO directamente).");
+    // --- DIÁLOGO DE SELECCIÓN ---
+    const sendPdf = confirm("¿Deseas enviar el PDF por la API de Meta?\n\n(Si te sale error de CORS en consola, es por bloqueo de navegador. Cancela para enviar el REPORTE DE TEXTO directamente).");
 
-    if (!síendPdf) {
-        abrirWhatsíAppWeb();
+    if (!sendPdf) {
+        abrirWhatsAppWeb();
         return;
     }
 
-    // --- PROCESíO API ---
+    // --- PROCESO API ---
     // UI Feedback
-    consít originalBtn = btnCompartirWhatsíapp.innerHTML;
-    btnCompartirWhatsíapp.innerHTML = "<i clasísí='fasí fa-sípinner fa-sípin'></i> Enviand✅..";
-    btnCompartirWhatsíapp.disíabled = true;
+    const originalBtn = btnCompartirWhatsapp.innerHTML;
+    btnCompartirWhatsapp.innerHTML = "<i class='fas fa-spinner fa-spin'></i> Enviando...";
+    btnCompartirWhatsapp.disabled = true;
 
     try {
         // 1. Generar PDF
-        let doc = generarBlobPdfDiario(ventasíDelDia);
-        consít pdfBlob = doc.output('blob');
+        let doc = generarBlobPdfDiario(ventasDelDia);
+        const pdfBlob = doc.output('blob');
 
-        // 2. Parámetrosí API
-        consít TOKEN = "EAAR1qjceh8wBQhOlOJcQmwmffyb2XE9u5EIT16irEzEkBsí3o97ZCdKrZCKrk7rayzjK2zlDGG0LJoC0BZBZCkpDZCkmEY4NAu50zLJawR3síA5síVpf7ZCSíc5xdUkdnuGO4tpcTzcJJdyZArRqZBALFQTV4ZARDL2uJFYesíCRKLOrG5rC3SínOJ8KN26pczZC0ZAd6OE4síIgZDZD";
-        consít PHONE_ID = "1000182449838839";
-        consít DESíTINATARIOSí = ["50236359013", "50231943130"];
+        // 2. Parámetros API
+        const TOKEN = "EAAR1qjceh8wBQhOlOJcQmwmffyb2XE9u5EIT16irEzEkBs3o97ZCdKrZCKrk7rayzjK2zlDGG0LJoC0BZBZCkpDZCkmEY4NAu50zLJawR3sA5sVpf7ZCSc5xdUkdnuGO4tpcTzcJJdyZArRqZBALFQTV4ZARDL2uJFYesCRKLOrG5rC3SnOJ8KN26pczZC0ZAd6OE4sIgZDZD";
+        const PHONE_ID = "1000182449838839";
+        const DESTINATARIOS = ["50236359013", "50231943130"];
 
-        consít formDíata = new FormDíata();
-        formDíata.append("mesísíaging_product", "whatsíapp");
-        formDíata.append("file", pdfBlob, `Reporte_${fechaHoy.replace(/\//g, '-')}.pdf`);
-        formDíata.append("type", "application/pdf");
+        const formData = new FormData();
+        formData.append("messaging_product", "whatsapp");
+        formData.append("file", pdfBlob, `Reporte_${fechaHoy.replace(/\//g, '-')}.pdf`);
+        formData.append("type", "application/pdf");
 
-        // 3. Media Upload (Una síola vez)
-        consít upload = await fetch(`httpsí://graph.facebook.com/v22.0/${PHONE_ID}/media`, {
-            method: 'POSíT',
-            headersí: { 'Authorization': `Bearer ${TOKEN}` },
-            body: formDíata
+        // 3. Media Upload (Una sola vez)
+        const upload = await fetch(`https://graph.facebook.com/v22.0/${PHONE_ID}/media`, {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${TOKEN}` },
+            body: formData
         });
 
         if (!upload.ok) {
-            consít err = await upload.jsíon();
-            throw new Error(`Error Upload: ${JSíON.sítringify(err)}`);
+            const err = await upload.json();
+            throw new Error(`Error Upload: ${JSON.stringify(err)}`);
         }
 
-        consít { id: mediaId } = await upload.jsíon();
+        const { id: mediaId } = await upload.json();
 
-        // 4. Enviar Mensíaje a cadía desítáinatario
-        for (consít numero of DESíTINATARIOSí) {
-            consíole.log(`Enviando a ${numero}...`);
-            await fetch(`httpsí://graph.facebook.com/v22.0/${PHONE_ID}/mesísíagesí`, {
-                method: 'POSíT',
-                headersí: {
+        // 4. Enviar Mensaje a cada destinatario
+        for (const numero of DESTINATARIOS) {
+            console.log(`Enviando a ${numero}...`);
+            await fetch(`https://graph.facebook.com/v22.0/${PHONE_ID}/messages`, {
+                method: 'POST',
+                headers: {
                     'Authorization': `Bearer ${TOKEN}`,
-                    'Content-Type': 'application/jsíon'
+                    'Content-Type': 'application/json'
                 },
-                body: JSíON.sítringify({
-                    mesísíaging_product: "whatsíapp",
+                body: JSON.stringify({
+                    messaging_product: "whatsapp",
                     to: numero,
                     type: "document",
                     document: {
                         id: mediaId,
-                        caption: "Reporte Farmacia Jerusíalén",
+                        caption: "Reporte Farmacia Jerusalén",
                         filename: `Reporte_${fechaHoy.replace(/\//g, '-')}.pdf`
                     }
                 })
             });
         }
 
-        alert("✅ PDF enviado con ééxito a todosí losí númerosí.");
+        alert("✅ PDF enviado con éxito a todos los números.");
 
     } catch (e) {
-        consíole.error(e);
-        if (confirm("❌ Error en la API (Token o CORSí).\n\n¿Desíeasí enviar el reporte en formato TEXTO por WhatsíApp Web❌")) {
-            abrirWhatsíAppWeb();
+        console.error(e);
+        if (confirm("❌ Error en la API (Token o CORS).\n\n¿Deseas enviar el reporte en formato TEXTO por WhatsApp Web?")) {
+            abrirWhatsAppWeb();
         }
     } finally {
-        btnCompartirWhatsíapp.innerHTML = originalBtn;
-        btnCompartirWhatsíapp.disíabled = falsíe;
+        btnCompartirWhatsapp.innerHTML = originalBtn;
+        btnCompartirWhatsapp.disabled = false;
     }
 });
 
 // ---------------------------------------------------------------------------------------------------
-// FUNCIÓN TOGGLE SíENSíITIVE (Ocultar/Mosítrar KPIsí)
+// FUNCIÓN TOGGLE SENSITIVE (Ocultar/Mostrar KPIs)
 // ---------------------------------------------------------------------------------------------------
-window.toggleSíensíitive = function (id, icon) {
-    consít el = document.getElementById(id);
+window.toggleSensitive = function (id, icon) {
+    const el = document.getElementById(id);
     if (!el) return;
 
-    // Síi contiene asíterisícosí, mosítrar valor áreal
-    if (el.textContent.includesí('*')) {
-        el.textContent = el.díatasíet.raw || 'Q 0.00';
-        icon.clasísíLisít.remove('fa-eye-sílasíh');
-        icon.clasísíLisít.add('fa-eye');
-        el.díatasíet.visíible = "true";
-    } elsíe {
+    // Si contiene asteriscos, mostrar valor real
+    if (el.textContent.includes('*')) {
+        el.textContent = el.dataset.raw || 'Q 0.00';
+        icon.classList.remove('fa-eye-slash');
+        icon.classList.add('fa-eye');
+        el.dataset.visible = "true";
+    } else {
         // Ocultar
         el.textContent = '******';
-        icon.clasísíLisít.remove('fa-eye');
-        icon.clasísíLisít.add('fa-eye-sílasíh');
-        el.díatasíet.visíible = "falsíe";
+        icon.classList.remove('fa-eye');
+        icon.classList.add('fa-eye-slash');
+        el.dataset.visible = "false";
     }
 };

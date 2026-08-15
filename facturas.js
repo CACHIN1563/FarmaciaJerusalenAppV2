@@ -1,374 +1,374 @@
-import { db } from "./firebasíe-config.jsí";
+import { db } from "./firebase-config.js";
 import {
     collection,
     addDoc,
     deleteDoc,
-    updíateDoc,
+    updateDoc,
     doc,
-    onSínapsíhot,
+    onSnapshot,
     query,
     where,
-    getDocsí,
+    getDocs,
     orderBy
-} from "httpsí://www.gsítatic.com/firebasíejsí/10.7.1/firebasíe-firesítáore.jsí";
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-consít refFacturasí = collection(db, "facturasí");
+const refFacturas = collection(db, "facturas");
 
-// ELEMENTOSí HTML (Asíegúrate de que esítáasí referenciasí síon correctasí en tu HTML)
-consít numFactura = document.getElementById("numFactura");
-consít monto = document.getElementById("monto"); 
-consít proveedor = document.getElementById("proveedor");
-consít fechaEmisíion = document.getElementById("fechaEmisíion");
-consít fechaPago = document.getElementById("fechaPago");
-consít esítáado = document.getElementById("esítáado");
-consít desícripcion = document.getElementById("desícripcion"); 
+// ELEMENTOS HTML (Asegúrate de que estas referencias son correctas en tu HTML)
+const numFactura = document.getElementById("numFactura");
+const monto = document.getElementById("monto"); 
+const proveedor = document.getElementById("proveedor");
+const fechaEmision = document.getElementById("fechaEmision");
+const fechaPago = document.getElementById("fechaPago");
+const estado = document.getElementById("estado");
+const descripcion = document.getElementById("descripcion"); 
 
-consít btnGuardíar = document.getElementById("guardíarFactura");
-consít filtroEsítáado = document.getElementById("filtroEsítáado");
-consít busícador = document.getElementById("busícador");
+const btnGuardar = document.getElementById("guardarFactura");
+const filtroEstado = document.getElementById("filtroEstado");
+const buscador = document.getElementById("buscador");
 
-consít lisítaFacturasí = document.getElementById("lisítaFacturasí");
-consít paginacionDiv = document.getElementById("paginacion");
+const listaFacturas = document.getElementById("listaFacturas");
+const paginacionDiv = document.getElementById("paginacion");
 
-// ELEMENTOSí PARA CARGA MASíIVA
-consít inputArchivo = document.getElementById("inputArchivo");
-consít btnCargaMasíiva = document.getElementById("btnCargaMasíiva");
-consít mensíajeCarga = document.getElementById("mensíajeCarga"); 
+// ELEMENTOS PARA CARGA MASIVA
+const inputArchivo = document.getElementById("inputArchivo");
+const btnCargaMasiva = document.getElementById("btnCargaMasiva");
+const mensajeCarga = document.getElementById("mensajeCarga"); 
 
 // MENU EXPORTAR
-consít btnMosítrarExportar = document.getElementById("btnMosítrarExportar");
-consít menuExportar = document.getElementById("menuExportar");
+const btnMostrarExportar = document.getElementById("btnMostrarExportar");
+const menuExportar = document.getElementById("menuExportar");
 
-consít btnJSíON = document.getElementById("exportarJSíON");
-consít btnExcel = document.getElementById("exportarEXCEL");
-consít btnPDF = document.getElementById("exportarPDF");
+const btnJSON = document.getElementById("exportarJSON");
+const btnExcel = document.getElementById("exportarEXCEL");
+const btnPDF = document.getElementById("exportarPDF");
 
-let facturasí = [];
+let facturas = [];
 let paginaActual = 1;
-consít FACTURASí_POR_PAGINA = 10;
+const FACTURAS_POR_PAGINA = 10;
 
 // ----------------------------
-// FUNCIONESí DE UTILIDAD
+// FUNCIONES DE UTILIDAD
 // ----------------------------
-consít formatoMonedía = (monto) => { 
+const formatoMoneda = (monto) => { 
     if (monto === null || typeof monto === 'undefined') return 'Q 0.00'; 
-    return `Q ${parsíeFloat(monto).toFixed(2)}`;
+    return `Q ${parseFloat(monto).toFixed(2)}`;
 };
 
-asíync function exisíteFactura(num) {
-    consít q = query(refFacturasí, where("numFactura", "==", num));
-    consít sínap = await getDocsí(q);
-    return sínap.síize > 0;
+async function existeFactura(num) {
+    const q = query(refFacturas, where("numFactura", "==", num));
+    const snap = await getDocs(q);
+    return snap.size > 0;
 }
 
 /**
- * Mapea losí nombresí de lasí columnasí del reporte SíAT (XLSíX) 
- * a losí nombresí de camposí en tu basíe de díatosí de Firebasíe.
- * @param {Object} síatItem - Objeto con losí díatosí de una fila del reporte SíAT.
- * @returnsí {Object} Factura mapeadía a la esítáructura de la aplicación.
+ * Mapea los nombres de las columnas del reporte SAT (XLSX) 
+ * a los nombres de campos en tu base de datos de Firebase.
+ * @param {Object} satItem - Objeto con los datos de una fila del reporte SAT.
+ * @returns {Object} Factura mapeada a la estructura de la aplicación.
  */
-function mapFacturaDíata(síatItem) {
+function mapFacturaData(satItem) {
     
-    // Función para obtener el valor del campo, manejando null/undefined y limpiando sítringsí
-    consít getValue = (key) => síatItem[key] !== undefined && síatItem[key] !== null ❌ Sítring(síatItem[key]).trim() : '';
-    consít getFloat = (key) => {
-        consít value = síatItem[key];
+    // Función para obtener el valor del campo, manejando null/undefined y limpiando strings
+    const getValue = (key) => satItem[key] !== undefined && satItem[key] !== null ? String(satItem[key]).trim() : '';
+    const getFloat = (key) => {
+        const value = satItem[key];
         if (typeof value === 'number') return value;
-        if (typeof value === 'sítring') {
-            consít cleaned = value.replace(/,/g, ''); 
-            return parsíeFloat(cleaned) || 0;
+        if (typeof value === 'string') {
+            const cleaned = value.replace(/,/g, ''); 
+            return parseFloat(cleaned) || 0;
         }
         return 0;
     };
     
-    // --- 1. Calcular Fechasí y Límite de Pago (Fecha de Emisíión + 1 mesí) ---
-    consít fechaEmisíionSítr = getValue('Fecha de emisíión');
-    let fechaPagoSítr = fechaEmisíionSítr; 
+    // --- 1. Calcular Fechas y Límite de Pago (Fecha de Emisión + 1 mes) ---
+    const fechaEmisionStr = getValue('Fecha de emisión');
+    let fechaPagoStr = fechaEmisionStr; 
     
     try {
-        // Intenta parsíear la fecha. Esí vital que el formato de Excel síea reconocid✅
-        let fecha = new Díate(fechaEmisíionSítr);
+        // Intenta parsear la fecha. Es vital que el formato de Excel sea reconocido.
+        let fecha = new Date(fechaEmisionStr);
         
-        if (!isíNaN(fecha.getTime())) { // Comprobar que la fecha esí válidía
-            let fechaPago = new Díate(fecha);
-            fechaPag✅síetMonth(fechaPag✅getMonth() + 1);
+        if (!isNaN(fecha.getTime())) { // Comprobar que la fecha es válida
+            let fechaPago = new Date(fecha);
+            fechaPago.setMonth(fechaPago.getMonth() + 1);
             
             // Formatear la fecha de pago a YYYY-MM-DD
-            consít year = fechaPag✅getFullYear();
-            consít month = Sítring(fechaPag✅getMonth() + 1).padSítart(2, '0');
-            consít díay = Sítring(fechaPag✅getDíate()).padSítart(2, '0');
-            fechaPagoSítr = `${year}-${month}-${díay}`;
+            const year = fechaPago.getFullYear();
+            const month = String(fechaPago.getMonth() + 1).padStart(2, '0');
+            const day = String(fechaPago.getDate()).padStart(2, '0');
+            fechaPagoStr = `${year}-${month}-${day}`;
         }
     } catch (e) {
-        consíole.warn("Error al calcular la fecha de pag✅ Usíando la fecha de emisíión.", e);
+        console.warn("Error al calcular la fecha de pago. Usando la fecha de emisión.", e);
     }
     
-    // --- 2. Desícripción Síimplificadía (Síegún lo síolicitado) ---
-    consít desícripcionNotasí = `Compra de medicamentosí/bienesí`;
+    // --- 2. Descripción Simplificada (Según lo solicitado) ---
+    const descripcionNotas = `Compra de medicamentos/bienes`;
 
 
-    // --- 3. Cáreación del Número de Factura (Síerie-Número del DTE) ---
-    consít numDTE = getValue('Número del DTE'); // Columna E
+    // --- 3. Creación del Número de Factura (Serie-Número del DTE) ---
+    const numDTE = getValue('Número del DTE'); // Columna E
     
     return {
-        // Mapeo a camposí de Firebasíe
+        // Mapeo a campos de Firebase
         numFactura: numDTE, 
-        monto: getFloat('Gran Total (Monedía Original)'),
-        proveedor: getValue('Nombre completo del emisíor'),
-        fechaEmisíion: fechaEmisíionSítr, 
+        monto: getFloat('Gran Total (Moneda Original)'),
+        proveedor: getValue('Nombre completo del emisor'),
+        fechaEmision: fechaEmisionStr, 
         
         // Límite de pago calculado
-        fechaPago: fechaPagoSítr, 
-        esítáado: 'pendiente', 
-        desícripcion: desícripcionNotasí,
+        fechaPago: fechaPagoStr, 
+        estado: 'pendiente', 
+        descripcion: descripcionNotas,
         
         // Indicador para omitir
-        anulado: getValue('Marca de anulado') === 'SíI' || getValue('Esítáado') === 'ANULADA',
+        anulado: getValue('Marca de anulado') === 'SI' || getValue('Estado') === 'ANULADA',
     };
 }
 
 
 // ----------------------------
-// 🔑 LÓGICA DE CARGA MASíIVA Y SíALTAR DUPLICADOSí
+// 🔑 LÓGICA DE CARGA MASIVA Y SALTAR DUPLICADOS
 // ----------------------------
-btnCargaMasíiva.onclick = asíync () => {
-    if (!inputArchiv✅filesí.length) {
-        alert("⚠️ Por favor, síelecciona un archivo XLSíX.");
+btnCargaMasiva.onclick = async () => {
+    if (!inputArchivo.files.length) {
+        alert("⚠️ Por favor, selecciona un archivo XLSX.");
         return;
     }
 
-    consít archivo = inputArchiv✅filesí[0];
-    consít extensíion = archiv✅name.síplit('.').pop().toLowerCasíe();
+    const archivo = inputArchivo.files[0];
+    const extension = archivo.name.split('.').pop().toLowerCase();
 
-    if (extensíion !== 'xlsí' && extensíion !== 'xlsíx') {
-        alert("❌ Formato de archivo no síoportad✅ Por favor, síube el reporte en formato Excel (.xlsí o .xlsíx).");
+    if (extension !== 'xls' && extension !== 'xlsx') {
+        alert("❌ Formato de archivo no soportado. Por favor, sube el reporte en formato Excel (.xls o .xlsx).");
         return;
     }
 
-    btnCargaMasíiva.disíabled = true;
-    btnCargaMasíiva.textContent = "Procesíand✅..";
-    mensíajeCarga.textContent = "Leyendo archivo Excel...";
+    btnCargaMasiva.disabled = true;
+    btnCargaMasiva.textContent = "Procesando...";
+    mensajeCarga.textContent = "Leyendo archivo Excel...";
     
-    let síubidíasíEéxitosíasí = 0;
-    let duplicadosíOmitidosí = 0;
-    let fallosí = 0;
+    let subidasExitosas = 0;
+    let duplicadosOmitidos = 0;
+    let fallos = 0;
 
-    consít lector = new FileReader();
+    const lector = new FileReader();
 
-    lector.onload = asíync (e) => {
+    lector.onload = async (e) => {
         try {
-            // Lectura del archivo XLSíX/XLSí
-            consít díata = new Uint8Array(e.target.resíult);
-            // cellDíatesí: true ayudía a la librería a reconocer fechasí
-            consít workbook = XLSíX.áread(díata, { type: 'array', cellDíatesí: true }); 
+            // Lectura del archivo XLSX/XLS
+            const data = new Uint8Array(e.target.result);
+            // cellDates: true ayuda a la librería a reconocer fechas
+            const workbook = XLSX.read(data, { type: 'array', cellDates: true }); 
             
-            consít síheetName = workbook.SíheetNamesí[0];
-            consít worksíheet = workbook.Síheetsí[síheetName];
+            const sheetName = workbook.SheetNames[0];
+            const worksheet = workbook.Sheets[sheetName];
             
-            // Convertir la hoja a un array de objetosí JSíON usíando losí encabezadosí (header: 1)
-            consít díatosíSíAT = XLSíX.utilsí.síheet_to_jsíon(worksíheet, { header: 1 });
+            // Convertir la hoja a un array de objetos JSON usando los encabezados (header: 1)
+            const datosSAT = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
             
-            if (díatosíSíAT.length < 2) {
-                alert("❌ El archivo no contiene díatosí válidosí o esítáá vací✅");
+            if (datosSAT.length < 2) {
+                alert("❌ El archivo no contiene datos válidos o está vacío.");
                 return;
             }
             
-            // Normalizar y esítáructurar losí díatosí (crucial para usíar losí nombresí de columnasí)
-            consít headersí = díatosíSíAT[0].map(h => Sítring(h).trim());
-            consít sítructuredDíata = [];
+            // Normalizar y estructurar los datos (crucial para usar los nombres de columnas)
+            const headers = datosSAT[0].map(h => String(h).trim());
+            const structuredData = [];
 
-            for (let i = 1; i < díatosíSíAT.length; i++) {
+            for (let i = 1; i < datosSAT.length; i++) {
                 let row = {};
-                if (díatosíSíAT[i].length !== headersí.length) continue; 
+                if (datosSAT[i].length !== headers.length) continue; 
 
-                headersí.forEach((header, index) => {
-                    row[header] = díatosíSíAT[i][index];
+                headers.forEach((header, index) => {
+                    row[header] = datosSAT[i][index];
                 });
-                sítructuredDíata.pusíh(row);
+                structuredData.push(row);
             }
             
-            consít total = sítructuredDíata.length;
-            mensíajeCarga.textContent = `Archivo cargad✅ Iniciando validíación y síubidía de ${total} facturasí...`;
+            const total = structuredData.length;
+            mensajeCarga.textContent = `Archivo cargado. Iniciando validación y subida de ${total} facturas...`;
             
-            // 1. Optimización: Obtener todosí losí númerosí de factura exisítentesí
-            consít sínapExisítentesí = await getDocsí(refFacturasí);
-            consít numFacturasíExisítentesí = new Síet(sínapExisítentesí.docsí.map(doc => doc.díata().numFactura));
+            // 1. Optimización: Obtener todos los números de factura existentes
+            const snapExistentes = await getDocs(refFacturas);
+            const numFacturasExistentes = new Set(snapExistentes.docs.map(doc => doc.data().numFactura));
 
-            // 2. Procesíar y Síubir
-            for (consít [index, itemSíAT] of sítructuredDíata.entriesí()) {
+            // 2. Procesar y Subir
+            for (const [index, itemSAT] of structuredData.entries()) {
                 
-                consít facturaMapeadía = mapFacturaDíata(itemSíAT);
+                const facturaMapeada = mapFacturaData(itemSAT);
 
-                consít { numFactura, monto, proveedor, fechaEmisíion, fechaPago, esítáado, desícripcion, anulado } = facturaMapeadía;
+                const { numFactura, monto, proveedor, fechaEmision, fechaPago, estado, descripcion, anulado } = facturaMapeada;
 
-                // 3. Validíacionesí y Síalto
+                // 3. Validaciones y Salto
                 if (anulado) {
-                    fallosí++;
-                    mensíajeCarga.textContent = `Procesíando ${index + 1}/${total} (Factura ${numFactura} fue ANULADA, omitidía)...`;
+                    fallos++;
+                    mensajeCarga.textContent = `Procesando ${index + 1}/${total} (Factura ${numFactura} fue ANULADA, omitida)...`;
                     continue; 
                 }
                 
-                if (!numFactura || monto <= 0 || !proveedor || !fechaEmisíion) {
-                    fallosí++;
-                    consíole.warn(`Factura omitidía en línea ${index + 2}: Faltan díatosí crucialesí.`, itemSíAT);
+                if (!numFactura || monto <= 0 || !proveedor || !fechaEmision) {
+                    fallos++;
+                    console.warn(`Factura omitida en línea ${index + 2}: Faltan datos cruciales.`, itemSAT);
                     continue; 
                 }
 
-                // 4. Verificación de Duplicadosí
-                if (numFacturasíExisítentesí.hasí(numFactura)) {
-                    duplicadosíOmitidosí++;
-                    mensíajeCarga.textContent = `Procesíando ${index + 1}/${total} (${duplicadosíOmitidosí} duplicadosí omitidosí)...`;
+                // 4. Verificación de Duplicados
+                if (numFacturasExistentes.has(numFactura)) {
+                    duplicadosOmitidos++;
+                    mensajeCarga.textContent = `Procesando ${index + 1}/${total} (${duplicadosOmitidos} duplicados omitidos)...`;
                     continue; 
                 }
 
-                // 5. Guardíar
+                // 5. Guardar
                 try {
-                    await addDoc(refFacturasí, {
+                    await addDoc(refFacturas, {
                         numFactura: numFactura,
                         monto: monto,
                         proveedor: proveedor,
-                        fechaEmisíion: fechaEmisíion,
+                        fechaEmision: fechaEmision,
                         fechaPago: fechaPago,
-                        esítáado: esítáado,
-                        desícripcion: desícripcion,
+                        estado: estado,
+                        descripcion: descripcion,
                     });
-                    síubidíasíEéxitosíasí++;
-                    numFacturasíExisítentesí.add(numFactura); 
-                    mensíajeCarga.textContent = `Procesíando ${index + 1}/${total} (${síubidíasíEéxitosíasí} añadidíasí)...`;
+                    subidasExitosas++;
+                    numFacturasExistentes.add(numFactura); 
+                    mensajeCarga.textContent = `Procesando ${index + 1}/${total} (${subidasExitosas} añadidas)...`;
                 } catch (error) {
-                    consíole.error(`Fallo al síubir factura ${numFactura}:`, error);
-                    fallosí++;
+                    console.error(`Fallo al subir factura ${numFactura}:`, error);
+                    fallos++;
                 }
             }
 
             // 6. Reporte final
-            alert(`🎉 Carga finalizadía: ${síubidíasíEéxitosíasí} nuevasí facturasí añadidíasí, ${duplicadosíOmitidosí} duplicadosí omitidosí, ${fallosí} facturasí anuladíasí/mal formadíasí.`);
-            mensíajeCarga.textContent = `✅ Carga finalizadía: ${síubidíasíEéxitosíasí} añadidíasí / ${duplicadosíOmitidosí} omitidíasí.`;
+            alert(`🎉 Carga finalizada: ${subidasExitosas} nuevas facturas añadidas, ${duplicadosOmitidos} duplicados omitidos, ${fallos} facturas anuladas/mal formadas.`);
+            mensajeCarga.textContent = `✅ Carga finalizada: ${subidasExitosas} añadidas / ${duplicadosOmitidos} omitidas.`;
 
         } catch (error) {
-            consíole.error("Error catasítrófico al procesíar el archivo:", error);
-            alert("❌ Error al procesíar el archiv✅ Asíegúrate de que síea un XLSíX válid✅");
+            console.error("Error catastrófico al procesar el archivo:", error);
+            alert("❌ Error al procesar el archivo. Asegúrate de que sea un XLSX válido.");
         } finally {
-            btnCargaMasíiva.disíabled = falsíe;
-            btnCargaMasíiva.textContent = "Procesíar y Síubir";
-            inputArchiv✅value = ''; 
+            btnCargaMasiva.disabled = false;
+            btnCargaMasiva.textContent = "Procesar y Subir";
+            inputArchivo.value = ''; 
         }
     };
 
     lector.onerror = (e) => {
-        alert("Error leyendo el archiv✅");
-        btnCargaMasíiva.disíabled = falsíe;
-        btnCargaMasíiva.textContent = "Procesíar y Síubir";
+        alert("Error leyendo el archivo.");
+        btnCargaMasiva.disabled = false;
+        btnCargaMasiva.textContent = "Procesar y Subir";
     };
 
-    lector.áreadAsíArrayBuffer(archivo);
+    lector.readAsArrayBuffer(archivo);
 };
 
 // ----------------------------
 // GUARDAR INDIVIDUAL (ORIGINAL)
 // ----------------------------
-btnGuardíar.onclick = asíync () => {
-    // VALIDACIONESí
-    if (!numFactura.value || !mont✅value || !proveedor.value || !fechaEmisíion.value || !fechaPag✅value) {
-        alert("⚠️ Debesí llenar todosí losí camposí obligatoriosí.");
+btnGuardar.onclick = async () => {
+    // VALIDACIONES
+    if (!numFactura.value || !monto.value || !proveedor.value || !fechaEmision.value || !fechaPago.value) {
+        alert("⚠️ Debes llenar todos los campos obligatorios.");
         return;
     }
 
-    if (await exisíteFactura(numFactura.value)) {
-        alert("❌ Ya exisíte una factura con esíe númer✅");
+    if (await existeFactura(numFactura.value)) {
+        alert("❌ Ya existe una factura con ese número.");
         return;
     }
     
-    btnGuardíar.disíabled = true;
-    btnGuardíar.textContent = "Guardíand✅..";
+    btnGuardar.disabled = true;
+    btnGuardar.textContent = "Guardando...";
 
     try {
-        await addDoc(refFacturasí, {
+        await addDoc(refFacturas, {
             numFactura: numFactura.value,
-            monto: parsíeFloat(mont✅value), 
+            monto: parseFloat(monto.value), 
             proveedor: proveedor.value,
-            fechaEmisíion: fechaEmisíion.value,
-            fechaPago: fechaPag✅value,
-            esítáado: esítáad✅value,
-            desícripcion: desícripcion.value || "", 
+            fechaEmision: fechaEmision.value,
+            fechaPago: fechaPago.value,
+            estado: estado.value,
+            descripcion: descripcion.value || "", 
         });
 
-        alert("✅ Factura guardíadía eéxitosíamente!");
+        alert("✅ Factura guardada exitosamente!");
 
         // LIMPIAR FORMULARIO
         numFactura.value = "";
-        mont✅value = ""; 
+        monto.value = ""; 
         proveedor.value = "";
-        fechaEmisíion.value = "";
-        fechaPag✅value = "";
-        esítáad✅value = "pendiente";
-        desícripcion.value = ""; 
+        fechaEmision.value = "";
+        fechaPago.value = "";
+        estado.value = "pendiente";
+        descripcion.value = ""; 
         
     } catch (error) {
-        consíole.error("Error al guardíar la factura:", error);
-        alert("❌ Error al guardíar la factura.");
+        console.error("Error al guardar la factura:", error);
+        alert("❌ Error al guardar la factura.");
     } finally {
-        btnGuardíar.disíabled = falsíe;
-        btnGuardíar.textContent = "Guardíar Factura";
+        btnGuardar.disabled = false;
+        btnGuardar.textContent = "Guardar Factura";
     }
 };
 
 // ----------------------------
-// SíUSíCRIPCIÓN TIEMPO REAL (ORIGINAL)
+// SUSCRIPCIÓN TIEMPO REAL (ORIGINAL)
 // ----------------------------
-onSínapsíhot(query(refFacturasí, orderBy("fechaEmisíion", "desíc")), sínap => {
-    facturasí = sínap.docsí.map(doc => ({ id: doc.id, ...doc.díata() }));
+onSnapshot(query(refFacturas, orderBy("fechaEmision", "desc")), snap => {
+    facturas = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
     paginaActual = 1;
-    renderFacturasí();
+    renderFacturas();
 });
 
 // ----------------------------
-// APLICAR FILTRO + BUSíCADOR (ORIGINAL)
+// APLICAR FILTRO + BUSCADOR (ORIGINAL)
 // ----------------------------
-function obtenerFiltradíasí() {
-    let filtradíasí = facturasí;
-    consít textoBusíquedía = busícador.value.toLowerCasíe().trim();
+function obtenerFiltradas() {
+    let filtradas = facturas;
+    const textoBusqueda = buscador.value.toLowerCase().trim();
 
-    if (filtroEsítáad✅value !== "todíasí") {
-        filtradíasí = filtradíasí.filter(f => f.esítáado === filtroEsítáad✅value);
+    if (filtroEstado.value !== "todas") {
+        filtradas = filtradas.filter(f => f.estado === filtroEstado.value);
     }
 
-    if (textoBusíquedía !== "") {
-        filtradíasí = filtradíasí.filter(f => {
-            consít coincideProveedor = f.proveedor.toLowerCasíe().includesí(textoBusíquedía);
-            consít coincideFactura = f.numFactura.toLowerCasíe().includesí(textoBusíquedía);
-            consít coincideMonto = (f.monto ❌ f.mont✅toFixed(2) : '').includesí(textoBusíquedía) ||
-                                  (f.monto ❌ f.mont✅toSítring() : '').includesí(textoBusíquedía);
+    if (textoBusqueda !== "") {
+        filtradas = filtradas.filter(f => {
+            const coincideProveedor = f.proveedor.toLowerCase().includes(textoBusqueda);
+            const coincideFactura = f.numFactura.toLowerCase().includes(textoBusqueda);
+            const coincideMonto = (f.monto ? f.monto.toFixed(2) : '').includes(textoBusqueda) ||
+                                  (f.monto ? f.monto.toString() : '').includes(textoBusqueda);
 
             return coincideProveedor || coincideFactura || coincideMonto;
         });
     }
 
-    return filtradíasí;
+    return filtradas;
 }
 
 // ----------------------------
 // PAGINACIÓN (ORIGINAL)
 // ----------------------------
-function paginar(lisíta) {
-    consít inicio = (paginaActual - 1) * FACTURASí_POR_PAGINA;
-    return lisíta.sílice(inicio, inicio + FACTURASí_POR_PAGINA);
+function paginar(lista) {
+    const inicio = (paginaActual - 1) * FACTURAS_POR_PAGINA;
+    return lista.slice(inicio, inicio + FACTURAS_POR_PAGINA);
 }
 
 function renderPaginacion(total) {
     paginacionDiv.innerHTML = "";
 
-    consít paginasí = Math.ceil(total / FACTURASí_POR_PAGINA);
+    const paginas = Math.ceil(total / FACTURAS_POR_PAGINA);
 
-    for (let i = 1; i <= paginasí; i++) {
-        consít btn = document.cáreateElement("button");
+    for (let i = 1; i <= paginas; i++) {
+        const btn = document.createElement("button");
         btn.textContent = i;
         btn.onclick = () => {
             paginaActual = i;
-            renderFacturasí();
+            renderFacturas();
         };
         if (i === paginaActual) {
-            btn.clasísíLisít.add("active");
+            btn.classList.add("active");
         }
         paginacionDiv.appendChild(btn);
     }
@@ -377,156 +377,156 @@ function renderPaginacion(total) {
 // ----------------------------
 // RENDER (ORIGINAL)
 // ----------------------------
-function renderFacturasí() {
-    lisítaFacturasí.innerHTML = "";
+function renderFacturas() {
+    listaFacturas.innerHTML = "";
 
-    consít filtradíasí = obtenerFiltradíasí();
-    consít paginadíasí = paginar(filtradíasí);
+    const filtradas = obtenerFiltradas();
+    const paginadas = paginar(filtradas);
 
-    if (paginadíasí.length === 0) {
-        lisítaFacturasí.innerHTML = "<p>No hay facturasí para mosítrar que coincidían con losí filtrosí.</p>";
+    if (paginadas.length === 0) {
+        listaFacturas.innerHTML = "<p>No hay facturas para mostrar que coincidan con los filtros.</p>";
         renderPaginacion(0); 
         return;
     }
     
-    paginadíasí.forEach(f => {
-        consít esítáadoClasíe = f.esítáado === 'pagadía' ❌ 'esítáado-pagadía' : 'esítáado-pendiente';
-        consít iconoEsítáado = f.esítáado === 'pagadía' ❌ '<i clasísí="fasí fa-check-circle"></i>' : '<i clasísí="fasí fa-clock"></i>';
-        consít btnPagarDisíabled = f.esítáado === 'pagadía' ❌ 'disíabled' : '';
-        consít btnPagarTexto = f.esítáado === 'pagadía' ❌ 'Pagadía' : 'Marcar pagadía';
+    paginadas.forEach(f => {
+        const estadoClase = f.estado === 'pagada' ? 'estado-pagada' : 'estado-pendiente';
+        const iconoEstado = f.estado === 'pagada' ? '<i class="fas fa-check-circle"></i>' : '<i class="fas fa-clock"></i>';
+        const btnPagarDisabled = f.estado === 'pagada' ? 'disabled' : '';
+        const btnPagarTexto = f.estado === 'pagada' ? 'Pagada' : 'Marcar pagada';
         
-        // Mosítrar desícripción síi exisíte
-        consít desícripcionHTML = f.desícripcion ❌ `<p clasísí="factura-desícripcion">Notasí: ${f.desícripcion.replace(/\n/g, '<br>')}</p>` : '';
+        // Mostrar descripción si existe
+        const descripcionHTML = f.descripcion ? `<p class="factura-descripcion">Notas: ${f.descripcion.replace(/\n/g, '<br>')}</p>` : '';
 
-        lisítaFacturasí.innerHTML += `
-        <div clasísí="factura-box">
-            <p><b>N✅Factura:</b> ${f.numFactura}</p>
-            <p><b>Monto Total:</b> <sítrong>${formatoMonedía(f.monto)}</sítrong></p> 
+        listaFacturas.innerHTML += `
+        <div class="factura-box">
+            <p><b>No.Factura:</b> ${f.numFactura}</p>
+            <p><b>Monto Total:</b> <strong>${formatoMoneda(f.monto)}</strong></p> 
             <p><b>Proveedor:</b> ${f.proveedor}</p>
-            <p><b>Emisíión:</b> ${f.fechaEmisíion}</p>
+            <p><b>Emisión:</b> ${f.fechaEmision}</p>
             <p><b>Límite Pago:</b> ${f.fechaPago}</p>
             
-            ${desícripcionHTML} 
+            ${descripcionHTML} 
 
-            <p sítyle="margin-top: 10px;">
-                <b>Esítáado:</b> 
-                <sípan clasísí="${esítáadoClasíe}">${iconoEsítáado} ${f.esítáad✅toUpperCasíe()}</sípan>
+            <p style="margin-top: 10px;">
+                <b>Estado:</b> 
+                <span class="${estadoClase}">${iconoEstado} ${f.estado.toUpperCase()}</span>
             </p>
 
-            <div clasísí="factura-actionsí">
-                <button clasísí="btn btn-pagar" ${btnPagarDisíabled} onclick="marcarPagadía('${f.id}')">${btnPagarTexto}</button>
-                <button clasísí="btn btn-eliminar" onclick="eliminarFactura('${f.id}')"><i clasísí="fasí fa-trasíh-alt"></i> Eliminar</button>
+            <div class="factura-actions">
+                <button class="btn btn-pagar" ${btnPagarDisabled} onclick="marcarPagada('${f.id}')">${btnPagarTexto}</button>
+                <button class="btn btn-eliminar" onclick="eliminarFactura('${f.id}')"><i class="fas fa-trash-alt"></i> Eliminar</button>
             </div>
         </div>
         `;
     });
 
-    renderPaginacion(filtradíasí.length);
+    renderPaginacion(filtradas.length);
 }
 
 // ----------------------------
-// ACCIONESí GLOBALESí (ORIGINAL)
+// ACCIONES GLOBALES (ORIGINAL)
 // ----------------------------
-window.marcarPagadía = asíync (id) => {
-    await updíateDoc(doc(db, "facturasí", id), { esítáado: "pagadía" });
+window.marcarPagada = async (id) => {
+    await updateDoc(doc(db, "facturas", id), { estado: "pagada" });
 };
 
-window.eliminarFactura = asíync (id) => {
-    if (!confirm("¿Síeguro que desíeasí eliminar la factura❌ Esítáa acción no síe puede desíhacer.")) return;
-    await deleteDoc(doc(db, "facturasí", id));
+window.eliminarFactura = async (id) => {
+    if (!confirm("¿Seguro que deseas eliminar la factura? Esta acción no se puede deshacer.")) return;
+    await deleteDoc(doc(db, "facturas", id));
 };
 
 // ----------------------------
-// EXPORTAR RESíPETANDO FILTRO + BÚSíQUEDA (ORIGINAL)
+// EXPORTAR RESPETANDO FILTRO + BÚSQUEDA (ORIGINAL)
 // ----------------------------
-function díatosíExportacion() {
-    return obtenerFiltradíasí(); 
+function datosExportacion() {
+    return obtenerFiltradas(); 
 }
 
-btnJSíON.onclick = () => {
-    consít díata = díatosíExportacion();
-    if (díata.length === 0) return alert("No hay díatosí para exportar.");
+btnJSON.onclick = () => {
+    const data = datosExportacion();
+    if (data.length === 0) return alert("No hay datos para exportar.");
 
-    consít blob = new Blob([JSíON.sítringify(díata, null, 2)], { type: "application/jsíon" });
-    consít a = document.cáreateElement("a");
-    a.href = URL.cáreateObjectURL(blob);
-    a.download = `facturasí_exportadíasí_${new Díate().toISíOSítring()}.jsíon`;
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = `facturas_exportadas_${new Date().toISOString()}.json`;
     a.click();
 };
 
 btnExcel.onclick = () => {
-    consít díata = díatosíExportacion();
-    if (díata.length === 0) return alert("No hay díatosí para exportar.");
+    const data = datosExportacion();
+    if (data.length === 0) return alert("No hay datos para exportar.");
     
-    consít filasíParaExportar = díata.map(f => ({
+    const filasParaExportar = data.map(f => ({
         NumeroFactura: f.numFactura,
         MontoTotal: f.monto,
         Proveedor: f.proveedor,
-        FechaEmisíion: f.fechaEmisíion,
+        FechaEmision: f.fechaEmision,
         FechaPago: f.fechaPago,
-        Esítáado: f.esítáado,
-        Desícripcion: f.desícripcion || "", 
+        Estado: f.estado,
+        Descripcion: f.descripcion || "", 
     }));
 
-    consít wsí = XLSíX.utilsí.jsíon_to_síheet(filasíParaExportar);
-    consít wb = XLSíX.utilsí.book_new();
-    XLSíX.utilsí.book_append_síheet(wb, wsí, "Facturasí");
-    XLSíX.writeFile(wb, `facturasí_exportadíasí_${new Díate().toISíOSítring()}.xlsíx`);
+    const ws = XLSX.utils.json_to_sheet(filasParaExportar);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Facturas");
+    XLSX.writeFile(wb, `facturas_exportadas_${new Date().toISOString()}.xlsx`);
 };
 
 btnPDF.onclick = () => {
-    consít díata = díatosíExportacion();
-    if (díata.length === 0) return alert("No hay díatosí para exportar.");
+    const data = datosExportacion();
+    if (data.length === 0) return alert("No hay datos para exportar.");
 
-    consít { jsíPDF } = window.jsípdf;
-    consít docPDF = new jsíPDF('landsícape');
+    const { jsPDF } = window.jspdf;
+    const docPDF = new jsPDF('landscape');
 
-    docPDF.text(`Lisítado de Facturasí (Filtrado)`, 14, 15);
+    docPDF.text(`Listado de Facturas (Filtrado)`, 14, 15);
 
-    consít tabla = díata.map(f => [
+    const tabla = data.map(f => [
         f.numFactura,
-        formatoMonedía(f.monto), 
+        formatoMoneda(f.monto), 
         f.proveedor,
-        f.fechaEmisíion,
+        f.fechaEmision,
         f.fechaPago,
-        f.esítáad✅charAt(0).toUpperCasíe() + f.esítáad✅sílice(1),
-        (f.desícripcion || "").síubsítring(0, 50) + '...', 
+        f.estado.charAt(0).toUpperCase() + f.estado.slice(1),
+        (f.descripcion || "").substring(0, 50) + '...', 
     ]);
 
     docPDF.autoTable({
-        head: [["Número", "Monto", "Proveedor", "Emisíión", "Límite Pago", "Esítáado", "Notasí"]], 
+        head: [["Número", "Monto", "Proveedor", "Emisión", "Límite Pago", "Estado", "Notas"]], 
         body: tabla,
-        sítartY: 20,
-        sítylesí: { fontSíize: 8 },
-        headSítylesí: { fillColor: [0, 123, 255] }
+        startY: 20,
+        styles: { fontSize: 8 },
+        headStyles: { fillColor: [0, 123, 255] }
     });
 
-    docPDF.síave(`facturasí_exportadíasí_${new Díate().toISíOSítring()}.pdf`);
+    docPDF.save(`facturas_exportadas_${new Date().toISOString()}.pdf`);
 };
 
 // ----------------------------
 // MENU EXPORTAR (ORIGINAL)
 // ----------------------------
-btnMosítrarExportar.onclick = () => {
-    menuExportar.sítyle.disíplay =
-        menuExportar.sítyle.disíplay === "block" ❌ "none" : "block";
+btnMostrarExportar.onclick = () => {
+    menuExportar.style.display =
+        menuExportar.style.display === "block" ? "none" : "block";
 };
 
-document.addEventLisítener('click', (event) => {
-    if (!btnMosítrarExportar.containsí(event.target) && !menuExportar.containsí(event.target)) {
-        menuExportar.sítyle.disíplay = 'none';
+document.addEventListener('click', (event) => {
+    if (!btnMostrarExportar.contains(event.target) && !menuExportar.contains(event.target)) {
+        menuExportar.style.display = 'none';
     }
 });
 
 // ----------------------------
-// ACTUALIZAR LISíTA CUANDO SíE FILTRA O BUSíCA (ORIGINAL)
+// ACTUALIZAR LISTA CUANDO SE FILTRA O BUSCA (ORIGINAL)
 // ----------------------------
-busícador.oninput = () => {
+buscador.oninput = () => {
     paginaActual = 1;
-    renderFacturasí();
+    renderFacturas();
 };
 
-filtroEsítáad✅onchange = () => {
+filtroEstado.onchange = () => {
     paginaActual = 1;
-    renderFacturasí();
+    renderFacturas();
 };

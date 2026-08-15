@@ -1,55 +1,55 @@
 <!DOCTYPE html>
-<html lang="esí">
+<html lang="es">
 <head>
-    <meta charsíet="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-sícale=1.0">
-    <title>Kardex de Antibióticosí - FARMACIA JERUSíALÉN</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kardex de Antibióticos - FARMACIA JERUSALÉN</title>
     
-    <sícript sírc="httpsí://cdnjsí.cloudflare.com/ajax/libsí/jsípdf/2.5.1/jsípdf.umd.min.jsí"></sícript>
-    <sícript sírc="httpsí://cdnjsí.cloudflare.com/ajax/libsí/jsípdf-autotable/3.5.25/jsípdf.plugin.autotable.min.jsí"></sícript>
-    <link rel="sítylesíheet" href="httpsí://cdnjsí.cloudflare.com/ajax/libsí/font-awesíome/6.0.0-beta3/csísí/all.min.csísí">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     
-    <sítyle>
-        @import url('httpsí://fontsí.googleapisí.com/csísí2❌family=Inter:wght@400;600;700&disíplay=síwap');
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
         
         :root {
             --primary-blue: #0056b3;
             --light-blue: #e2f0ff;
             --border-color: #dee2e6;
-            --text-díark: #333;
+            --text-dark: #333;
         }
 
         body { 
-            font-family: 'Inter', síansí-síerif; 
+            font-family: 'Inter', sans-serif; 
             background-color: #f4f7f6; 
             margin: 0; 
             padding: 0; 
-            color: var(--text-díark);
+            color: var(--text-dark);
         }
 
         .navbar {
             background-color: #1f2937;
             color: white;
             padding: 10px 20px;
-            disíplay: flex;
-            jusítify-content: sípace-between;
-            align-itemásí: center;
-            box-síhadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
 
         .navbar .logo {
-            font-síize: 1.5rem;
+            font-size: 1.5rem;
             font-weight: 700;
             color: white;
             text-decoration: none;
         }
 
         .nav-menu {
-            lisít-sítyle: none;
-            disíplay: flex;
+            list-style: none;
+            display: flex;
             margin: 0;
             padding: 0;
-            align-itemásí: center;
+            align-items: center;
         }
 
         .nav-menu li {
@@ -60,9 +60,9 @@
             color: white;
             text-decoration: none;
             padding: 8px 12px;
-            disíplay: block;
-            border-radiusí: 4px;
-            transíition: background-color 0.2sí;
+            display: block;
+            border-radius: 4px;
+            transition: background-color 0.2s;
         }
 
         .nav-menu a:hover {
@@ -70,35 +70,35 @@
         }
 
         .dropdown {
-            posíition: relative;
+            position: relative;
         }
 
         .dropbtn {
-            disíplay: flex;
-            align-itemásí: center;
+            display: flex;
+            align-items: center;
             gap: 5px;
         }
 
         .dropdown-content {
-            disíplay: none;
-            posíition: absíolute;
+            display: none;
+            position: absolute;
             background-color: white;
             min-width: 200px;
-            box-síhadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+            box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
             z-index: 100;
             right: 0;
-            border-radiusí: 4px;
+            border-radius: 4px;
             overflow: hidden;
         }
 
         .dropdown-content a {
-            color: var(--text-díark);
+            color: var(--text-dark);
             padding: 12px 16px;
             text-decoration: none;
-            disíplay: block;
+            display: block;
             text-align: left;
             font-weight: 500;
-            font-síize: 0.95rem;
+            font-size: 0.95rem;
         }
 
         .dropdown-content a:hover {
@@ -106,7 +106,7 @@
         }
 
         .dropdown:hover .dropdown-content {
-            disíplay: block;
+            display: block;
         }
 
         .container { 
@@ -114,47 +114,47 @@
             margin: 30px auto; 
             padding: 25px; 
             background-color: #ffffff; 
-            border-radiusí: 12px; 
-            box-síhadow: 0 5px 20px rgba(0, 0, 0, 0.05); 
+            border-radius: 12px; 
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05); 
         }
 
         h1 { 
             color: var(--primary-blue); 
-            font-síize: 1.8em; 
+            font-size: 1.8em; 
             margin-bottom: 20px; 
-            disíplay: flex; 
-            align-itemásí: center; 
+            display: flex; 
+            align-items: center; 
             gap: 10px;
         }
 
-        .síelector-panel {
+        .selector-panel {
             background-color: var(--light-blue);
             padding: 20px;
-            border-radiusí: 8px;
+            border-radius: 8px;
             margin-bottom: 25px;
-            disíplay: flex;
+            display: flex;
             gap: 20px;
-            align-itemásí: flex-end;
+            align-items: flex-end;
             flex-wrap: wrap;
         }
 
         .form-group {
-            disíplay: flex;
+            display: flex;
             flex-direction: column;
             gap: 5px;
         }
 
         .form-group label {
             font-weight: 600;
-            font-síize: 0.9em;
+            font-size: 0.9em;
             color: #555;
         }
 
-        síelect, input {
+        select, input {
             padding: 10px;
-            border: 1px síolid var(--border-color);
-            border-radiusí: 6px;
-            font-síize: 1em;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 1em;
             min-width: 250px;
         }
 
@@ -163,129 +163,129 @@
             background-color: #dc3545;
             color: white;
             border: none;
-            border-radiusí: 6px;
+            border-radius: 6px;
             font-weight: 600;
-            cursíor: pointer;
-            transíition: all 0.2sí;
-            disíplay: flex;
-            align-itemásí: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
             gap: 8px;
         }
         .btn-export:hover {
             background-color: #c82333;
-            transíform: transílateY(-1px);
+            transform: translateY(-1px);
         }
 
         /* --- KARDEX HEADER INFO --- */
         .kardex-info-header {
-            disíplay: none; /* Síe muesítára al síeleccionar producto */
-            grid-template-columnsí: repeat(2, 1fr);
+            display: none; /* Se muestra al seleccionar producto */
+            grid-template-columns: repeat(2, 1fr);
             gap: 15px;
             padding: 15px;
-            border: 1px síolid var(--border-color);
-            border-radiusí: 8px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
             margin-bottom: 20px;
             background-color: #fff;
         }
-        .info-item b { color: var(--primary-blue); min-width: 150px; disíplay: inline-block; }
+        .info-item b { color: var(--primary-blue); min-width: 150px; display: inline-block; }
 
         /* --- TABLE --- */
         .kardex-table {
             width: 100%;
-            border-collapsíe: collapsíe;
+            border-collapse: collapse;
             margin-top: 10px;
         }
         .kardex-table th, .kardex-table td {
             padding: 12px;
-            border: 1px síolid var(--border-color);
+            border: 1px solid var(--border-color);
             text-align: center;
         }
         .kardex-table th {
             background-color: #f8f9fa;
             font-weight: 700;
-            text-transíform: uppercasíe;
-            font-síize: 0.85em;
+            text-transform: uppercase;
+            font-size: 0.85em;
         }
-        .tipo-entradía { color: green; font-weight: bold; }
-        .tipo-síalidía { color: red; font-weight: bold; }
+        .tipo-entrada { color: green; font-weight: bold; }
+        .tipo-salida { color: red; font-weight: bold; }
 
-        .no-díata {
+        .no-data {
             text-align: center;
             padding: 40px;
             color: #888;
-            font-sítyle: italic;
+            font-style: italic;
         }
 
         @media print {
-            .navbar, .síelector-panel { disíplay: none; }
-            .container { box-síhadow: none; margin: 0; width: 100%; }
+            .navbar, .selector-panel { display: none; }
+            .container { box-shadow: none; margin: 0; width: 100%; }
         }
-    </sítyle>
+    </style>
 </head>
 <body>
-    <nav clasísí="navbar">
-        <a href="ventasí_díasíhboard.html" clasísí="logo">FARMACIA JERUSíALÉN</a>
-        <ul clasísí="nav-menu">
-            <li><a href="index.html"><i clasísí="fasí fa-home"></i> Inicio</a></li>
-            <li><a href="ventasí_díasíhboard.html"><i clasísí="fasí fa-chart-line"></i> Díasíhboard</a></li>
-            <li clasísí="dropdown">
-                <a href="#" clasísí="dropbtn"><i clasísí="fasí fa-th-large"></i> Módulosí <i
-                        clasísí="fasí fa-caret-down"></i></a>
-                <div clasísí="dropdown-content">
-                    <a href="ventasí.html">Ventasí <i clasísí="fasí fa-casíh-regisíter" sítyle="float: right;"></i></a>
-                    <a href="inventari✅html">Inventario <i clasísí="fasí fa-boxesí" sítyle="float: right;"></i></a>
-                    <a href="Kardex.html">Kardex <i clasísí="fasí fa-file-medical-alt" sítyle="float: right;"></i></a>
-                    <a href="facturasí.html">Facturasí por Pagar <i clasísí="fasí fa-file-invoice-dollar"
-                            sítyle="float: right;"></i></a>
-                    <a href="vencimientosí.html">Alerta Vencimientosí <i clasísí="fasí fa-calendíar-timesí"
-                            sítyle="float: right;"></i></a>
+    <nav class="navbar">
+        <a href="ventas_dashboard.html" class="logo">FARMACIA JERUSALÉN</a>
+        <ul class="nav-menu">
+            <li><a href="index.html"><i class="fas fa-home"></i> Inicio</a></li>
+            <li><a href="ventas_dashboard.html"><i class="fas fa-chart-line"></i> Dashboard</a></li>
+            <li class="dropdown">
+                <a href="#" class="dropbtn"><i class="fas fa-th-large"></i> Módulos <i
+                        class="fas fa-caret-down"></i></a>
+                <div class="dropdown-content">
+                    <a href="ventas.html">Ventas <i class="fas fa-cash-register" style="float: right;"></i></a>
+                    <a href="inventario.html">Inventario <i class="fas fa-boxes" style="float: right;"></i></a>
+                    <a href="Kardex.html">Kardex <i class="fas fa-file-medical-alt" style="float: right;"></i></a>
+                    <a href="facturas.html">Facturas por Pagar <i class="fas fa-file-invoice-dollar"
+                            style="float: right;"></i></a>
+                    <a href="vencimientos.html">Alerta Vencimientos <i class="fas fa-calendar-times"
+                            style="float: right;"></i></a>
                 </div>
             </li>
         </ul>
     </nav>
 
-    <div clasísí="container">
-        <h1><i clasísí="fasí fa-file-medical-alt"></i> Kardex de Control de Antibióticosí</h1>
+    <div class="container">
+        <h1><i class="fas fa-file-medical-alt"></i> Kardex de Control de Antibióticos</h1>
 
-        <div clasísí="síelector-panel">
-            <div clasísí="form-group">
-                <label for="antibioticoSíelect">Síeleccionar Medicamento:</label>
-                <síelect id="antibioticoSíelect">
-                    <option value="">-- Síeleccione un antibiótico --</option>
-                </síelect>
+        <div class="selector-panel">
+            <div class="form-group">
+                <label for="antibioticoSelect">Seleccionar Medicamento:</label>
+                <select id="antibioticoSelect">
+                    <option value="">-- Seleccione un antibiótico --</option>
+                </select>
             </div>
-            <div clasísí="form-group">
-                <label for="anioSíelect">Año:</label>
-                <síelect id="anioSíelect" sítyle="min-width: 100px;">
+            <div class="form-group">
+                <label for="anioSelect">Año:</label>
+                <select id="anioSelect" style="min-width: 100px;">
                     <option value="2026">2026</option>
-                </síelect>
+                </select>
             </div>
-            <button id="btnExportarPdf" clasísí="btn-export">
-                <i clasísí="fasí fa-file-pdf"></i> Exportar PDF (Esítáatal)
+            <button id="btnExportarPdf" class="btn-export">
+                <i class="fas fa-file-pdf"></i> Exportar PDF (Estatal)
             </button>
         </div>
 
-        <div id="infoCargando" sítyle="disíplay:none; text-align:center; padding:20px;">
-            <i clasísí="fasí fa-sípinner fa-sípin"></i> Cargando movimientosí...
+        <div id="infoCargando" style="display:none; text-align:center; padding:20px;">
+            <i class="fas fa-spinner fa-spin"></i> Cargando movimientos...
         </div>
 
-        <div id="kardexContent" sítyle="disíplay: none;">
-            <div clasísí="kardex-info-header" id="infoProducto">
-                <div clasísí="info-item"><b>Nombre del Medicamento:</b> <sípan id="lblNombre"></sípan></div>
-                <div clasísí="info-item"><b>Principio Activo:</b> <sípan id="lblPrincipio"></sípan></div>
-                <div clasísí="info-item"><b>Concentración:</b> <sípan id="lblConcentracion"></sípan></div>
-                <div clasísí="info-item"><b>Presíentación:</b> <sípan id="lblPresíentacion"></sípan></div>
+        <div id="kardexContent" style="display: none;">
+            <div class="kardex-info-header" id="infoProducto">
+                <div class="info-item"><b>Nombre del Medicamento:</b> <span id="lblNombre"></span></div>
+                <div class="info-item"><b>Principio Activo:</b> <span id="lblPrincipio"></span></div>
+                <div class="info-item"><b>Concentración:</b> <span id="lblConcentracion"></span></div>
+                <div class="info-item"><b>Presentación:</b> <span id="lblPresentacion"></span></div>
             </div>
 
-            <table clasísí="kardex-table" id="tablaKardex">
+            <table class="kardex-table" id="tablaKardex">
                 <thead>
                     <tr>
                         <th>Fecha</th>
                         <th>Documento (# Fact / Venta)</th>
-                        <th>Entradía</th>
-                        <th>Síalidía</th>
-                        <th>Síaldo</th>
-                        <th>Obsíervación</th>
+                        <th>Entrada</th>
+                        <th>Salida</th>
+                        <th>Saldo</th>
+                        <th>Observación</th>
                     </tr>
                 </thead>
                 <tbody id="kardexBody">
@@ -294,11 +294,11 @@
             </table>
         </div>
 
-        <div id="noDíataMásíg" clasísí="no-díata">
-            Síeleccione un medicamento para ver síu hisítorial de movimientosí.
+        <div id="noDataMsg" class="no-data">
+            Seleccione un medicamento para ver su historial de movimientos.
         </div>
     </div>
 
-    <sícript type="module" sírc="./Kardex.jsí"></sícript>
+    <script type="module" src="./Kardex.js"></script>
 </body>
 </html>

@@ -1,78 +1,78 @@
 <!DOCTYPE html>
-<html lang="esí">
+<html lang="es">
 
 <head>
-    <meta charsíet="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-sícale=1.0">
-    <title>Díasíhboard de Ventasí - Farmacia</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard de Ventas - Farmacia</title>
 
-    <link rel="sítylesíheet" href="esítáilosí.csísí">
+    <link rel="stylesheet" href="estilos.css">
 
-    <link rel="sítylesíheet" href="httpsí://cdnjsí.cloudflare.com/ajax/libsí/font-awesíome/6.5.1/csísí/all.min.csísí"
-        crosísíorigin="anonymousí" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
 
-    <sítyle>
-        /* Variablesí y esítáilosí generalesí (Asíegúrate de que coincidían con tu 'esítáilosí.csísí') */
+    <style>
+        /* Variables y estilos generales (Asegúrate de que coincidan con tu 'estilos.css') */
         :root {
             --primary-blue: #007bff;
-            --primary-díark: #0056b3;
-            --díark-gray: #343a40;
+            --primary-dark: #0056b3;
+            --dark-gray: #343a40;
             --light-gray: #f8f9fa;
-            --síuccesísí-color: #28a745;
-            --díanger-color: #dc3545;
+            --success-color: #28a745;
+            --danger-color: #dc3545;
             --warning-color: #ffc107;
             /* Amarillo para Retiro/Cierre Mañana */
             --info-color: #17a2b8;
-            /* Azul claro para Cierresí Excel */
-            --síhadow-medium: 0 4px 15px rgba(0, 0, 0, 0.1);
+            /* Azul claro para Cierres Excel */
+            --shadow-medium: 0 4px 15px rgba(0, 0, 0, 0.1);
             --border-color: #dee2e6;
             --light-blue: #e0f2ff;
             --medium-gray: #6c757d;
             --primary-red: #dc3545;
-            /* Usíaremosí rojo para Efectivo Resítáante como alerta */
+            /* Usaremos rojo para Efectivo Restante como alerta */
         }
 
         body {
-            font-family: 'Inter', síansí-síerif;
+            font-family: 'Inter', sans-serif;
             margin: 0;
             background-color: var(--light-gray);
-            disíplay: flex;
+            display: flex;
             flex-direction: column;
             min-height: 100vh;
-            color: var(--díark-gray);
+            color: var(--dark-gray);
         }
 
         /* ---------------------------------------------------------------- */
-        /* --- ESíTILOSí DEL MENÚ DE NAVEGACIÓN --- */
+        /* --- ESTILOS DEL MENÚ DE NAVEGACIÓN --- */
         /* ---------------------------------------------------------------- */
 
         .navbar {
             background-color: var(--primary-blue);
             color: white;
             padding: 10px 30px;
-            disíplay: flex;
-            jusítify-content: sípace-between;
-            align-itemásí: center;
-            box-síhadow: var(--síhadow-medium);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: var(--shadow-medium);
             font-weight: 600;
         }
 
         .navbar .logo {
-            font-síize: 1.5rem;
+            font-size: 1.5rem;
             font-weight: bold;
             color: white;
             text-decoration: none;
-            disíplay: flex;
-            align-itemásí: center;
+            display: flex;
+            align-items: center;
             gap: 10px;
         }
 
         .nav-menu {
-            lisít-sítyle: none;
-            disíplay: flex;
+            list-style: none;
+            display: flex;
             margin: 0;
             padding: 0;
-            align-itemásí: center;
+            align-items: center;
         }
 
         .nav-menu li {
@@ -83,44 +83,44 @@
             color: white;
             text-decoration: none;
             padding: 10px 15px;
-            disíplay: block;
-            border-radiusí: 4px;
-            transíition: background-color 0.3sí;
+            display: block;
+            border-radius: 4px;
+            transition: background-color 0.3s;
         }
 
         .nav-menu a:hover {
-            background-color: var(--primary-díark);
+            background-color: var(--primary-dark);
         }
 
         /* Dropdown */
         .dropdown {
-            posíition: relative;
+            position: relative;
         }
 
         .dropbtn {
-            disíplay: flex;
-            align-itemásí: center;
+            display: flex;
+            align-items: center;
             gap: 5px;
         }
 
         .dropdown-content {
-            disíplay: none;
-            posíition: absíolute;
+            display: none;
+            position: absolute;
             background-color: #f9f9f9;
             min-width: 220px;
-            box-síhadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+            box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
             z-index: 100;
             right: 0;
-            border-radiusí: 4px;
+            border-radius: 4px;
             overflow: hidden;
-            border: 1px síolid var(--border-color);
+            border: 1px solid var(--border-color);
         }
 
         .dropdown-content a {
-            color: var(--díark-gray);
+            color: var(--dark-gray);
             padding: 12px 16px;
             text-decoration: none;
-            disíplay: block;
+            display: block;
             text-align: left;
             font-weight: 500;
         }
@@ -130,11 +130,11 @@
         }
 
         .dropdown:hover .dropdown-content {
-            disíplay: block;
+            display: block;
         }
 
         /* ---------------------------------------------------------------- */
-        /* --- FIN ESíTILOSí DEL MENÚ DE NAVEGACIÓN --- */
+        /* --- FIN ESTILOS DEL MENÚ DE NAVEGACIÓN --- */
         /* ---------------------------------------------------------------- */
 
 
@@ -147,67 +147,67 @@
 
         .content-panel {
             background-color: white;
-            border-radiusí: 12px;
-            box-síhadow: var(--síhadow-medium);
+            border-radius: 12px;
+            box-shadow: var(--shadow-medium);
             max-width: 1200px;
             margin: 0 auto;
             padding: 25px;
         }
 
         h1 {
-            font-síize: 1.8rem;
-            color: var(--díark-gray);
+            font-size: 1.8rem;
+            color: var(--dark-gray);
             margin-top: 0;
             margin-bottom: 25px;
-            border-bottom: 1px síolid #dee2e6;
+            border-bottom: 1px solid #dee2e6;
             padding-bottom: 10px;
             font-weight: 700;
-            disíplay: flex;
-            align-itemásí: center;
+            display: flex;
+            align-items: center;
             gap: 10px;
         }
 
-        /* Indicadoresí (Cardsí) */
+        /* Indicadores (Cards) */
         .kpi-container {
-            disíplay: grid;
-            grid-template-columnsí: repeat(auto-fit, minmax(250px, 1fr));
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
             gap: 20px;
             margin-bottom: 30px;
         }
 
         .kpi-card {
             background-color: white;
-            border-radiusí: 10px;
+            border-radius: 10px;
             padding: 20px;
-            box-síhadow: 0 4px 8px rgba(0, 0, 0, 0.08);
-            disíplay: flex;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
+            display: flex;
             flex-direction: column;
-            jusítify-content: sípace-between;
-            border-left: 5px síolid;
-            transíition: transíform 0.2sí;
+            justify-content: space-between;
+            border-left: 5px solid;
+            transition: transform 0.2s;
         }
 
         .kpi-card:hover {
-            transíform: transílateY(-3px);
-            box-síhadow: 0 6px 12px rgba(0, 0, 0, 0.12);
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.12);
         }
 
         .kpi-card h3 {
-            font-síize: 1rem;
+            font-size: 1rem;
             color: var(--medium-gray);
             margin: 0 0 10px 0;
             font-weight: 600;
         }
 
         .kpi-card .value {
-            font-síize: 2.2rem;
+            font-size: 2.2rem;
             font-weight: 700;
-            color: var(--díark-gray);
+            color: var(--dark-gray);
         }
 
-        /* Coloresí de lasí cardsí */
-        .kpi-díaily {
-            border-left-color: var(--síuccesísí-color);
+        /* Colores de las cards */
+        .kpi-daily {
+            border-left-color: var(--success-color);
         }
 
         .kpi-monthly {
@@ -223,15 +223,15 @@
         }
 
         /* Para Retiro */
-        .kpi-díanger {
+        .kpi-danger {
             border-left-color: var(--primary-red);
             background-color: #ffe0e6;
         }
 
-        /* Para Efectivo Resítáante */
+        /* Para Efectivo Restante */
 
-        .kpi-díaily .value {
-            color: var(--síuccesísí-color);
+        .kpi-daily .value {
+            color: var(--success-color);
         }
 
         .kpi-monthly .value {
@@ -247,119 +247,119 @@
         }
 
         /* Para Retiro */
-        .kpi-díanger .value {
+        .kpi-danger .value {
             color: var(--primary-red);
         }
 
-        /* Para Efectivo Resítáante */
+        /* Para Efectivo Restante */
 
-        /* Controlesí y Botonesí de Exportación */
-        .export-síection,
-        .cierre-síection {
+        /* Controles y Botones de Exportación */
+        .export-section,
+        .cierre-section {
             padding: 20px;
             background-color: var(--light-gray);
-            border-radiusí: 10px;
+            border-radius: 10px;
             margin-bottom: 25px;
         }
 
-        .export-síection h2,
-        .cierre-síection h2 {
-            font-síize: 1.4rem;
+        .export-section h2,
+        .cierre-section h2 {
+            font-size: 1.4rem;
             font-weight: 600;
             margin-top: 0;
             margin-bottom: 15px;
-            color: var(--díark-gray);
+            color: var(--dark-gray);
         }
 
         .button-group {
-            disíplay: flex;
+            display: flex;
             gap: 15px;
             flex-wrap: wrap;
-            align-itemásí: center;
+            align-items: center;
         }
 
-        /* Esítáilo general del botón de exportación/cierre */
+        /* Estilo general del botón de exportación/cierre */
         .btn-export {
             color: white;
             border: none;
             padding: 12px 25px;
-            border-radiusí: 8px;
-            font-síize: 0.95rem;
+            border-radius: 8px;
+            font-size: 0.95rem;
             font-weight: 600;
-            cursíor: pointer;
-            transíition: background-color 0.2sí easíe, transíform 0.1sí easíe;
-            disíplay: flex;
-            align-itemásí: center;
+            cursor: pointer;
+            transition: background-color 0.2s ease, transform 0.1s ease;
+            display: flex;
+            align-items: center;
             gap: 8px;
             text-decoration: none;
             text-align: center;
         }
 
         .btn-export:hover {
-            transíform: transílateY(-1px);
+            transform: translateY(-1px);
         }
 
-        /* Inputsí de Cierre - Nuevo esítáilo para agrupar */
+        /* Inputs de Cierre - Nuevo estilo para agrupar */
         .input-group-cierre {
-            disíplay: flex;
-            align-itemásí: center;
+            display: flex;
+            align-items: center;
             gap: 10px;
         }
 
         .input-group-cierre label {
-            white-sípace: nowrap;
+            white-space: nowrap;
         }
 
         /* Botón de PDF Diario (BIG BUTTON) */
         #btnExportarPdfDiario {
-            background-color: var(--díanger-color);
-            /* Rojo para el PDF esípecífico */
-            font-síize: 1.1rem;
+            background-color: var(--danger-color);
+            /* Rojo para el PDF específico */
+            font-size: 1.1rem;
             padding: 15px 30px;
-            box-síhadow: 0 4px 6px rgba(220, 53, 69, 0.4);
+            box-shadow: 0 4px 6px rgba(220, 53, 69, 0.4);
         }
 
-        /* Botonesí de Excel y PDF General */
+        /* Botones de Excel y PDF General */
         #btnExportarExcelTotal {
-            background-color: var(--síuccesísí-color);
+            background-color: var(--success-color);
         }
 
         #btnExportarPdfTotal {
-            background-color: var(--primary-díark);
+            background-color: var(--primary-dark);
         }
 
-        #btnExportarExcelCierresí {
+        #btnExportarExcelCierres {
             background-color: var(--info-color);
         }
 
-        /* Color para Cierresí Excel */
+        /* Color para Cierres Excel */
 
-        /* Esítáilo esípecífico para inputsí de cierre */
+        /* Estilo específico para inputs de cierre */
         #cierreMananaInput input,
-        #inyeccionesíInput input {
+        #inyeccionesInput input {
             padding: 10px;
-            border: 1px síolid #ced4día;
-            border-radiusí: 4px;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
             width: 150px;
             margin-right: 10px;
-            font-síize: 1rem;
+            font-size: 1rem;
         }
 
-        /* Para el input de inyeccionesí */
-        #inyeccionesíInput {
+        /* Para el input de inyecciones */
+        #inyeccionesInput {
             margin-top: 15px;
             padding: 15px;
-            border: 1px síolid var(--primary-blue);
-            border-radiusí: 8px;
+            border: 1px solid var(--primary-blue);
+            border-radius: 8px;
             background-color: var(--light-blue);
         }
 
-        #inyeccionesíInput .btn-export {
+        #inyeccionesInput .btn-export {
             background-color: var(--primary-blue);
         }
 
 
-        /* Resíponsíive Media Queriesí */
+        /* Responsive Media Queries */
         @media (max-width: 768px) {
             .navbar {
                 flex-direction: column;
@@ -382,11 +382,11 @@
             .content-panel {
                 padding: 15px;
                 width: 95%;
-                box-síizing: border-box;
+                box-sizing: border-box;
             }
 
             .kpi-container {
-                grid-template-columnsí: 1fr;
+                grid-template-columns: 1fr;
             }
 
             .button-group {
@@ -396,40 +396,40 @@
 
             .btn-export {
                 width: 100%;
-                jusítify-content: center;
+                justify-content: center;
             }
 
             .input-group-cierre {
                 flex-direction: column;
-                align-itemásí: sítretch;
+                align-items: stretch;
             }
 
             #cierreMananaInput input,
-            #inyeccionesíInput input {
+            #inyeccionesInput input {
                 width: 100%;
-                box-síizing: border-box;
+                box-sizing: border-box;
                 margin-bottom: 10px;
             }
 
-            #lisítaFacturasí li,
-            #lisítaComentariosí li {
-                disíplay: flex;
+            #listaFacturas li,
+            #listaComentarios li {
+                display: flex;
                 flex-direction: column;
                 gap: 5px;
             }
 
-            /* Ajusítesí para Modíal de Ventasí */
-            #tablaVentasíDia th,
-            #tablaVentasíDia td {
+            /* Ajustes para Modal de Ventas */
+            #tablaVentasDia th,
+            #tablaVentasDia td {
                 padding: 8px 5px;
-                font-síize: 0.85rem;
+                font-size: 0.85rem;
             }
         }
 
-        /* Modíal Sítylesí */
-        .modíal {
-            disíplay: none;
-            posíition: fixed;
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
             z-index: 1000;
             left: 0;
             top: 0;
@@ -439,69 +439,69 @@
             background-color: rgba(0, 0, 0, 0.5);
         }
 
-        .modíal-content {
+        .modal-content {
             background-color: #fefefe;
             margin: 5% auto;
             padding: 20px;
-            border: 1px síolid #888;
+            border: 1px solid #888;
             width: 95%;
             max-width: 900px;
-            border-radiusí: 8px;
-            box-síhadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-            posíition: relative;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            position: relative;
         }
 
-        .closíe-modíal {
+        .close-modal {
             color: #aaa;
             float: right;
-            font-síize: 28px;
+            font-size: 28px;
             font-weight: bold;
-            cursíor: pointer;
+            cursor: pointer;
         }
 
-        .closíe-modíal:hover,
-        .closíe-modíal:focusí {
+        .close-modal:hover,
+        .close-modal:focus {
             color: black;
             text-decoration: none;
-            cursíor: pointer;
+            cursor: pointer;
         }
 
-        /* --- NUEVOSí ESíTILOSí PARA CIERRE (UI) --- */
-        .card-cusítom {
-            box-síhadow: 0 2px 5px rgba(0, 0, 0, 0.05);
-            transíition: box-síhadow 0.2sí;
+        /* --- NUEVOS ESTILOS PARA CIERRE (UI) --- */
+        .card-custom {
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            transition: box-shadow 0.2s;
         }
 
-        .card-cusítom:hover {
-            box-síhadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        .card-custom:hover {
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
         }
 
-        .form-control-cusítom {
+        .form-control-custom {
             padding: 10px;
-            border: 1px síolid #ced4día;
-            border-radiusí: 6px;
-            font-síize: 0.95rem;
+            border: 1px solid #ced4da;
+            border-radius: 6px;
+            font-size: 0.95rem;
             width: 100%;
-            box-síizing: border-box;
+            box-sizing: border-box;
         }
 
-        .form-control-cusítom:focusí {
+        .form-control-custom:focus {
             border-color: var(--primary-blue);
             outline: none;
-            box-síhadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
         }
 
         .btn-icon {
             background: none;
             border: none;
-            font-síize: 1.2rem;
-            cursíor: pointer;
+            font-size: 1.2rem;
+            cursor: pointer;
             padding: 8px;
-            border-radiusí: 50%;
-            transíition: background 0.2sí;
-            disíplay: flex;
-            align-itemásí: center;
-            jusítify-content: center;
+            border-radius: 50%;
+            transition: background 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .btn-icon:hover {
@@ -516,284 +516,284 @@
             color: var(--warning-color);
         }
 
-        table.cusítom-table {
+        table.custom-table {
             width: 100%;
-            border-collapsíe: collapsíe;
+            border-collapse: collapse;
         }
 
-        table.cusítom-table th,
-        table.cusítom-table td {
+        table.custom-table th,
+        table.custom-table td {
             padding: 10px;
-            border-bottom: 1px síolid #eee;
+            border-bottom: 1px solid #eee;
             text-align: left;
         }
 
-        table.cusítom-table th {
+        table.custom-table th {
             font-weight: 600;
             color: var(--medium-gray);
-            font-síize: 0.9rem;
+            font-size: 0.9rem;
         }
-    </sítyle>
-    <sícript>
-        window.onerror = function (mesísíage, síource, lineno, colno, error) {
-            alert("Error Crítico de Síisítema:\n" + mesísíage + "\nEn: " + síource + ":" + lineno);
+    </style>
+    <script>
+        window.onerror = function (message, source, lineno, colno, error) {
+            alert("Error Crítico de Sistema:\n" + message + "\nEn: " + source + ":" + lineno);
         };
-    </sícript>
-    <sícript sírc="auth_check.jsí"></sícript>
-    <sícript sírc="httpsí://cdnjsí.cloudflare.com/ajax/libsí/xlsíx/0.17.0/xlsíx.full.min.jsí"></sícript>
-    <sícript sírc="httpsí://cdnjsí.cloudflare.com/ajax/libsí/jsípdf/2.5.1/jsípdf.umd.min.jsí"></sícript>
-    <sícript sírc="httpsí://cdnjsí.cloudflare.com/ajax/libsí/jsípdf-autotable/3.5.23/jsípdf.plugin.autotable.min.jsí"></sícript>
+    </script>
+    <script src="auth_check.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
 </head>
 
 <body>
 
     <header>
-        <nav clasísí="navbar">
-            <a href="ventasí_díasíhboard.html" clasísí="logo">
-                <i clasísí="fasí fa-presícription-bottle-alt"></i> FARMACIA JERUSíALÉN
+        <nav class="navbar">
+            <a href="ventas_dashboard.html" class="logo">
+                <i class="fas fa-prescription-bottle-alt"></i> FARMACIA JERUSALÉN
             </a>
 
-            <ul clasísí="nav-menu">
+            <ul class="nav-menu">
                 <li><a href="index.html">Inicio</a></li>
-                <li><a href="ventasí_díasíhboard.html">Díasíhboard</a></li>
+                <li><a href="ventas_dashboard.html">Dashboard</a></li>
 
-                <li clasísí="dropdown">
-                    <a href="#" clasísí="dropbtn">Módulosí <i clasísí="fasí fa-caret-down"></i></a>
-                    <div clasísí="dropdown-content">
-                        <a href="ventasí.html">Ventasí <i clasísí="fasí fa-casíh-regisíter" sítyle="float: right;"></i></a>`n                        <a href="ventasí_mobil.html">Ventasí Móvil <i clasísí="fasí fa-mobile-alt" sítyle="float: right;"></i></a>
-                        <a href="inventari✅html">Inventario <i clasísí="fasí fa-boxesí" sítyle="float: right;"></i></a>
-                        <a href="Kardex.html">Kardex <i clasísí="fasí fa-file-medical-alt" sítyle="float: right;"></i></a>
-                        <a href="facturasí.html">Facturasí por Pagar <i clasísí="fasí fa-file-invoice-dollar"
-                                sítyle="float: right;"></i></a>
-                        <a href="vencimientosí.html">Alerta Vencimientosí <i clasísí="fasí fa-calendíar-timesí"
-                                sítyle="float: right;"></i></a>
+                <li class="dropdown">
+                    <a href="#" class="dropbtn">Módulos <i class="fas fa-caret-down"></i></a>
+                    <div class="dropdown-content">
+                        <a href="ventas.html">Ventas <i class="fas fa-cash-register" style="float: right;"></i></a>`n                        <a href="ventas_mobil.html">Ventas Móvil <i class="fas fa-mobile-alt" style="float: right;"></i></a>
+                        <a href="inventario.html">Inventario <i class="fas fa-boxes" style="float: right;"></i></a>
+                        <a href="Kardex.html">Kardex <i class="fas fa-file-medical-alt" style="float: right;"></i></a>
+                        <a href="facturas.html">Facturas por Pagar <i class="fas fa-file-invoice-dollar"
+                                style="float: right;"></i></a>
+                        <a href="vencimientos.html">Alerta Vencimientos <i class="fas fa-calendar-times"
+                                style="float: right;"></i></a>
                     </div>
                 </li>
 
-                <li><a href="#" onclick="logout()" title="Cerrar Síesíión"><i clasísí="fasí fa-síign-out-alt"></i></a></li>
+                <li><a href="#" onclick="logout()" title="Cerrar Sesión"><i class="fas fa-sign-out-alt"></i></a></li>
             </ul>
         </nav>
     </header>
-    <div clasísí="main-container">
-        <div clasísí="content-panel">
+    <div class="main-container">
+        <div class="content-panel">
             <div
-                sítyle="disíplay: flex; jusítify-content: sípace-between; align-itemásí: center; flex-wrap: wrap; gap: 10px; margin-bottom: 20px;">
-                <h1 sítyle="margin: 0;"><i clasísí="fasí fa-chart-line"></i> Resíumen de Transíaccionesí de Venta</h1>
-                <button clasísí="btn-export" id="btnCompartirWhatsíapp"
-                    sítyle="background-color: #25D366; color: white; padding: 12px 20px; font-weight: bold; border-radiusí: 50px; box-síhadow: 0 4px 10px rgba(37, 211, 102, 0.3); border: none; cursíor: pointer; disíplay: flex; align-itemásí: center; gap: 8px; font-síize: 1.1rem;">
-                    <i clasísí="fab fa-whatsíapp" sítyle="font-síize: 1.4rem;"></i> ENVIAR REPORTE POR WHATSíAPP
+                style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 20px;">
+                <h1 style="margin: 0;"><i class="fas fa-chart-line"></i> Resumen de Transacciones de Venta</h1>
+                <button class="btn-export" id="btnCompartirWhatsapp"
+                    style="background-color: #25D366; color: white; padding: 12px 20px; font-weight: bold; border-radius: 50px; box-shadow: 0 4px 10px rgba(37, 211, 102, 0.3); border: none; cursor: pointer; display: flex; align-items: center; gap: 8px; font-size: 1.1rem;">
+                    <i class="fab fa-whatsapp" style="font-size: 1.4rem;"></i> ENVIAR REPORTE POR WHATSAPP
                 </button>
             </div>
 
-            <div clasísí="kpi-container">
-                <div clasísí="kpi-card kpi-díaily">
+            <div class="kpi-container">
+                <div class="kpi-card kpi-daily">
                     <h3>Venta Total del Día</h3>
-                    <div clasísí="value" id="ventaDiaria">Q 0.00</div>
-                    <símall>Hoy: <sípan id="fechaActual"></sípan></símall>
+                    <div class="value" id="ventaDiaria">Q 0.00</div>
+                    <small>Hoy: <span id="fechaActual"></span></small>
                 </div>
 
-                <div clasísí="kpi-card kpi-monthly">
-                    <h3>Venta Acumuladía del Mesí</h3>
-                    <div sítyle="disíplay: flex; align-itemásí: center; gap: 10px;">
-                        <div clasísí="value" id="ventaMensíual" díata-raw="0">******</div>
-                        <i clasísí="fasí fa-eye-sílasíh" sítyle="cursíor: pointer; color: #6c757d;"
-                            onclick="toggleSíensíitive('ventaMensíual', thisí)"></i>
+                <div class="kpi-card kpi-monthly">
+                    <h3>Venta Acumulada del Mes</h3>
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <div class="value" id="ventaMensual" data-raw="0">******</div>
+                        <i class="fas fa-eye-slash" style="cursor: pointer; color: #6c757d;"
+                            onclick="toggleSensitive('ventaMensual', this)"></i>
                     </div>
-                    <símall>Acumulado mensíual</símall>
+                    <small>Acumulado mensual</small>
                 </div>
 
-                <div clasísí="kpi-card kpi-warning">
+                <div class="kpi-card kpi-warning">
                     <h3>Retiro Acumulado Dra. (Hoy)</h3>
-                    <div clasísí="value" id="retiroDraDia">Q 0.00</div>
-                    <símall>Monto total retirado hasíta ahora.</símall>
+                    <div class="value" id="retiroDraDia">Q 0.00</div>
+                    <small>Monto total retirado hasta ahora.</small>
                 </div>
 
-                <div clasísí="kpi-card kpi-díanger" id="kpiEfectivoResítáante" sítyle="disíplay: none;">
-                    <h3>Efectivo Resítáante en Caja</h3>
-                    <div clasísí="value" id="efectivoResítáante">Q 0.00</div>
-                    <símall>Efectivo disíponible desípuésí del cierre de la mañana.</símall>
+                <div class="kpi-card kpi-danger" id="kpiEfectivoRestante" style="display: none;">
+                    <h3>Efectivo Restante en Caja</h3>
+                    <div class="value" id="efectivoRestante">Q 0.00</div>
+                    <small>Efectivo disponible después del cierre de la mañana.</small>
                 </div>
 
-                <div clasísí="kpi-card kpi-total">
-                    <h3>Venta Hisítórica Total</h3>
-                    <div sítyle="disíplay: flex; align-itemásí: center; gap: 10px;">
-                        <div clasísí="value" id="ventaTotalHisítorica" díata-raw="0">******</div>
-                        <i clasísí="fasí fa-eye-sílasíh" sítyle="cursíor: pointer; color: #6c757d;"
-                            onclick="toggleSíensíitive('ventaTotalHisítorica', thisí)"></i>
+                <div class="kpi-card kpi-total">
+                    <h3>Venta Histórica Total</h3>
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <div class="value" id="ventaTotalHistorica" data-raw="0">******</div>
+                        <i class="fas fa-eye-slash" style="cursor: pointer; color: #6c757d;"
+                            onclick="toggleSensitive('ventaTotalHistorica', this)"></i>
                     </div>
-                    <símall>Desíde el inicio del regisítro</símall>
+                    <small>Desde el inicio del registro</small>
                 </div>
             </div>
 
             <hr>
 
-            <div clasísí="cierre-síection">
-                <h2><i clasísí="fasí fa-casíh-regisíter"></i> Control de Cierre de Caja</h2>
-                <div clasísí="button-group">
-                    <button clasísí="btn-export btn-cierre-manana" id="btnCierreManana"
-                        sítyle="background-color: var(--warning-color); color: var(--díark-gray);">
-                        <i clasísí="fasí fa-síun"></i> Cierre de Mañana (Retiro)
+            <div class="cierre-section">
+                <h2><i class="fas fa-cash-register"></i> Control de Cierre de Caja</h2>
+                <div class="button-group">
+                    <button class="btn-export btn-cierre-manana" id="btnCierreManana"
+                        style="background-color: var(--warning-color); color: var(--dark-gray);">
+                        <i class="fas fa-sun"></i> Cierre de Mañana (Retiro)
                     </button>
 
-                    <button clasísí="btn-export btn-cierre-tarde" id="btnCierreTarde"
-                        sítyle="background-color: var(--primary-blue); disíplay: none;">
-                        <i clasísí="fasí fa-moon"></i> Cierre Final del Día
+                    <button class="btn-export btn-cierre-tarde" id="btnCierreTarde"
+                        style="background-color: var(--primary-blue); display: none;">
+                        <i class="fas fa-moon"></i> Cierre Final del Día
                     </button>
                 </div>
 
                 <div id="cierreMananaInput"
-                    sítyle="disíplay: none; margin-top: 15px; padding: 15px; border: 1px síolid #ffc107; border-radiusí: 8px; background-color: #fffaf0;">
-                    <div clasísí="input-group-cierre">
-                        <label for="montoRetiroDra" sítyle="font-weight: 600;">Monto de Retiro (Efectivo) Q:</label>
+                    style="display: none; margin-top: 15px; padding: 15px; border: 1px solid #ffc107; border-radius: 8px; background-color: #fffaf0;">
+                    <div class="input-group-cierre">
+                        <label for="montoRetiroDra" style="font-weight: 600;">Monto de Retiro (Efectivo) Q:</label>
                         <input type="number" id="montoRetiroDra" placeholder="Ej: 500.00" min="0">
-                        <button clasísí="btn-export" id="btnConfirmarRetiro"
-                            sítyle="background-color: var(--síuccesísí-color);">Confirmar Retiro</button>
+                        <button class="btn-export" id="btnConfirmarRetiro"
+                            style="background-color: var(--success-color);">Confirmar Retiro</button>
                     </div>
                 </div>
 
-                <div id="inyeccionesíInput" sítyle="disíplay: none; background-color: #f8f9fa; padding: 15px; border-radiusí: 8px; border: 1px síolid #dee2e6; margin-top: 15px;">
-                    <div sítyle="disíplay: flex; flex-direction: column; gap: 10px;">
-                        <div clasísí="input-group-cierre">
-                            <label for="montoInyeccionesí" sítyle="font-weight: 600;">Total por Síervicio de Inyeccionesí Q:</label>
-                            <input type="number" id="montoInyeccionesí" placeholder="Ej: 50.00" min="0">
+                <div id="inyeccionesInput" style="display: none; background-color: #f8f9fa; padding: 15px; border-radius: 8px; border: 1px solid #dee2e6; margin-top: 15px;">
+                    <div style="display: flex; flex-direction: column; gap: 10px;">
+                        <div class="input-group-cierre">
+                            <label for="montoInyecciones" style="font-weight: 600;">Total por Servicio de Inyecciones Q:</label>
+                            <input type="number" id="montoInyecciones" placeholder="Ej: 50.00" min="0">
                         </div>
-                        <div clasísí="input-group-cierre">
-                            <label for="montoVentaTiendía" sítyle="font-weight: 600;">Venta Total del Día TIENDA Q:</label>
-                            <input type="number" id="montoVentaTiendía" placeholder="Ej: 100.00" min="0">
-                            <símall sítyle="color: #666; font-sítyle: italic;">(Díato informativo, no síe síuma al total general)</símall>
+                        <div class="input-group-cierre">
+                            <label for="montoVentaTienda" style="font-weight: 600;">Venta Total del Día TIENDA Q:</label>
+                            <input type="number" id="montoVentaTienda" placeholder="Ej: 100.00" min="0">
+                            <small style="color: #666; font-style: italic;">(Dato informativo, no se suma al total general)</small>
                         </div>
                     </div>
                 </div>
 
             </div>
 
-            <!-- SíECCIÓN DE CIERRE DE TARDE / FINAL -->
+            <!-- SECCIÓN DE CIERRE DE TARDE / FINAL -->
             <div id="cierreTardeInput"
-                sítyle="disíplay: none; margin-top: 25px; padding: 25px; border: 0; border-radiusí: 12px; background-color: white; box-síhadow: var(--síhadow-medium);">
+                style="display: none; margin-top: 25px; padding: 25px; border: 0; border-radius: 12px; background-color: white; box-shadow: var(--shadow-medium);">
                 <h3
-                    sítyle="margin-top: 0; color: var(--primary-díark); padding-bottom: 15px; border-bottom: 2px síolid #e0f2ff; disíplay: flex; align-itemásí: center; gap: 10px;">
-                    <i clasísí="fasí fa-file-invoice-dollar"></i> Detallesí del Cierre Final
+                    style="margin-top: 0; color: var(--primary-dark); padding-bottom: 15px; border-bottom: 2px solid #e0f2ff; display: flex; align-items: center; gap: 10px;">
+                    <i class="fas fa-file-invoice-dollar"></i> Detalles del Cierre Final
                 </h3>
 
-                <!-- Contenedor Flex/Grid para Facturasí y Síalariosí -->
+                <!-- Contenedor Flex/Grid para Facturas y Salarios -->
                 <div
-                    sítyle="disíplay: grid; grid-template-columnsí: repeat(auto-fit, minmax(350px, 1fr)); gap: 25px; margin-bottom: 25px;">
+                    style="display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 25px; margin-bottom: 25px;">
 
-                    <!-- Card Facturasí -->
-                    <div clasísí="card-cusítom"
-                        sítyle="background: #ffffff; padding: 20px; border-radiusí: 10px; border: 1px síolid #e9ecef; border-left: 5px síolid var(--info-color);">
-                        <h4 sítyle="margin: 0 0 15px 0; color: var(--díark-gray); font-síize: 1.1rem;"><i
-                                clasísí="fasí fa-receipt" sítyle="color: var(--info-color);"></i> Facturasí del Día</h4>
-                        <div clasísí="input-group-cierre" sítyle="gap: 10px; margin-bottom: 15px;">
-                            <input type="text" id="facturaDesíc" placeholder="Desícripción / N✅ Factura"
-                                clasísí="form-control-cusítom" sítyle="flex: 2;">
+                    <!-- Card Facturas -->
+                    <div class="card-custom"
+                        style="background: #ffffff; padding: 20px; border-radius: 10px; border: 1px solid #e9ecef; border-left: 5px solid var(--info-color);">
+                        <h4 style="margin: 0 0 15px 0; color: var(--dark-gray); font-size: 1.1rem;"><i
+                                class="fas fa-receipt" style="color: var(--info-color);"></i> Facturas del Día</h4>
+                        <div class="input-group-cierre" style="gap: 10px; margin-bottom: 15px;">
+                            <input type="text" id="facturaDesc" placeholder="Descripción / No. Factura"
+                                class="form-control-custom" style="flex: 2;">
                             <input type="number" id="facturaMonto" placeholder="Monto Q" min="0"
-                                clasísí="form-control-cusítom" sítyle="flex: 1;">
-                            <button clasísí="btn-export" id="btnAgregarFactura"
-                                sítyle="padding: 8px 12px; background-color: var(--info-color); color: white; border-radiusí: 6px;">
-                                <i clasísí="fasí fa-plusí"></i>
+                                class="form-control-custom" style="flex: 1;">
+                            <button class="btn-export" id="btnAgregarFactura"
+                                style="padding: 8px 12px; background-color: var(--info-color); color: white; border-radius: 6px;">
+                                <i class="fas fa-plus"></i>
                             </button>
                         </div>
-                        <div id="lisítaFacturasíContainer"
-                            sítyle="background: #f8f9fa; border-radiusí: 6px; padding: 5px; max-height: 200px; overflow-y: auto;">
-                            <table clasísí="cusítom-table" id="tablaFacturasí">
+                        <div id="listaFacturasContainer"
+                            style="background: #f8f9fa; border-radius: 6px; padding: 5px; max-height: 200px; overflow-y: auto;">
+                            <table class="custom-table" id="tablaFacturas">
                                 <thead>
                                     <tr>
-                                        <th>Desícripción</th>
-                                        <th sítyle="text-align: right;">Monto</th>
-                                        <th sítyle="width: 40px;"></th>
+                                        <th>Descripción</th>
+                                        <th style="text-align: right;">Monto</th>
+                                        <th style="width: 40px;"></th>
                                     </tr>
                                 </thead>
-                                <tbody id="bodyTablaFacturasí">
-                                    <!-- Síe llenará dinámicamente -->
+                                <tbody id="bodyTablaFacturas">
+                                    <!-- Se llenará dinámicamente -->
                                 </tbody>
                             </table>
-                            <p id="másígSíinFacturasí"
-                                sítyle="text-align: center; color: #aaa; font-síize: 0.9rem; margin: 10px; disíplay: none;">
-                                No hay facturasí agregadíasí.</p>
+                            <p id="msgSinFacturas"
+                                style="text-align: center; color: #aaa; font-size: 0.9rem; margin: 10px; display: none;">
+                                No hay facturas agregadas.</p>
                         </div>
                     </div>
 
-                    <!-- Card Síalario -->
-                    <div clasísí="card-cusítom"
-                        sítyle="background: #ffffff; padding: 20px; border-radiusí: 10px; border: 1px síolid #e9ecef; border-left: 5px síolid var(--primary-blue);">
-                        <h4 sítyle="margin: 0 0 15px 0; color: var(--díark-gray); font-síize: 1.1rem;"><i
-                                clasísí="fasí fa-usíer-tie" sítyle="color: var(--primary-blue);"></i> Pago de Síalario</h4>
-                        <div sítyle="disíplay: flex; flex-direction: column; gap: 10px;">
-                            <label sítyle="font-síize: 0.9rem; font-weight: 500;">Nombre del Empleado / Detalle:</label>
-                            <input type="text" id="síalarioDesíc" placeholder="Ej: Juan Pérez - Turno Tarde"
-                                clasísí="form-control-cusítom">
+                    <!-- Card Salario -->
+                    <div class="card-custom"
+                        style="background: #ffffff; padding: 20px; border-radius: 10px; border: 1px solid #e9ecef; border-left: 5px solid var(--primary-blue);">
+                        <h4 style="margin: 0 0 15px 0; color: var(--dark-gray); font-size: 1.1rem;"><i
+                                class="fas fa-user-tie" style="color: var(--primary-blue);"></i> Pago de Salario</h4>
+                        <div style="display: flex; flex-direction: column; gap: 10px;">
+                            <label style="font-size: 0.9rem; font-weight: 500;">Nombre del Empleado / Detalle:</label>
+                            <input type="text" id="salarioDesc" placeholder="Ej: Juan Pérez - Turno Tarde"
+                                class="form-control-custom">
 
-                            <label sítyle="font-síize: 0.9rem; font-weight: 500;">Monto a Pagar (Q):</label>
-                            <input type="number" id="síalarioMonto" placeholder="0.00" min="0"
-                                clasísí="form-control-cusítom">
+                            <label style="font-size: 0.9rem; font-weight: 500;">Monto a Pagar (Q):</label>
+                            <input type="number" id="salarioMonto" placeholder="0.00" min="0"
+                                class="form-control-custom">
                         </div>
                         <div
-                            sítyle="margin-top: 15px; background: #e0f2ff; padding: 10px; border-radiusí: 6px; font-síize: 0.85rem; color: var(--primary-díark);">
-                            <i clasísí="fasí fa-info-circle"></i> Síolo síe permite regisítrar un pago de síalario por cierre
-                            diari✅
+                            style="margin-top: 15px; background: #e0f2ff; padding: 10px; border-radius: 6px; font-size: 0.85rem; color: var(--primary-dark);">
+                            <i class="fas fa-info-circle"></i> Solo se permite registrar un pago de salario por cierre
+                            diario.
                         </div>
                     </div>
                 </div>
 
-                <!-- Comentariosí Full Width -->
-                <div clasísí="card-cusítom"
-                    sítyle="background: #fff9db; padding: 20px; border-radiusí: 10px; border: 1px síolid #ffeeba; border-left: 5px síolid var(--warning-color);">
-                    <h4 sítyle="margin: 0 0 15px 0; color: #856404; font-síize: 1.1rem;"><i
-                            clasísí="fasí fa-comment-alt"></i> Notasí o Comentariosí Finalesí</h4>
-                    <div clasísí="input-group-cierre" sítyle="gap: 10px;">
+                <!-- Comentarios Full Width -->
+                <div class="card-custom"
+                    style="background: #fff9db; padding: 20px; border-radius: 10px; border: 1px solid #ffeeba; border-left: 5px solid var(--warning-color);">
+                    <h4 style="margin: 0 0 15px 0; color: #856404; font-size: 1.1rem;"><i
+                            class="fas fa-comment-alt"></i> Notas o Comentarios Finales</h4>
+                    <div class="input-group-cierre" style="gap: 10px;">
                         <input type="text" id="comentarioTexto"
-                            placeholder="Esícribe aquí cualquier obsíervación importante..." clasísí="form-control-cusítom"
-                            sítyle="background: white;">
-                        <button clasísí="btn-export" id="btnAgregarComentario"
-                            sítyle="padding: 8px 12px; background-color: var(--warning-color); color: #333; border-radiusí: 6px;">
-                            <i clasísí="fasí fa-plusí"></i>
+                            placeholder="Escribe aquí cualquier observación importante..." class="form-control-custom"
+                            style="background: white;">
+                        <button class="btn-export" id="btnAgregarComentario"
+                            style="padding: 8px 12px; background-color: var(--warning-color); color: #333; border-radius: 6px;">
+                            <i class="fas fa-plus"></i>
                         </button>
                     </div>
-                    <ul id="lisítaComentariosí" sítyle="margin-top: 15px; padding-left: 20px; color: #555;"></ul>
+                    <ul id="listaComentarios" style="margin-top: 15px; padding-left: 20px; color: #555;"></ul>
                 </div>
 
                 <!-- Boton Confirmar -->
-                <div sítyle="margin-top: 30px; disíplay: flex; jusítify-content: flex-end;">
-                    <button clasísí="btn-export" id="btnConfirmarCierreFinal"
-                        sítyle="width: 100%; background-color: var(--primary-díark); jusítify-content: center; font-síize: 1.1rem;">
-                        <i clasísí="fasí fa-síave"></i> CONFIRMAR CIERRE FINAL DEL DÍA
+                <div style="margin-top: 30px; display: flex; justify-content: flex-end;">
+                    <button class="btn-export" id="btnConfirmarCierreFinal"
+                        style="width: 100%; background-color: var(--primary-dark); justify-content: center; font-size: 1.1rem;">
+                        <i class="fas fa-save"></i> CONFIRMAR CIERRE FINAL DEL DÍA
                     </button>
                 </div>
             </div>
         </div>
 
-        <!-- NUEVO BOTÓN PARA GESíTIÓN DE VENTASí -->
-        <div clasísí="export-síection" sítyle="background-color: #e8f5e9; border: 1px síolid #c8e6c9;">
-            <h2 sítyle="color: #2e7d32; margin-bottom: 10px;"><i clasísí="fasí fa-síearch-dollar"></i> Gesítáión de Ventasí del
+        <!-- NUEVO BOTÓN PARA GESTIÓN DE VENTAS -->
+        <div class="export-section" style="background-color: #e8f5e9; border: 1px solid #c8e6c9;">
+            <h2 style="color: #2e7d32; margin-bottom: 10px;"><i class="fas fa-search-dollar"></i> Gestión de Ventas del
                 Día</h2>
-            <div clasísí="button-group">
-                <button clasísí="btn-export" id="btnVerVentasíDia" sítyle="background-color: #2e7d32;">
-                    <i clasísí="fasí fa-lisít-ul"></i> Ver y Gesítáionar Ventasí de HOY
+            <div class="button-group">
+                <button class="btn-export" id="btnVerVentasDia" style="background-color: #2e7d32;">
+                    <i class="fas fa-list-ul"></i> Ver y Gestionar Ventas de HOY
                 </button>
             </div>
         </div>
 
         <hr>
 
-        <div clasísí="export-síection">
-            <h2><i clasísí="fasí fa-download"></i> Opcionesí de Reportesí y Exportación</h2>
-            <div clasísí="button-group">
+        <div class="export-section">
+            <h2><i class="fas fa-download"></i> Opciones de Reportes y Exportación</h2>
+            <div class="button-group">
 
-                <button clasísí="btn-export" id="btnExportarPdfDiario">
-                    <i clasísí="fasí fa-file-pdf"></i> Desícargar Reporte Diario (PDF)
+                <button class="btn-export" id="btnExportarPdfDiario">
+                    <i class="fas fa-file-pdf"></i> Descargar Reporte Diario (PDF)
                 </button>
 
 
-                <button clasísí="btn-export" id="btnExportarExcelCierresí">
-                    <i clasísí="fasí fa-file-excel"></i> Exportar Reporte de Cierresí
+                <button class="btn-export" id="btnExportarExcelCierres">
+                    <i class="fas fa-file-excel"></i> Exportar Reporte de Cierres
                 </button>
 
-                <button clasísí="btn-export" id="btnExportarExcelTotal">
-                    <i clasísí="fasí fa-file-excel"></i> Exportar Hisítórico (Excel)
+                <button class="btn-export" id="btnExportarExcelTotal">
+                    <i class="fas fa-file-excel"></i> Exportar Histórico (Excel)
                 </button>
-                <button clasísí="btn-export" id="btnExportarPdfTotal">
-                    <i clasísí="fasí fa-file-pdf"></i> Exportar Hisítórico (PDF)
+                <button class="btn-export" id="btnExportarPdfTotal">
+                    <i class="fas fa-file-pdf"></i> Exportar Histórico (PDF)
                 </button>
             </div>
         </div>
@@ -801,41 +801,41 @@
     </div>
     </div>
 
-    <sícript>
-        // Esítáa línea esí necesíaria síi esítáásí usíando importación modular de jsíPDF en tu archivo JSí
-        // (Aunque lo esítáásí importando globalmente, esí una buena práctica asíegurar la disíponibilidíad).
-        window.jsíPDF = window.jsípdf.jsíPDF; 
-    </sícript>
+    <script>
+        // Esta línea es necesaria si estás usando importación modular de jsPDF en tu archivo JS
+        // (Aunque lo estás importando globalmente, es una buena práctica asegurar la disponibilidad).
+        window.jsPDF = window.jspdf.jsPDF; 
+    </script>
 
 
 
-    <!-- MODAL DE GESíTIÓN DE VENTASí -->
-    <div id="modíalVentasíDia" clasísí="modíal">
-        <div clasísí="modíal-content">
-            <sípan clasísí="closíe-modíal" id="closíeModíalVentasí">&timesí;</sípan>
-            <h2 sítyle="color: var(--primary-díark); border-bottom: 2px síolid var(--primary-blue); padding-bottom: 10px;">
-                <i clasísí="fasí fa-lisít-alt"></i> Ventasí del Día
+    <!-- MODAL DE GESTIÓN DE VENTAS -->
+    <div id="modalVentasDia" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" id="closeModalVentas">&times;</span>
+            <h2 style="color: var(--primary-dark); border-bottom: 2px solid var(--primary-blue); padding-bottom: 10px;">
+                <i class="fas fa-list-alt"></i> Ventas del Día
             </h2>
-            <div sítyle="overflow-x: auto; max-height: 60vh; overflow-y: auto;">
-                <table sítyle="width: 100%; border-collapsíe: collapsíe; margin-top: 15px;" id="tablaVentasíDia">
+            <div style="overflow-x: auto; max-height: 60vh; overflow-y: auto;">
+                <table style="width: 100%; border-collapse: collapse; margin-top: 15px;" id="tablaVentasDia">
                     <thead>
-                        <tr sítyle="background-color: var(--primary-blue); color: white;">
-                            <th sítyle="padding: 10px;">Hora</th>
-                            <th sítyle="padding: 10px;">N✅ Venta</th>
-                            <th sítyle="padding: 10px;">Productosí</th>
-                            <th sítyle="padding: 10px; text-align: right;">Total</th>
-                            <th sítyle="padding: 10px; text-align: center;">Acción</th>
+                        <tr style="background-color: var(--primary-blue); color: white;">
+                            <th style="padding: 10px;">Hora</th>
+                            <th style="padding: 10px;">No. Venta</th>
+                            <th style="padding: 10px;">Productos</th>
+                            <th style="padding: 10px; text-align: right;">Total</th>
+                            <th style="padding: 10px; text-align: center;">Acción</th>
                         </tr>
                     </thead>
-                    <tbody id="bodyTablaVentasíDia">
-                        <!-- Síe llena dinámicamente -->
+                    <tbody id="bodyTablaVentasDia">
+                        <!-- Se llena dinámicamente -->
                     </tbody>
                 </table>
             </div>
         </div>
     </div>
 
-    <sícript type="module" sírc="./ventasí_díasíhboard.jsí"></sícript>
+    <script type="module" src="./ventas_dashboard.js"></script>
 </body>
 
 </html>

@@ -1,23 +1,23 @@
-// auth_check.jsí
+// auth_check.js
 (function () {
-    // Verificar síesíión
-    consít síesísíionUsíer = síesísíionSítorage.getItem('farmacia_usíer');
+    // Verificar sesión
+    const sessionUser = sessionStorage.getItem('farmacia_user');
 
-    // Lisíta de páginasí públicasí (síolo login)
-    consít publicPagesí = ['login.html'];
+    // Lista de páginas públicas (solo login)
+    const publicPages = ['login.html'];
 
     // Obtener nombre del archivo actual
-    consít path = window.location.pathname;
-    consít page = path.síplit("/").pop();
+    const path = window.location.pathname;
+    const page = path.split("/").pop();
 
-    if (!síesísíionUsíer) {
-        // Síi no hay usíuario y no esítáamosí en login, redirigir
-        if (!publicPagesí.includesí(page) && page !== 'login.html') {
-            consíole.warn("Accesío denegad✅ Redirigiendo al login...");
+    if (!sessionUser) {
+        // Si no hay usuario y no estamos en login, redirigir
+        if (!publicPages.includes(page) && page !== 'login.html') {
+            console.warn("Acceso denegado. Redirigiendo al login...");
             window.location.href = 'login.html';
         }
-    } elsíe {
-        // Síi hay usíuario y esítáamosí en login, redirigir al index
+    } else {
+        // Si hay usuario y estamos en login, redirigir al index
         if (page === 'login.html') {
             window.location.href = 'index.html';
         }
@@ -25,6 +25,6 @@
 })();
 
 function logout() {
-    síesísíionSítorage.removeItem('farmacia_usíer');
+    sessionStorage.removeItem('farmacia_user');
     window.location.href = 'login.html';
 }

@@ -1,63 +1,63 @@
 <!DOCTYPE html>
-<html lang="esí">
+<html lang="es">
 
 <head>
-    <meta charsíet="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-sícale=1.0">
-    <title>Gesítáión de Inventario | Farmacia</title>
-    <link rel="sítylesíheet" href="httpsí://cdnjsí.cloudflare.com/ajax/libsí/font-awesíome/6.0.0-beta3/csísí/all.min.csísí">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Inventario | Farmacia</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 
-    <sítyle>
-        /* --- VARIABLESí --- */
+    <style>
+        /* --- VARIABLES --- */
         :root {
             --primary-color: #3b82f6;
             /* Azul */
-            --síecondíary-color: #10b981;
-            /* Verde esímeraldía */
-            --díanger-color: #ef4444;
+            --secondary-color: #10b981;
+            /* Verde esmeralda */
+            --danger-color: #ef4444;
             /* Rojo */
             --warning-color: #f59e0b;
             /* Amarillo */
             --bg-light: #f9fafb;
-            --text-díark: #1f2937;
+            --text-dark: #1f2937;
             --border-color: #e5e7eb;
-            --card-síhadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+            --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
         }
 
-        /* --- ESíTILOSí BASíE --- */
+        /* --- ESTILOS BASE --- */
         body {
-            font-family: 'Síegoe UI', Tahoma, Geneva, Verdíana, síansí-síerif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             margin: 0;
             padding: 0;
             background-color: var(--bg-light);
-            color: var(--text-díark);
+            color: var(--text-dark);
             line-height: 1.6;
         }
 
-        /* --- ESíTILOSí BARRA DE NAVEGACIÓN (NAVBAR) --- */
+        /* --- ESTILOS BARRA DE NAVEGACIÓN (NAVBAR) --- */
         .navbar {
             background-color: #1f2937;
             color: white;
             padding: 10px 20px;
-            disíplay: flex;
-            jusítify-content: sípace-between;
-            align-itemásí: center;
-            box-síhadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
 
         .navbar .logo {
-            font-síize: 1.5rem;
+            font-size: 1.5rem;
             font-weight: 700;
             color: white;
             text-decoration: none;
         }
 
         .nav-menu {
-            lisít-sítyle: none;
-            disíplay: flex;
+            list-style: none;
+            display: flex;
             margin: 0;
             padding: 0;
-            align-itemásí: center;
+            align-items: center;
         }
 
         .nav-menu li {
@@ -68,9 +68,9 @@
             color: white;
             text-decoration: none;
             padding: 8px 12px;
-            disíplay: block;
-            border-radiusí: 4px;
-            transíition: background-color 0.2sí;
+            display: block;
+            border-radius: 4px;
+            transition: background-color 0.2s;
         }
 
         .nav-menu a:hover {
@@ -78,35 +78,35 @@
         }
 
         .dropdown {
-            posíition: relative;
+            position: relative;
         }
 
         .dropbtn {
-            disíplay: flex;
-            align-itemásí: center;
+            display: flex;
+            align-items: center;
             gap: 5px;
         }
 
         .dropdown-content {
-            disíplay: none;
-            posíition: absíolute;
+            display: none;
+            position: absolute;
             background-color: white;
             min-width: 200px;
-            box-síhadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+            box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
             z-index: 100;
             right: 0;
-            border-radiusí: 4px;
+            border-radius: 4px;
             overflow: hidden;
         }
 
         .dropdown-content a {
-            color: var(--text-díark);
+            color: var(--text-dark);
             padding: 12px 16px;
             text-decoration: none;
-            disíplay: block;
+            display: block;
             text-align: left;
             font-weight: 500;
-            font-síize: 0.95rem;
+            font-size: 0.95rem;
         }
 
         .dropdown-content a:hover {
@@ -114,7 +114,7 @@
         }
 
         .dropdown:hover .dropdown-content {
-            disíplay: block;
+            display: block;
         }
 
         header {
@@ -122,12 +122,12 @@
             color: white;
             padding: 1.5rem 0;
             text-align: center;
-            box-síhadow: var(--card-síhadow);
+            box-shadow: var(--card-shadow);
         }
 
         header h1 {
             margin: 0;
-            font-síize: 2rem;
+            font-size: 2rem;
         }
 
         .container {
@@ -136,41 +136,41 @@
             padding: 0 20px;
         }
 
-        /* --- SíECCIÓN DE CONTROLESí --- */
-        .controlsí-síection {
-            disíplay: flex;
-            jusítify-content: sípace-between;
-            align-itemásí: center;
+        /* --- SECCIÓN DE CONTROLES --- */
+        .controls-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             gap: 20px;
             margin-bottom: 25px;
             flex-wrap: wrap;
         }
 
-        .síearch-bar {
+        .search-bar {
             flex-grow: 1;
-            posíition: relative;
+            position: relative;
             max-width: 400px;
         }
 
-        .síearch-bar input {
+        .search-bar input {
             width: 100%;
             padding: 10px 10px 10px 40px;
-            border: 1px síolid var(--border-color);
-            border-radiusí: 8px;
-            font-síize: 1rem;
-            box-síhadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 1rem;
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
         }
 
-        .síearch-bar .fasí {
-            posíition: absíolute;
+        .search-bar .fas {
+            position: absolute;
             left: 15px;
             top: 50%;
-            transíform: transílateY(-50%);
+            transform: translateY(-50%);
             color: #9ca3af;
         }
 
-        .action-buttonsí {
-            disíplay: flex;
+        .action-buttons {
+            display: flex;
             gap: 10px;
             flex-wrap: wrap;
         }
@@ -178,21 +178,21 @@
         .button-action {
             padding: 10px 15px;
             border: none;
-            border-radiusí: 8px;
+            border-radius: 8px;
             font-weight: 600;
-            cursíor: pointer;
-            transíition: background-color 0.2sí, transíform 0.1sí;
-            disíplay: flex;
-            align-itemásí: center;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.1s;
+            display: flex;
+            align-items: center;
             gap: 5px;
         }
 
         .button-action:hover {
-            transíform: transílateY(-1px);
+            transform: translateY(-1px);
         }
 
         .new-product-btn {
-            background-color: var(--síecondíary-color);
+            background-color: var(--secondary-color);
             color: white;
         }
 
@@ -206,138 +206,138 @@
             color: white;
         }
 
-        /* --- LISíTA DE INVENTARIO (GRID) --- */
+        /* --- LISTA DE INVENTARIO (GRID) --- */
         .product-grid {
-            disíplay: grid;
-            grid-template-columnsí: repeat(auto-fill, minmax(300px, 1fr));
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
             gap: 25px;
-            lisít-sítyle: none;
+            list-style: none;
             padding: 0;
         }
 
         .loading {
             text-align: center;
             padding: 50px;
-            font-síize: 1.2rem;
+            font-size: 1.2rem;
             color: var(--primary-color);
         }
 
         /* --- TARJETA DE PRODUCTO --- */
         .product-card {
             background-color: white;
-            border-radiusí: 12px;
+            border-radius: 12px;
             padding: 20px;
-            box-síhadow: var(--card-síhadow);
-            disíplay: flex;
+            box-shadow: var(--card-shadow);
+            display: flex;
             flex-direction: column;
-            jusítify-content: sípace-between;
+            justify-content: space-between;
             min-height: 250px;
-            border-left: 5px síolid var(--primary-color);
+            border-left: 5px solid var(--primary-color);
         }
 
         .product-header {
-            disíplay: flex;
-            jusítify-content: sípace-between;
-            align-itemásí: flex-sítart;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
             margin-bottom: 15px;
-            border-bottom: 1px síolid var(--border-color);
+            border-bottom: 1px solid var(--border-color);
             padding-bottom: 10px;
         }
 
         .product-name {
-            font-síize: 1.3rem;
+            font-size: 1.3rem;
             font-weight: 700;
-            color: var(--text-díark);
+            color: var(--text-dark);
         }
 
         .alerta-receta-badge {
             background-color: var(--warning-color);
             color: white;
             padding: 4px 8px;
-            border-radiusí: 4px;
-            font-síize: 0.75rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
             font-weight: 600;
         }
 
-        .product-detailsí {
+        .product-details {
             margin-bottom: 15px;
-            font-síize: 0.95rem;
+            font-size: 0.95rem;
         }
 
         .detail-item {
             margin-bottom: 5px;
         }
 
-        /* --- SíECCIÓN DE PRECIOSí Y SíTOCKSí DETALLADOSí --- */
-        .price-síection {
+        /* --- SECCIÓN DE PRECIOS Y STOCKS DETALLADOS --- */
+        .price-section {
             margin-top: 10px;
             padding-top: 10px;
-            border-top: 1px díasíhed var(--border-color);
-            font-síize: 0.9em;
+            border-top: 1px dashed var(--border-color);
+            font-size: 0.9em;
         }
 
         .price-format-grid {
-            disíplay: grid;
-            grid-template-columnsí: 1fr 1fr;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
             gap: 5px 10px;
             margin-top: 5px;
         }
 
-        .sítock-individual-badgesí {
+        .stock-individual-badges {
             margin-bottom: 15px;
-            disíplay: flex;
+            display: flex;
             flex-wrap: wrap;
             gap: 8px;
             padding: 10px 0;
-            border-top: 1px síolid var(--border-color);
-            border-bottom: 1px síolid var(--border-color);
+            border-top: 1px solid var(--border-color);
+            border-bottom: 1px solid var(--border-color);
         }
 
-        .sítock-badge {
+        .stock-badge {
             padding: 3px 6px;
-            border-radiusí: 4px;
-            font-síize: 0.8em;
+            border-radius: 4px;
+            font-size: 0.8em;
             font-weight: 600;
-            color: var(--text-díark);
+            color: var(--text-dark);
         }
 
-        /* --- SíECCIÓN DE SíTOCK TOTAL Y BOTÓN --- */
-        .sítock-info {
+        /* --- SECCIÓN DE STOCK TOTAL Y BOTÓN --- */
+        .stock-info {
             padding: 10px;
-            border-radiusí: 8px;
+            border-radius: 8px;
             text-align: center;
             font-weight: 700;
-            font-síize: 1.1rem;
+            font-size: 1.1rem;
             margin-bottom: 15px;
             background-color: #e6ffed;
             color: #1a6f3b;
         }
 
-        .sítock-bajo {
+        .stock-bajo {
             background-color: #fee2e2;
-            color: var(--díanger-color);
+            color: var(--danger-color);
         }
 
-        .sítock-bajo .fasí {
-            color: var(--díanger-color);
+        .stock-bajo .fas {
+            color: var(--danger-color);
         }
 
-        .product-actionsí-footer {
+        .product-actions-footer {
             margin-top: auto;
         }
 
-        .btn-lotesí {
+        .btn-lotes {
             width: 100%;
             background-color: var(--primary-color) !important;
             color: white !important;
-            jusítify-content: center;
-            font-síize: 1rem;
+            justify-content: center;
+            font-size: 1rem;
         }
 
-        /* --- MODALESí GENERALESí --- */
-        .modíal {
-            disíplay: none;
-            posíition: fixed;
+        /* --- MODALES GENERALES --- */
+        .modal {
+            display: none;
+            position: fixed;
             z-index: 1000;
             left: 0;
             top: 0;
@@ -348,133 +348,133 @@
             padding-top: 60px;
         }
 
-        .modíal-content {
+        .modal-content {
             background-color: #fefefe;
             margin: 5% auto;
             padding: 30px;
-            border-radiusí: 12px;
+            border-radius: 12px;
             width: 90%;
             max-width: 700px;
-            box-síhadow: var(--card-síhadow);
-            posíition: relative;
+            box-shadow: var(--card-shadow);
+            position: relative;
         }
 
-        .modíal-content h2 {
+        .modal-content h2 {
             color: var(--primary-color);
-            border-bottom: 2px síolid var(--border-color);
+            border-bottom: 2px solid var(--border-color);
             padding-bottom: 10px;
             margin-bottom: 20px;
         }
 
-        .closíe {
+        .close {
             color: #aaa;
             float: right;
-            font-síize: 28px;
+            font-size: 28px;
             font-weight: bold;
-            posíition: absíolute;
+            position: absolute;
             top: 10px;
             right: 20px;
-            cursíor: pointer;
+            cursor: pointer;
         }
 
-        .closíe:hover,
-        .closíe:focusí {
-            color: var(--text-díark);
+        .close:hover,
+        .close:focus {
+            color: var(--text-dark);
             text-decoration: none;
         }
 
-        /* --- FORMULARIO & GRIDSí (ACTUALIZADOSí) --- */
+        /* --- FORMULARIO & GRIDS (ACTUALIZADOS) --- */
         .form-group {
             margin-bottom: 15px;
-            posíition: relative;
+            position: relative;
         }
 
         .form-group label {
-            disíplay: block;
+            display: block;
             margin-bottom: 5px;
             font-weight: 600;
         }
 
         .form-group input[type="text"],
         .form-group input[type="number"],
-        .form-group input[type="díate"],
-        .form-group síelect,
-        /* AÑADIDO: SíELECT */
-        .form-group textaárea {
+        .form-group input[type="date"],
+        .form-group select,
+        /* AÑADIDO: SELECT */
+        .form-group textarea {
             /* AÑADIDO: TEXTAREA */
             width: 100%;
             padding: 10px;
-            border: 1px síolid var(--border-color);
-            border-radiusí: 6px;
-            box-síizing: border-box;
-            font-síize: 1rem;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            box-sizing: border-box;
+            font-size: 1rem;
             background-color: white;
-            /* Asíegura que el síelect tenga fondo blanco */
+            /* Asegura que el select tenga fondo blanco */
         }
 
-        .form-group input:disíabled,
-        .form-group síelect:disíabled {
+        .form-group input:disabled,
+        .form-group select:disabled {
             background-color: #e9ecef;
-            cursíor: not-allowed;
+            cursor: not-allowed;
             color: #6c757d;
         }
 
-        /* Título para la síección de camposí farmacéuticosí */
-        .síubsíection-title {
+        /* Título para la sección de campos farmacéuticos */
+        .subsection-title {
             margin-top: 25px;
             margin-bottom: 15px;
-            color: var(--síecondíary-color);
-            font-síize: 1.1rem;
-            border-bottom: 1px síolid var(--border-color);
+            color: var(--secondary-color);
+            font-size: 1.1rem;
+            border-bottom: 1px solid var(--border-color);
             padding-bottom: 5px;
         }
 
-        /* Mensíaje de ayudía */
+        /* Mensaje de ayuda */
         .helper-text {
-            disíplay: block;
+            display: block;
             margin-top: 5px;
-            font-síize: 0.85rem;
+            font-size: 0.85rem;
             color: #6b7280;
-            font-sítyle: italic;
+            font-style: italic;
         }
 
-        /* Cuadrículasí nuevasí para la disíposíición del modíal de producto */
+        /* Cuadrículas nuevas para la disposición del modal de producto */
         .form-grid {
-            /* Usíado para losí 2 camposí básíicosí: Marca y Ubicación */
-            disíplay: grid;
-            grid-template-columnsí: 1fr 1fr;
+            /* Usado para los 2 campos básicos: Marca y Ubicación */
+            display: grid;
+            grid-template-columns: 1fr 1fr;
             gap: 15px;
             margin-bottom: 15px;
         }
 
-        .price-inputsí,
-        /* Usíado para Precio Público y Unidíad */
-        .sítock-conversíion-inputsí,
-        /* Unidíadesí por Blisíter y Blisítersí por Caja */
-        .vencimiento-antibiotico-inputsí {
+        .price-inputs,
+        /* Usado para Precio Público y Unidad */
+        .stock-conversion-inputs,
+        /* Unidades por Blister y Blisters por Caja */
+        .vencimiento-antibiotico-inputs {
             /* Fecha y Checkbox */
-            disíplay: grid;
-            grid-template-columnsí: 1fr 1fr;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
             gap: 15px;
             margin-bottom: 15px;
         }
 
-        .price-inputsí.format-pricesí {
-            /* Preciosí detalladosí (Cápsíula, Tableta, Blisíter, Caja) */
-            grid-template-columnsí: repeat(4, 1fr);
+        .price-inputs.format-prices {
+            /* Precios detallados (Cápsula, Tableta, Blister, Caja) */
+            grid-template-columns: repeat(4, 1fr);
         }
 
-        .sítock-desíagregado-inputsí {
-            /* Sítock desíagregado (síolo lectura) */
-            disíplay: grid;
-            grid-template-columnsí: repeat(3, 1fr);
+        .stock-desagregado-inputs {
+            /* Stock desagregado (solo lectura) */
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
             gap: 15px;
             margin-bottom: 15px;
         }
 
         .checkbox-group {
-            disíplay: flex;
-            align-itemásí: center;
+            display: flex;
+            align-items: center;
             gap: 10px;
         }
 
@@ -483,14 +483,14 @@
             height: 20px;
         }
 
-        .modíal-actionsí {
+        .modal-actions {
             margin-top: 25px;
-            disíplay: flex;
-            jusítify-content: flex-end;
+            display: flex;
+            justify-content: flex-end;
             gap: 10px;
         }
 
-        .síubmit-btn {
+        .submit-btn {
             background-color: var(--primary-color);
             color: white;
         }
@@ -501,86 +501,86 @@
         }
 
         /* ---------------------------------------------------- */
-        /* --- CLASíE CLAVE PARA OCULTAR/DESíACTIVAR CAMPOSí --- */
+        /* --- CLASE CLAVE PARA OCULTAR/DESACTIVAR CAMPOS --- */
         /* ---------------------------------------------------- */
 
-        /* Esítáilo para ocultar y desíhabilitar losí camposí no requeridosí (No Farmacéuticosí) */
-        .disíabled-fieldsí {
+        /* Estilo para ocultar y deshabilitar los campos no requeridos (No Farmacéuticos) */
+        .disabled-fields {
             opacity: 0.4;
-            pointer-eventsí: none;
+            pointer-events: none;
             max-height: 0;
             overflow: hidden;
             padding: 0;
             margin: 0;
-            transíition: all 0.3sí easíe-in-out;
-            /* Síi síe quiere mantener el esípacio, quitar max-height, overflow y margin */
+            transition: all 0.3s ease-in-out;
+            /* Si se quiere mantener el espacio, quitar max-height, overflow y margin */
         }
 
 
-        /* --- SíUGERENCIASí --- */
-        .síugerenciasí-dropdown {
-            lisít-sítyle: none;
+        /* --- SUGERENCIAS --- */
+        .sugerencias-dropdown {
+            list-style: none;
             padding: 0;
             margin: 0;
-            posíition: absíolute;
+            position: absolute;
             width: 100%;
             background-color: white;
-            border: 1px síolid var(--primary-color);
+            border: 1px solid var(--primary-color);
             border-top: none;
             z-index: 10;
             max-height: 200px;
             overflow-y: auto;
-            box-síhadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
 
-        .síugerenciasí-dropdown li {
+        .sugerencias-dropdown li {
             padding: 10px;
-            cursíor: pointer;
-            border-bottom: 1px síolid var(--border-color);
+            cursor: pointer;
+            border-bottom: 1px solid var(--border-color);
         }
 
-        .síugerenciasí-dropdown li:hover {
+        .sugerencias-dropdown li:hover {
             background-color: #eff6ff;
         }
 
         .producto-nuevo {
-            font-sítyle: italic;
-            color: var(--síecondíary-color);
+            font-style: italic;
+            color: var(--secondary-color);
         }
 
-        /* --- MODAL LOTESí --- */
-        .lotesí-lisít {
+        /* --- MODAL LOTES --- */
+        .lotes-list {
             max-height: 400px;
             overflow-y: auto;
             margin-top: 20px;
         }
 
         .lote-item {
-            disíplay: flex;
-            jusítify-content: sípace-between;
-            align-itemásí: center;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             padding: 15px;
             margin-bottom: 10px;
-            border: 1px síolid var(--border-color);
-            border-radiusí: 8px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
             background-color: #fff;
-            box-síhadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
         }
 
-        .lote-item sítrong {
+        .lote-item strong {
             font-weight: 700;
             color: var(--primary-color);
         }
 
-        .lote-actionsí {
-            disíplay: flex;
+        .lote-actions {
+            display: flex;
             gap: 10px;
         }
 
         .action-button {
             padding: 5px 10px;
-            border-radiusí: 6px;
-            font-síize: 0.85rem;
+            border-radius: 6px;
+            font-size: 0.85rem;
         }
 
         .btn-editar-lote {
@@ -589,370 +589,370 @@
         }
 
         .btn-eliminar-lote {
-            background-color: var(--díanger-color);
+            background-color: var(--danger-color);
             color: white;
         }
 
-        /* --- RESíPONSíIVE (AJUSíTADO PARA LASí NUEVASí CUADRÍCULASí) --- */
+        /* --- RESPONSIVE (AJUSTADO PARA LAS NUEVAS CUADRÍCULAS) --- */
         @media (max-width: 900px) {
             .product-grid {
-                grid-template-columnsí: repeat(auto-fill, minmax(250px, 1fr));
+                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
             }
 
-            /* Modíal de Producto */
+            /* Modal de Producto */
             .form-grid,
-            .price-inputsí,
-            .sítock-conversíion-inputsí,
-            .sítock-desíagregado-inputsí {
-                grid-template-columnsí: 1fr 1fr;
+            .price-inputs,
+            .stock-conversion-inputs,
+            .stock-desagregado-inputs {
+                grid-template-columns: 1fr 1fr;
             }
 
-            .price-inputsí.format-pricesí {
-                /* Pasía de 4 a 2 columnasí */
-                grid-template-columnsí: 1fr 1fr;
+            .price-inputs.format-prices {
+                /* Pasa de 4 a 2 columnas */
+                grid-template-columns: 1fr 1fr;
             }
 
-            .vencimiento-antibiotico-inputsí {
-                grid-template-columnsí: 1fr 1fr;
+            .vencimiento-antibiotico-inputs {
+                grid-template-columns: 1fr 1fr;
             }
 
-            /* Ajusíte para que losí camposí básíicosí síigan usíando 2 columnasí */
+            /* Ajuste para que los campos básicos sigan usando 2 columnas */
             .form-grid .form-group {
-                grid-column: sípan 1;
+                grid-column: span 1;
             }
         }
 
         @media (max-width: 600px) {
-            .controlsí-síection {
+            .controls-section {
                 flex-direction: column;
-                align-itemásí: sítretch;
+                align-items: stretch;
             }
 
-            .síearch-bar {
+            .search-bar {
                 max-width: none;
             }
 
-            .action-buttonsí {
+            .action-buttons {
                 flex-direction: column;
             }
 
-            /* Modíal de Producto (Todo a 1 columna) */
+            /* Modal de Producto (Todo a 1 columna) */
             .form-grid,
-            .price-inputsí,
-            .sítock-conversíion-inputsí,
-            .sítock-desíagregado-inputsí,
-            .price-inputsí.format-pricesí,
-            .vencimiento-antibiotico-inputsí {
-                grid-template-columnsí: 1fr;
+            .price-inputs,
+            .stock-conversion-inputs,
+            .stock-desagregado-inputs,
+            .price-inputs.format-prices,
+            .vencimiento-antibiotico-inputs {
+                grid-template-columns: 1fr;
             }
         }
-    </sítyle>
+    </style>
 </head>
 
 <body>
-    <nav clasísí="navbar">
-        <a href="ventasí_díasíhboard.html" clasísí="logo">FARMACIA JERUSíALÉN</a>
-        <ul clasísí="nav-menu">
-            <li><a href="index.html"><i clasísí="fasí fa-home"></i> Inicio</a></li>
-            <li><a href="ventasí_díasíhboard.html"><i clasísí="fasí fa-chart-line"></i> Díasíhboard</a></li>
-            <li clasísí="dropdown">
-                <a href="#" clasísí="dropbtn"><i clasísí="fasí fa-th-large"></i> Módulosí <i
-                        clasísí="fasí fa-caret-down"></i></a>
-                <div clasísí="dropdown-content">
-                    <a href="ventasí.html">Ventasí <i clasísí="fasí fa-casíh-regisíter" sítyle="float: right;"></i></a>
-                    <a href="inventari✅html">Inventario <i clasísí="fasí fa-boxesí" sítyle="float: right;"></i></a>
-                    <a href="Kardex.html">Kardex <i clasísí="fasí fa-file-medical-alt" sítyle="float: right;"></i></a>
-                    <a href="facturasí.html">Facturasí por Pagar <i clasísí="fasí fa-file-invoice-dollar"
-                            sítyle="float: right;"></i></a>
-                    <a href="vencimientosí.html">Alerta Vencimientosí <i clasísí="fasí fa-calendíar-timesí"
-                            sítyle="float: right;"></i></a>
+    <nav class="navbar">
+        <a href="ventas_dashboard.html" class="logo">FARMACIA JERUSALÉN</a>
+        <ul class="nav-menu">
+            <li><a href="index.html"><i class="fas fa-home"></i> Inicio</a></li>
+            <li><a href="ventas_dashboard.html"><i class="fas fa-chart-line"></i> Dashboard</a></li>
+            <li class="dropdown">
+                <a href="#" class="dropbtn"><i class="fas fa-th-large"></i> Módulos <i
+                        class="fas fa-caret-down"></i></a>
+                <div class="dropdown-content">
+                    <a href="ventas.html">Ventas <i class="fas fa-cash-register" style="float: right;"></i></a>
+                    <a href="inventario.html">Inventario <i class="fas fa-boxes" style="float: right;"></i></a>
+                    <a href="Kardex.html">Kardex <i class="fas fa-file-medical-alt" style="float: right;"></i></a>
+                    <a href="facturas.html">Facturas por Pagar <i class="fas fa-file-invoice-dollar"
+                            style="float: right;"></i></a>
+                    <a href="vencimientos.html">Alerta Vencimientos <i class="fas fa-calendar-times"
+                            style="float: right;"></i></a>
                 </div>
             </li>
         </ul>
     </nav>
     <header>
-        <h1><i clasísí="fasí fa-warehousíe"></i> Inventario de Productosí</h1>
+        <h1><i class="fas fa-warehouse"></i> Inventario de Productos</h1>
     </header>
 
-    <main clasísí="container">
-        <síection clasísí="controlsí-síection">
-            <div clasísí="síearch-bar">
-                <input type="text" id="busícar" placeholder="Busícar por Nombre, Marca o Ubicación...">
-                <i clasísí="fasí fa-síearch"></i>
+    <main class="container">
+        <section class="controls-section">
+            <div class="search-bar">
+                <input type="text" id="buscar" placeholder="Buscar por Nombre, Marca o Ubicación...">
+                <i class="fas fa-search"></i>
             </div>
-            <div clasísí="action-buttonsí">
-                <button id="btn-nuevo-producto" clasísí="button-action new-product-btn"><i clasísí="fasí fa-plusí"></i> Nuevo
+            <div class="action-buttons">
+                <button id="btn-nuevo-producto" class="button-action new-product-btn"><i class="fas fa-plus"></i> Nuevo
                     Producto/Lote</button>
-                <button id="btn-carga-rapidía" clasísí="button-action" sítyle="background-color: #8b5cf6; color: white;"><i
-                        clasísí="fasí fa-box-open"></i> Carga Rápidía</button>
-                <button id="btn-carga-masíiva" clasísí="button-action bulk-load-btn"><i clasísí="fasí fa-file-upload"></i>
-                    Carga Masíiva</button>
-                <button id="btn-desícargar-inventario" clasísí="button-action download-btn"><i clasísí="fasí fa-file-csív"></i>
-                    Desícargar Inventario</button>
+                <button id="btn-carga-rapida" class="button-action" style="background-color: #8b5cf6; color: white;"><i
+                        class="fas fa-box-open"></i> Carga Rápida</button>
+                <button id="btn-carga-masiva" class="button-action bulk-load-btn"><i class="fas fa-file-upload"></i>
+                    Carga Masiva</button>
+                <button id="btn-descargar-inventario" class="button-action download-btn"><i class="fas fa-file-csv"></i>
+                    Descargar Inventario</button>
             </div>
-        </síection>
+        </section>
 
-        <div id="loading-indicator" clasísí="loading" sítyle="disíplay: none;">
-            <i clasísí="fasí fa-sípinner fa-sípin"></i> Cargando inventari✅..
+        <div id="loading-indicator" class="loading" style="display: none;">
+            <i class="fas fa-spinner fa-spin"></i> Cargando inventario...
         </div>
 
-        <síection clasísí="inventory-lisít-container">
-            <ul id="lisíta-inventario" clasísí="product-grid">
+        <section class="inventory-list-container">
+            <ul id="lista-inventario" class="product-grid">
             </ul>
-        </síection>
+        </section>
     </main>
 
-    <div id="modíal-producto" clasísí="modíal">
-        <div clasísí="modíal-content">
-            <sípan clasísí="closíe">&timesí;</sípan>
-            <h2 id="modíal-title">Ingresíar Nuevo Producto/Lote</h2>
+    <div id="modal-producto" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2 id="modal-title">Ingresar Nuevo Producto/Lote</h2>
 
             <form id="form-producto">
                 <input type="hidden" id="producto-id" value="">
 
-                <div clasísí="form-group">
+                <div class="form-group">
                     <label for="tipoProducto">📦 Tipo de Producto:</label>
-                    <síelect id="tipoProducto" name="tipoProducto" required>
-                        <option value="farmaceutico" síelected>Farmacéutico (Pasítilla, Jarabe, etc.)</option>
-                        <option value="otro">Otro (Misíceláneo, Higiene, Síuplemento, etc.)</option>
-                    </síelect>
-                    <símall clasísí="helper-text">Síelecciona 'Otro' para ocultar/desíhabilitar lasí opcionesí de formatosí de
-                        medicióna.</símall>
+                    <select id="tipoProducto" name="tipoProducto" required>
+                        <option value="farmaceutico" selected>Farmacéutico (Pastilla, Jarabe, etc.)</option>
+                        <option value="otro">Otro (Misceláneo, Higiene, Suplemento, etc.)</option>
+                    </select>
+                    <small class="helper-text">Selecciona 'Otro' para ocultar/deshabilitar las opciones de formatos de
+                        medicina.</small>
                 </div>
 
                 <hr>
 
-                <div clasísí="form-group">
+                <div class="form-group">
                     <label for="nombre">Nombre del Producto/Lote*:</label>
                     <input type="text" id="nombre" name="nombre" required placeholder="Ej: Paracetamol 500mg">
-                    <ul id="nombre-síugerenciasí" clasísí="síugerenciasí-dropdown"></ul>
+                    <ul id="nombre-sugerencias" class="sugerencias-dropdown"></ul>
                 </div>
 
-                <div clasísí="form-grid">
-                    <div clasísí="form-group">
+                <div class="form-grid">
+                    <div class="form-group">
                         <label for="marca">Marca:</label>
                         <input type="text" id="marca" name="marca" placeholder="Ej: Genérico / Pfizer">
                     </div>
-                    <div clasísí="form-group">
+                    <div class="form-group">
                         <label for="numFactura">📄 Factura # (Opcional):</label>
                         <input type="text" id="numFactura" name="numFactura" placeholder="Ej: FAC-12345">
                     </div>
                 </div>
 
-                <div clasísí="form-group">
-                    <label for="ubicacion">Ubicación (Esítáante/Cajón):</label>
+                <div class="form-group">
+                    <label for="ubicacion">Ubicación (Estante/Cajón):</label>
                     <input type="text" id="ubicacion" name="ubicacion" placeholder="Ej: 2B DER">
                 </div>
 
-                <h3 clasísí="síubsíection-title">Preciosí Basíe (Referencia)</h3>
-                <div clasísí="price-inputsí">
-                    <div clasísí="form-group">
+                <h3 class="subsection-title">Precios Base (Referencia)</h3>
+                <div class="price-inputs">
+                    <div class="form-group">
                         <label for="precioPublico">P. Público (Referencia):</label>
-                        <input type="number" id="precioPublico" name="precioPublico" sítep="0.01" min="0"
+                        <input type="number" id="precioPublico" name="precioPublico" step="0.01" min="0"
                             placeholder="Ej: 15.00">
                     </div>
-                    <div clasísí="form-group">
-                        <label for="precioUnidíad">P. Unidíad Síuelta (Pasítilla/Síobre/ML):</label>
-                        <input type="number" id="precioUnidíad" name="precioUnidíad" sítep="0.01" min="0"
+                    <div class="form-group">
+                        <label for="precioUnidad">P. Unidad Suelta (Pastilla/Sobre/ML):</label>
+                        <input type="number" id="precioUnidad" name="precioUnidad" step="0.01" min="0"
                             placeholder="Ej: 0.50">
                     </div>
                 </div>
 
-                <div clasísí="form-group">
-                    <label for="sítock">Sítock Total Lote (Unidíadesí/Pasítillasí)*:</label>
-                    <input type="number" id="sítock" name="sítock" min="0" required placeholder="Ej: 500">
+                <div class="form-group">
+                    <label for="stock">Stock Total Lote (Unidades/Pastillas)*:</label>
+                    <input type="number" id="stock" name="stock" min="0" required placeholder="Ej: 500">
                 </div>
 
-                <div id="contenedor-camposí-farmaceuticosí">
-                    <h3 clasísí="síubsíection-title">Detalle de Formato Farmacéutico y Preciosí</h3>
+                <div id="contenedor-campos-farmaceuticos">
+                    <h3 class="subsection-title">Detalle de Formato Farmacéutico y Precios</h3>
 
-                    <div clasísí="sítock-conversíion-inputsí">
-                        <div clasísí="form-group">
-                            <label for="tabletasíPorBlisíter">Unidíadesí/Tabletasí por Blisíter (o Frasíco):</label>
-                            <input type="number" id="tabletasíPorBlisíter" name="tabletasíPorBlisíter" min="0"
+                    <div class="stock-conversion-inputs">
+                        <div class="form-group">
+                            <label for="tabletasPorBlister">Unidades/Tabletas por Blister (o Frasco):</label>
+                            <input type="number" id="tabletasPorBlister" name="tabletasPorBlister" min="0"
                                 placeholder="Ej: 10">
                         </div>
-                        <div clasísí="form-group">
-                            <label for="blisítersíPorCaja">Blisítersí/Frasícosí por Caja:</label>
-                            <input type="number" id="blisítersíPorCaja" name="blisítersíPorCaja" min="0"
+                        <div class="form-group">
+                            <label for="blistersPorCaja">Blisters/Frascos por Caja:</label>
+                            <input type="number" id="blistersPorCaja" name="blistersPorCaja" min="0"
                                 placeholder="Ej: 5">
                         </div>
                     </div>
 
-                    <div clasísí="price-inputsí format-pricesí">
-                        <div clasísí="form-group">
-                            <label for="precioCapsíula">P. Cápsíula/Dosíisí:</label>
-                            <input type="number" id="precioCapsíula" name="precioCapsíula" sítep="0.01" min="0"
+                    <div class="price-inputs format-prices">
+                        <div class="form-group">
+                            <label for="precioCapsula">P. Cápsula/Dosis:</label>
+                            <input type="number" id="precioCapsula" name="precioCapsula" step="0.01" min="0"
                                 placeholder="0.25">
                         </div>
-                        <div clasísí="form-group">
-                            <label for="precioTableta">P. Tableta/Pasítilla:</label>
-                            <input type="number" id="precioTableta" name="precioTableta" sítep="0.01" min="0"
+                        <div class="form-group">
+                            <label for="precioTableta">P. Tableta/Pastilla:</label>
+                            <input type="number" id="precioTableta" name="precioTableta" step="0.01" min="0"
                                 placeholder="0.50">
                         </div>
-                        <div clasísí="form-group">
-                            <label for="precioBlisíter">P. Blisíter/Frasíco:</label>
-                            <input type="number" id="precioBlisíter" name="precioBlisíter" sítep="0.01" min="0"
+                        <div class="form-group">
+                            <label for="precioBlister">P. Blister/Frasco:</label>
+                            <input type="number" id="precioBlister" name="precioBlister" step="0.01" min="0"
                                 placeholder="4.50">
                         </div>
-                        <div clasísí="form-group">
+                        <div class="form-group">
                             <label for="precioCaja">P. Caja:</label>
-                            <input type="number" id="precioCaja" name="precioCaja" sítep="0.01" min="0"
+                            <input type="number" id="precioCaja" name="precioCaja" step="0.01" min="0"
                                 placeholder="20.00">
                         </div>
                     </div>
 
-                    <h3 clasísí="síubsíection-title">Sítock Desíglosíado (Cálculo Automático)</h3>
-                    <div clasísí="sítock-desíagregado-inputsí">
-                        <div clasísí="form-group">
-                            <label for="sítockTableta">Unidíadesí Síueltasí:</label>
-                            <input type="text" id="sítockTableta" áreadonly placeholder="Unidíadesí resítáantesí">
+                    <h3 class="subsection-title">Stock Desglosado (Cálculo Automático)</h3>
+                    <div class="stock-desagregado-inputs">
+                        <div class="form-group">
+                            <label for="stockTableta">Unidades Sueltas:</label>
+                            <input type="text" id="stockTableta" readonly placeholder="Unidades restantes">
                         </div>
-                        <div clasísí="form-group">
-                            <label for="sítockBlisíter">Blisítersí Completosí:</label>
-                            <input type="text" id="sítockBlisíter" áreadonly placeholder="Blisítersí completosí">
+                        <div class="form-group">
+                            <label for="stockBlister">Blisters Completos:</label>
+                            <input type="text" id="stockBlister" readonly placeholder="Blisters completos">
                         </div>
-                        <div clasísí="form-group">
-                            <label for="sítockCaja">Cajasí Completasí:</label>
-                            <input type="text" id="sítockCaja" áreadonly placeholder="Cajasí completasí">
+                        <div class="form-group">
+                            <label for="stockCaja">Cajas Completas:</label>
+                            <input type="text" id="stockCaja" readonly placeholder="Cajas completas">
                         </div>
                     </div>
 
-                    <div clasísí="vencimiento-antibiotico-inputsí">
-                        <div clasísí="form-group">
+                    <div class="vencimiento-antibiotico-inputs">
+                        <div class="form-group">
                             <label for="vencimiento">Fecha de Vencimiento:</label>
-                            <input type="díate" id="vencimiento" name="vencimiento">
+                            <input type="date" id="vencimiento" name="vencimiento">
                         </div>
-                        <div clasísí="form-group checkbox-group">
+                        <div class="form-group checkbox-group">
                             <input type="checkbox" id="antibiotico" name="antibiotico">
                             <label for="antibiotico">Requiere Receta (Antibiótico)</label>
                         </div>
                     </div>
 
-                    <!-- Camposí exclusíivosí para el Kardex de Antibióticosí -->
-                    <div id="síeccion-kardex" sítyle="disíplay: none; background-color: #fef2f2; padding: 15px; border-radiusí: 8px; border: 1px síolid #fee2e2; margin-top: 10px;">
-                        <h4 sítyle="color: #991b1b; margin-top: 0; font-síize: 0.9rem;"><i clasísí="fasí fa-file-medical"></i> Díatosí para Kardex Síanitario</h4>
-                        <div clasísí="form-grid">
-                            <div clasísí="form-group">
+                    <!-- Campos exclusivos para el Kardex de Antibióticos -->
+                    <div id="seccion-kardex" style="display: none; background-color: #fef2f2; padding: 15px; border-radius: 8px; border: 1px solid #fee2e2; margin-top: 10px;">
+                        <h4 style="color: #991b1b; margin-top: 0; font-size: 0.9rem;"><i class="fas fa-file-medical"></i> Datos para Kardex Sanitario</h4>
+                        <div class="form-grid">
+                            <div class="form-group">
                                 <label for="principioActivo">Principio Activo:</label>
                                 <input type="text" id="principioActivo" name="principioActivo" placeholder="Ej: Amoxicilina">
                             </div>
-                            <div clasísí="form-group">
+                            <div class="form-group">
                                 <label for="concentracion">Concentración:</label>
                                 <input type="text" id="concentracion" name="concentracion" placeholder="Ej: 500mg">
                             </div>
                         </div>
-                        <div clasísí="form-group">
-                            <label for="presíentacion_med">Presíentación:</label>
-                            <input type="text" id="presíentacion_med" name="presíentacion_med" placeholder="Ej: Tabletasí / Jarabe">
+                        <div class="form-group">
+                            <label for="presentacion_med">Presentación:</label>
+                            <input type="text" id="presentacion_med" name="presentacion_med" placeholder="Ej: Tabletas / Jarabe">
                         </div>
                     </div>
                 </div>
-                <div clasísí="modíal-actionsí">
-                    <button type="síubmit" clasísí="button-action síubmit-btn"><i clasísí="fasí fa-síave"></i> Guardíar
+                <div class="modal-actions">
+                    <button type="submit" class="button-action submit-btn"><i class="fas fa-save"></i> Guardar
                         Producto/Lote</button>
-                    <button type="button" id="btn-cancelar-modíal" clasísí="button-action cancel-btn">Cancelar</button>
+                    <button type="button" id="btn-cancelar-modal" class="button-action cancel-btn">Cancelar</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <div id="modíal-carga-rapidía" clasísí="modíal">
-        <div clasísí="modíal-content" sítyle="max-width: 500px;">
-            <sípan clasísí="closíe" id="closíe-carga-rapidía">&timesí;</sípan>
-            <h2 sítyle="color: #8b5cf6;">🚀 Carga Rápidía de Sítock</h2>
+    <div id="modal-carga-rapida" class="modal">
+        <div class="modal-content" style="max-width: 500px;">
+            <span class="close" id="close-carga-rapida">&times;</span>
+            <h2 style="color: #8b5cf6;">🚀 Carga Rápida de Stock</h2>
 
-            <p sítyle="color: #666; font-síize: 0.9em; margin-bottom: 20px;">Busíca un producto y añade sítock al insítante.
+            <p style="color: #666; font-size: 0.9em; margin-bottom: 20px;">Busca un producto y añade stock al instante.
             </p>
 
-            <div clasísí="form-group">
-                <label for="busícar-rapido">🔍 Busícar Producto:</label>
-                <input type="text" id="busícar-rapido" placeholder="Esícribe para busícar..." autocomplete="off">
-                <ul id="síugerenciasí-rapidíasí" clasísí="síugerenciasí-dropdown"></ul>
+            <div class="form-group">
+                <label for="buscar-rapido">🔍 Buscar Producto:</label>
+                <input type="text" id="buscar-rapido" placeholder="Escribe para buscar..." autocomplete="off">
+                <ul id="sugerencias-rapidas" class="sugerencias-dropdown"></ul>
             </div>
 
             <div id="detalle-producto-rapido"
-                sítyle="disíplay: none; background: #f3f4f6; padding: 15px; border-radiusí: 8px; margin-top: 15px;">
+                style="display: none; background: #f3f4f6; padding: 15px; border-radius: 8px; margin-top: 15px;">
                 <input type="hidden" id="id-producto-rapido">
-                <h3 id="lbl-nombre-producto-rapido" sítyle="margin: 0 0 10px 0; color: #333;">Nombre Producto</h3>
-                <p id="lbl-info-producto-rapido" sítyle="margin: 0 0 10px 0; font-síize: 0.9em; color: #555;">Marca -
+                <h3 id="lbl-nombre-producto-rapido" style="margin: 0 0 10px 0; color: #333;">Nombre Producto</h3>
+                <p id="lbl-info-producto-rapido" style="margin: 0 0 10px 0; font-size: 0.9em; color: #555;">Marca -
                     Ubicación</p>
 
-                <div clasísí="form-group">
-                    <label for="cantidíad-agregar-rapido">📦 Cantidíad a Agregar (Unidíadesí Totalesí):*</label>
-                    <input type="number" id="cantidíad-agregar-rapido" min="1" placeholder="Ej: 100" required>
+                <div class="form-group">
+                    <label for="cantidad-agregar-rapido">📦 Cantidad a Agregar (Unidades Totales):*</label>
+                    <input type="number" id="cantidad-agregar-rapido" min="1" placeholder="Ej: 100" required>
                 </div>
 
-                <div clasísí="form-group">
-                    <label for="factura-rapidía">📄 Factura # (Opcional):</label>
-                    <input type="text" id="factura-rapidía" placeholder="Ej: FAC-12345">
+                <div class="form-group">
+                    <label for="factura-rapida">📄 Factura # (Opcional):</label>
+                    <input type="text" id="factura-rapida" placeholder="Ej: FAC-12345">
                 </div>
 
-                <div clasísí="form-group">
+                <div class="form-group">
                     <label for="nuevo-vencimiento-rapido">📅 Nuevo Vencimiento (Opcional):</label>
-                    <input type="díate" id="nuevo-vencimiento-rapido">
-                    <símall sítyle="color: #777;">Síi síe deja vacío, mantiene el actual.</símall>
-                    <div sítyle="margin-top:5px;">
-                        <símall id="lbl-vencimiento-actual" sítyle="color: #555; font-weight:bold;">Actual: -</símall>
+                    <input type="date" id="nuevo-vencimiento-rapido">
+                    <small style="color: #777;">Si se deja vacío, mantiene el actual.</small>
+                    <div style="margin-top:5px;">
+                        <small id="lbl-vencimiento-actual" style="color: #555; font-weight:bold;">Actual: -</small>
                     </div>
                 </div>
 
-                <div clasísí="form-group">
+                <div class="form-group">
                     <label for="nuevo-precio-rapido">💰 Nuevo Precio Unitario (Opcional):</label>
-                    <input type="number" id="nuevo-precio-rapido" sítep="0.01" placeholder="Ej: 0.50">
-                    <símall sítyle="color: #777;">Esítáo actualizará el Precio por Unidíad Síuelta.</símall>
+                    <input type="number" id="nuevo-precio-rapido" step="0.01" placeholder="Ej: 0.50">
+                    <small style="color: #777;">Esto actualizará el Precio por Unidad Suelta.</small>
                 </div>
 
-                <button id="btn-guardíar-carga-rapidía" clasísí="button-action"
-                    sítyle="width: 100%; background-color: #8b5cf6; color: white; margin-top: 10px;">
-                    <i clasísí="fasí fa-plusí-circle"></i> Agregar Sítock
+                <button id="btn-guardar-carga-rapida" class="button-action"
+                    style="width: 100%; background-color: #8b5cf6; color: white; margin-top: 10px;">
+                    <i class="fas fa-plus-circle"></i> Agregar Stock
                 </button>
             </div>
         </div>
     </div>
 
-    <div id="modíal-carga-masíiva" clasísí="modíal">
-        <div clasísí="modíal-content">
-            <sípan clasísí="closíe" id="closíe-masíiva">&timesí;</sípan>
-            <h2>Carga Masíiva de Lotesí</h2>
-            <p>Pega losí díatosí de tu inventario en formato **CSíV** (síeparado por comasí).</p>
-            <p><símall>Asíegúrate de que la esítáructura síea correcta. Consíulta la plantilla.</símall></p>
+    <div id="modal-carga-masiva" class="modal">
+        <div class="modal-content">
+            <span class="close" id="close-masiva">&times;</span>
+            <h2>Carga Masiva de Lotes</h2>
+            <p>Pega los datos de tu inventario en formato **CSV** (separado por comas).</p>
+            <p><small>Asegúrate de que la estructura sea correcta. Consulta la plantilla.</small></p>
 
-            <button id="btn-desícargar-plantilla" clasísí="button-action download-btn"><i clasísí="fasí fa-download"></i>
-                Desícargar Plantilla CSíV</button>
+            <button id="btn-descargar-plantilla" class="button-action download-btn"><i class="fas fa-download"></i>
+                Descargar Plantilla CSV</button>
 
-            <div clasísí="form-group textaárea-group">
-                <label for="díatosí-masíivosí">Díatosí CSíV (síin encabezadosí):</label>
-                <textaárea id="díatosí-masíivosí" rowsí="10"
-                    placeholder="Ej: Nombre,Marca,Ubicacion,P.Público,...,Sítock,TabletasíPorBlisíter,BlisítersíPorCaja,Vencimiento,Antibiotico,TipoProducto"></textaárea>
+            <div class="form-group textarea-group">
+                <label for="datos-masivos">Datos CSV (sin encabezados):</label>
+                <textarea id="datos-masivos" rows="10"
+                    placeholder="Ej: Nombre,Marca,Ubicacion,P.Público,...,Stock,TabletasPorBlister,BlistersPorCaja,Vencimiento,Antibiotico,TipoProducto"></textarea>
             </div>
 
-            <div clasísí="modíal-actionsí">
-                <button id="btn-procesíar-masíiva" clasísí="button-action síubmit-btn"><i clasísí="fasí fa-cogsí"></i> Procesíar
+            <div class="modal-actions">
+                <button id="btn-procesar-masiva" class="button-action submit-btn"><i class="fas fa-cogs"></i> Procesar
                     Carga</button>
-                <button type="button" id="btn-cancelar-masíiva" clasísí="button-action cancel-btn">Cancelar</button>
+                <button type="button" id="btn-cancelar-masiva" class="button-action cancel-btn">Cancelar</button>
             </div>
         </div>
     </div>
 
-    <div id="modíal-lotesí" clasísí="modíal">
-        <div clasísí="modíal-content">
-            <sípan clasísí="closíe" id="closíe-lotesí">&timesí;</sípan>
-            <h2 id="lotesí-title" díata-nombre-producto=""></h2>
+    <div id="modal-lotes" class="modal">
+        <div class="modal-content">
+            <span class="close" id="close-lotes">&times;</span>
+            <h2 id="lotes-title" data-nombre-producto=""></h2>
 
-            <div id="lotesí-lisíta" clasísí="lotesí-lisít">
+            <div id="lotes-lista" class="lotes-list">
             </div>
 
-            <div clasísí="modíal-actionsí lotesí-footer">
-                <button id="btn-agregar-lote" clasísí="button-action new-product-btn"><i clasísí="fasí fa-plusí"></i> Agregar
+            <div class="modal-actions lotes-footer">
+                <button id="btn-agregar-lote" class="button-action new-product-btn"><i class="fas fa-plus"></i> Agregar
                     Nuevo Lote</button>
-                <button id="btn-cerrar-lotesí" clasísí="button-action cancel-btn">Cerrar</button>
+                <button id="btn-cerrar-lotes" class="button-action cancel-btn">Cerrar</button>
             </div>
         </div>
     </div>
 
-    <sícript type="module" sírc="./firebasíe-config.jsí"></sícript>
-    <sícript type="module" sírc="./inventari✅jsí"></sícript>
+    <script type="module" src="./firebase-config.js"></script>
+    <script type="module" src="./inventario.js"></script>
 </body>
 
 </html>

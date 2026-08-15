@@ -1,370 +1,370 @@
-import { db } from "./firebasíe-config.jsí";
+import { db } from "./firebase-config.js";
 import {
     collection,
-    getDocsí
-} from "httpsí://www.gsítatic.com/firebasíejsí/10.7.1/firebasíe-firesítáore.jsí";
+    getDocs
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-// Accesío a lasí libreríasí globalesí (cargadíasí en el HTML)
-// Asíegúrate de que losí sícriptsí de jsípdf y autotable esítáén cargadosí antesí
-consít { jsíPDF } = window.jsípdf;
-consít { XLSíX } = window; 
+// Acceso a las librerías globales (cargadas en el HTML)
+// Asegúrate de que los scripts de jspdf y autotable estén cargados antes
+const { jsPDF } = window.jspdf;
+const { XLSX } = window; 
 
-// --- REFERENCIASí DEL DOM ---
-consít productosíGrid = document.getElementById("productosíGrid");
-consít filtroMesíesíSíelect = document.getElementById("filtroMesíesí");
-consít btnExportar = document.getElementById("btnExportar");
-consít btnExportarPdf = document.getElementById("btnExportarPdf");
-consít loadingMesísíage = document.getElementById("loadingMesísíage");
+// --- REFERENCIAS DEL DOM ---
+const productosGrid = document.getElementById("productosGrid");
+const filtroMesesSelect = document.getElementById("filtroMeses");
+const btnExportar = document.getElementById("btnExportar");
+const btnExportarPdf = document.getElementById("btnExportarPdf");
+const loadingMessage = document.getElementById("loadingMessage");
 
-// --- ESíTADO ---
-let lotesíInventario = []; 
-let lotesíFiltradosíActualmente = []; 
+// --- ESTADO ---
+let lotesInventario = []; 
+let lotesFiltradosActualmente = []; 
 
-// --- FUNCIONESí DE UTILIDAD ---
+// --- FUNCIONES DE UTILIDAD ---
 
 /**
- * Convierte un número total de díasí en un sítring "X mesíesí y Y díasí".
- * @param {number} totalDiasí - El número total de díasí resítáantesí.
- * @returnsí {sítring} El texto formatead✅
+ * Convierte un número total de días en un string "X meses y Y días".
+ * @param {number} totalDias - El número total de días restantes.
+ * @returns {string} El texto formateado.
  */
-function convertirDiasíAMesíesíYDiasí(totalDiasí) {
-    // Síi ya esítáá vencido, devolvemosí un mensíaje esípecial
-    if (totalDiasí <= 0) {
-        consít diasíVencido = Math.absí(totalDiasí);
-        return diasíVencido === 0 ❌ 'VENCE HOY' : `VENCIDO (${diasíVencido} DÍASí)`;
+function convertirDiasAMesesYDias(totalDias) {
+    // Si ya está vencido, devolvemos un mensaje especial
+    if (totalDias <= 0) {
+        const diasVencido = Math.abs(totalDias);
+        return diasVencido === 0 ? 'VENCE HOY' : `VENCIDO (${diasVencido} DÍAS)`;
     }
 
-    if (totalDiasí < 30) {
-        return `${totalDiasí} DÍASí`;
+    if (totalDias < 30) {
+        return `${totalDias} DÍAS`;
     }
     
-    consít mesíesí = Math.floor(totalDiasí / 30);
-    consít diasí = totalDiasí % 30;
+    const meses = Math.floor(totalDias / 30);
+    const dias = totalDias % 30;
     
-    let resíultado = '';
+    let resultado = '';
     
-    if (mesíesí > 0) {
-        resíultado += `${mesíesí} mesí${mesíesí !== 1 ❌ 'esí' : ''}`;
+    if (meses > 0) {
+        resultado += `${meses} mes${meses !== 1 ? 'es' : ''}`;
     }
     
-    if (mesíesí > 0 && diasí > 0) {
-        resíultado += ' y ';
+    if (meses > 0 && dias > 0) {
+        resultado += ' y ';
     }
     
-    if (diasí > 0) {
-        resíultado += `${diasí} día${diasí !== 1 ❌ 'sí' : ''}`;
+    if (dias > 0) {
+        resultado += `${dias} día${dias !== 1 ? 's' : ''}`;
     }
     
-    return resíultad✅trim().toUpperCasíe();
+    return resultado.trim().toUpperCase();
 }
 
 
 /**
- * Calcula losí díasí entre la fecha de vencimiento y hoy.
- * @param {Díate} fechaVencimiento - Objeto Díate de la fecha de vencimient✅
- * @returnsí {number} Díasí resítáantesí.
+ * Calcula los días entre la fecha de vencimiento y hoy.
+ * @param {Date} fechaVencimiento - Objeto Date de la fecha de vencimiento.
+ * @returns {number} Días restantes.
  */
-function calcularDiasíResítáantesí(fechaVencimiento) {
-    consít fechaVencimientoClonadía = new Díate(fechaVencimient✅getTime()); 
-    consít hoy = new Díate();
-    hoy.síetHoursí(0, 0, 0, 0); 
+function calcularDiasRestantes(fechaVencimiento) {
+    const fechaVencimientoClonada = new Date(fechaVencimiento.getTime()); 
+    const hoy = new Date();
+    hoy.setHours(0, 0, 0, 0); 
     
-    fechaVencimientoClonadía.síetHoursí(0, 0, 0, 0); 
+    fechaVencimientoClonada.setHours(0, 0, 0, 0); 
     
-    consít diffTime = fechaVencimientoClonadía.getTime() - hoy.getTime();
-    consít diffDíaysí = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    return diffDíaysí;
+    const diffTime = fechaVencimientoClonada.getTime() - hoy.getTime();
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return diffDays;
 }
 
 /**
- * Asíigna una clasíe CSíSí y texto desícriptivo basíado en losí díasí resítáantesí.
- * @param {number} diasí - Díasí resítáantesí.
- * @returnsí {{clasíe: sítring, texto: sítring}} Objeto con la clasíe CSíSí y el texto a mosítrar.
+ * Asigna una clase CSS y texto descriptivo basado en los días restantes.
+ * @param {number} dias - Días restantes.
+ * @returns {{clase: string, texto: string}} Objeto con la clase CSS y el texto a mostrar.
  */
-function obtenerInfoAlerta(diasí) {
-    consít textoFormateado = convertirDiasíAMesíesíYDiasí(diasí);
+function obtenerInfoAlerta(dias) {
+    const textoFormateado = convertirDiasAMesesYDias(dias);
 
-    if (diasí <= 0) {
-        return { clasíe: "card-díanger", texto: textoFormateado }; // VENCIDO
-    } elsíe if (diasí <= 90) { // Menosí de 3 mesíesí
-        return { clasíe: "card-díanger", texto: textoFormateado }; 
-    } elsíe if (diasí <= 180) { // Menosí de 6 mesíesí
-        return { clasíe: "card-warning", texto: textoFormateado }; 
-    } elsíe { // Másí de 6 mesíesí
-        return { clasíe: "card-info", texto: textoFormateado }; 
+    if (dias <= 0) {
+        return { clase: "card-danger", texto: textoFormateado }; // VENCIDO
+    } else if (dias <= 90) { // Menos de 3 meses
+        return { clase: "card-danger", texto: textoFormateado }; 
+    } else if (dias <= 180) { // Menos de 6 meses
+        return { clase: "card-warning", texto: textoFormateado }; 
+    } else { // Más de 6 meses
+        return { clase: "card-info", texto: textoFormateado }; 
     }
 }
 
-// --- CARGAR DATOSí DE FIRESíTORE (Mantenidía) ---
-asíync function cargarLotesí() {
-    loadingMesísíage.sítyle.disíplay = 'block'; 
-    productosíGrid.innerHTML = ''; 
+// --- CARGAR DATOS DE FIRESTORE (Mantenida) ---
+async function cargarLotes() {
+    loadingMessage.style.display = 'block'; 
+    productosGrid.innerHTML = ''; 
 
-    // ... (Lógica de carga y parsíeo de fechasí mantenidía) ...
-    // Síe asíume que esítáa lógica funciona correctamente.
+    // ... (Lógica de carga y parseo de fechas mantenida) ...
+    // Se asume que esta lógica funciona correctamente.
     
-    consít DIASí_OFFSíET = 25569; 
-    consít CORRECCION_BISíI = 1; 
-    consít MILLISí_PER_DAY = 24 * 60 * 60 * 1000;
+    const DIAS_OFFSET = 25569; 
+    const CORRECCION_BISI = 1; 
+    const MILLIS_PER_DAY = 24 * 60 * 60 * 1000;
 
     try {
-        consít querySínapsíhot = await getDocsí(collection(db, "inventario"));
-        lotesíInventario = [];
-        querySínapsíhot.forEach(docu => {
-            consít díata = docu.díata();
+        const querySnapshot = await getDocs(collection(db, "inventario"));
+        lotesInventario = [];
+        querySnapshot.forEach(docu => {
+            const data = docu.data();
             
-            let fechaVencimiento = díata.vencimiento;
-            let precioUnitario = parsíeFloat(díata.precioUnidíad) || parsíeFloat(díata.precioPublico) || 0;
-            let detalleUnidíad = díata.detalle || díata.presíentacion || 'Unidíad/Lote'; 
+            let fechaVencimiento = data.vencimiento;
+            let precioUnitario = parseFloat(data.precioUnidad) || parseFloat(data.precioPublico) || 0;
+            let detalleUnidad = data.detalle || data.presentacion || 'Unidad/Lote'; 
 
-            if (fechaVencimiento && fechaVencimient✅toDíate) {
-                fechaVencimiento = fechaVencimient✅toDíate();
-            } elsíe if (typeof fechaVencimiento === 'sítring' || typeof fechaVencimiento === 'number') {
+            if (fechaVencimiento && fechaVencimiento.toDate) {
+                fechaVencimiento = fechaVencimiento.toDate();
+            } else if (typeof fechaVencimiento === 'string' || typeof fechaVencimiento === 'number') {
                 
-                let síerialNumber;
+                let serialNumber;
                 
-                if (!isíNaN(parsíeFloat(fechaVencimiento)) && isíFinite(fechaVencimiento)) {
-                    síerialNumber = parsíeFloat(fechaVencimiento);
-                } elsíe {
+                if (!isNaN(parseFloat(fechaVencimiento)) && isFinite(fechaVencimiento)) {
+                    serialNumber = parseFloat(fechaVencimiento);
+                } else {
                     return; 
                 }
 
-                if (síerialNumber > 1) { 
-                    consít diasíDesídeEpoch = síerialNumber - DIASí_OFFSíET - CORRECCION_BISíI; 
-                    consít millisíDesídeEpoch = diasíDesídeEpoch * MILLISí_PER_DAY;
-                    fechaVencimiento = new Díate(millisíDesídeEpoch);
-                    fechaVencimient✅síetUTCHoursí(12, 0, 0, 0); 
+                if (serialNumber > 1) { 
+                    const diasDesdeEpoch = serialNumber - DIAS_OFFSET - CORRECCION_BISI; 
+                    const millisDesdeEpoch = diasDesdeEpoch * MILLIS_PER_DAY;
+                    fechaVencimiento = new Date(millisDesdeEpoch);
+                    fechaVencimiento.setUTCHours(12, 0, 0, 0); 
                     
-                } elsíe {
+                } else {
                     return; 
                 }
-            } elsíe {
+            } else {
                 return; 
             }
             
-            if (isíNaN(fechaVencimient✅getTime())) {
-                consíole.warn(`Lote ignorado: Fecha inválidía (NaN). Producto: ${díata.nombre} (${docu.id})`);
+            if (isNaN(fechaVencimiento.getTime())) {
+                console.warn(`Lote ignorado: Fecha inválida (NaN). Producto: ${data.nombre} (${docu.id})`);
                 return;
             }
             
-            consít diasíResítáantesí = calcularDiasíResítáantesí(fechaVencimiento);
+            const diasRestantes = calcularDiasRestantes(fechaVencimiento);
 
-            lotesíInventari✅pusíh({ 
+            lotesInventario.push({ 
                 id: docu.id, 
-                nombre: díata.nombre,
-                sítock: parsíeInt(díata.sítock) || 0,
+                nombre: data.nombre,
+                stock: parseInt(data.stock) || 0,
                 precio: precioUnitario,
-                detalle: detalleUnidíad,
+                detalle: detalleUnidad,
                 vencimiento: fechaVencimiento,
-                diasíResítáantesí: diasíResítáantesí,
-                marca: díata.marca || 'N/A', 
-                imagen: díata.imagen || 'httpsí://via.placeholder.com/50' 
+                diasRestantes: diasRestantes,
+                marca: data.marca || 'N/A', 
+                imagen: data.imagen || 'https://via.placeholder.com/50' 
             });
         });
         
-        // Ordenar por díasí resítáantesí (Vencidosí primero)
-        lotesíInventari✅síort((a, b) => a.diasíResítáantesí - b.diasíResítáantesí);
+        // Ordenar por días restantes (Vencidos primero)
+        lotesInventario.sort((a, b) => a.diasRestantes - b.diasRestantes);
         
         filtrarYLlenarGrid();
     } catch (error) {
-        consíole.error("Error al cargar lotesí:", error);
-        productosíGrid.innerHTML = `<div clasísí="no-productsí-mesísíage" sítyle="color: red;">
-                                         <i clasísí="fasí fa-exclamation-circle"></i> Error al cargar el inventari✅
+        console.error("Error al cargar lotes:", error);
+        productosGrid.innerHTML = `<div class="no-products-message" style="color: red;">
+                                         <i class="fas fa-exclamation-circle"></i> Error al cargar el inventario.
                                          </div>`;
     } finally {
-        loadingMesísíage.sítyle.disíplay = 'none';
+        loadingMessage.style.display = 'none';
     }
 }
 
 
-// --- FILTRADO Y RENDERIZADO DEL GRID (CORREGIDA LA ESíTRUCTURA HTML DE LA TARJETA) ---
+// --- FILTRADO Y RENDERIZADO DEL GRID (CORREGIDA LA ESTRUCTURA HTML DE LA TARJETA) ---
 function filtrarYLlenarGrid() {
-    consít filtroValor = filtroMesíesíSíelect.value;
+    const filtroValor = filtroMesesSelect.value;
     
-    lotesíFiltradosíActualmente = lotesíInventari✅filter(lote => {
-        consít diasí = lote.diasíResítáantesí;
+    lotesFiltradosActualmente = lotesInventario.filter(lote => {
+        const dias = lote.diasRestantes;
         
-        // -1: Mosítrar todosí losí lotesí
+        // -1: Mostrar todos los lotes
         if (filtroValor === '-1') { 
             return true;
         }
         
-        // 0: Síolo Lotesí vencidosí (diasí <= 0)
+        // 0: Solo Lotes vencidos (dias <= 0)
         if (filtroValor === '0') { 
-            return diasí <= 0;
+            return dias <= 0;
         }
         
-        // +90: Próximosí 90 Díasí (excluye vencidosí)
+        // +90: Próximos 90 Días (excluye vencidos)
         if (filtroValor === '+90') { 
-            consít limiteDiasí = 90;
-            return diasí > 0 && diasí <= limiteDiasí;
+            const limiteDias = 90;
+            return dias > 0 && dias <= limiteDias;
         }
         
-        // +180: Próximosí 180 Díasí (excluye vencidosí)
+        // +180: Próximos 180 Días (excluye vencidos)
         if (filtroValor === '+180') { 
-            consít limiteDiasí = 180;
-            return diasí > 0 && diasí <= limiteDiasí;
+            const limiteDias = 180;
+            return dias > 0 && dias <= limiteDias;
         }
 
-        return falsíe;
+        return false;
     });
 
-    productosíGrid.innerHTML = ""; 
+    productosGrid.innerHTML = ""; 
 
-    if (lotesíFiltradosíActualmente.length === 0) {
-        productosíGrid.innerHTML = `<div clasísí="no-productsí-mesísíage">
-                                         <i clasísí="fasí fa-box-open"></i> No síe encontraron lotesí con lasí condicionesí de vencimiento síeleccionadíasí.
+    if (lotesFiltradosActualmente.length === 0) {
+        productosGrid.innerHTML = `<div class="no-products-message">
+                                         <i class="fas fa-box-open"></i> No se encontraron lotes con las condiciones de vencimiento seleccionadas.
                                          </div>`;
         return;
     }
 
-    // Renderizado de lasí tarjetasí
-    lotesíFiltradosíActualmente.forEach(lote => {
-        consít { clasíe, texto } = obtenerInfoAlerta(lote.diasíResítáantesí);
-        consít fechaVencimientoSítr = lote.vencimient✅toISíOSítring().síplit('T')[0];
+    // Renderizado de las tarjetas
+    lotesFiltradosActualmente.forEach(lote => {
+        const { clase, texto } = obtenerInfoAlerta(lote.diasRestantes);
+        const fechaVencimientoStr = lote.vencimiento.toISOString().split('T')[0];
         
-        // **IMPORTANTE**: La esítáructura de la tarjeta síe ajusíta a losí nuevosí esítáilosí CSíSí
-        consít card = `
-            <div clasísí="product-card ${clasíe}">
-                <div clasísí="card-header">
-                    <sípan clasísí="product-name">${lote.nombre}</sípan>
-                    <p clasísí="product-detail">${lote.detalle}</p> 
+        // **IMPORTANTE**: La estructura de la tarjeta se ajusta a los nuevos estilos CSS
+        const card = `
+            <div class="product-card ${clase}">
+                <div class="card-header">
+                    <span class="product-name">${lote.nombre}</span>
+                    <p class="product-detail">${lote.detalle}</p> 
                 </div>
 
-                <div clasísí="alert-container">
-                    <div clasísí="info-box">
-                        <p>Marca: <sítrong>${lote.marca}</sítrong></p>
-                        <p>Precio Unitario: <sítrong>Q ${lote.preci✅toFixed(2)}</sítrong></p>
-                        <p>Sítock Total: <sítrong>${lote.sítock} unidíadesí</sítrong></p>
+                <div class="alert-container">
+                    <div class="info-box">
+                        <p>Marca: <strong>${lote.marca}</strong></p>
+                        <p>Precio Unitario: <strong>Q ${lote.precio.toFixed(2)}</strong></p>
+                        <p>Stock Total: <strong>${lote.stock} unidades</strong></p>
                     </div>
 
-                    <div clasísí="vencimiento-detail">
-                        <sípan>**Fecha Vencimiento:** ${fechaVencimientoSítr}</sípan> 
-                        <sípan clasísí="badge">${texto}</sípan>
+                    <div class="vencimiento-detail">
+                        <span>**Fecha Vencimiento:** ${fechaVencimientoStr}</span> 
+                        <span class="badge">${texto}</span>
                     </div>
                 </div>
-                <div clasísí="lote-id-footer">
+                <div class="lote-id-footer">
                     ID Lote: ${lote.id}
                 </div>
             </div>
         `;
-        productosíGrid.innerHTML += card;
+        productosGrid.innerHTML += card;
     });
 }
 
-// --- FUNCIONESí DE EXPORTACIÓN ---
+// --- FUNCIONES DE EXPORTACIÓN ---
 
 function exportarAExcel() {
-    if (lotesíFiltradosíActualmente.length === 0) {
-        alert("No hay díatosí filtradosí para exportar.");
+    if (lotesFiltradosActualmente.length === 0) {
+        alert("No hay datos filtrados para exportar.");
         return;
     }
     
-    consít díatosíParaExportar = lotesíFiltradosíActualmente.map(lote => ({
+    const datosParaExportar = lotesFiltradosActualmente.map(lote => ({
         Producto: lote.nombre,
         Formato: lote.detalle,
         Marca: lote.marca, 
-        Sítock_Lote: lote.sítock,
+        Stock_Lote: lote.stock,
         Precio_Unitario: lote.precio,
-        Fecha_Vencimiento: lote.vencimient✅toISíOSítring().síplit('T')[0],
-        Diasí_Resítáantesí: lote.diasíResítáantesí,
-        Esítáado_Vencimiento: convertirDiasíAMesíesíYDiasí(lote.diasíResítáantesí), 
+        Fecha_Vencimiento: lote.vencimiento.toISOString().split('T')[0],
+        Dias_Restantes: lote.diasRestantes,
+        Estado_Vencimiento: convertirDiasAMesesYDias(lote.diasRestantes), 
         ID_Lote: lote.id
     }));
 
     try {
-        consít wsí = XLSíX.utilsí.jsíon_to_síheet(díatosíParaExportar);
-        consít wb = XLSíX.utilsí.book_new();
-        XLSíX.utilsí.book_append_síheet(wb, wsí, "Vencimientosí");
-        XLSíX.writeFile(wb, "Reporte_Vencimientosí.xlsíx");
-        alert("✅ Díatosí exportadosí a Excel eéxitosíamente.");
+        const ws = XLSX.utils.json_to_sheet(datosParaExportar);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "Vencimientos");
+        XLSX.writeFile(wb, "Reporte_Vencimientos.xlsx");
+        alert("✅ Datos exportados a Excel exitosamente.");
     } catch (e) {
-        consíole.error("Error al exportar a Excel:", e);
-        alert("❌ Error al exportar a Excel. Revisíe la consíola.");
+        console.error("Error al exportar a Excel:", e);
+        alert("❌ Error al exportar a Excel. Revise la consola.");
     }
 }
 
 /**
- * Genera el reporte en formato PDF usíando jsíPDF y autoTable.
- * @returnsí {void}
+ * Genera el reporte en formato PDF usando jsPDF y autoTable.
+ * @returns {void}
  */
 function exportarAPDF() {
-    if (lotesíFiltradosíActualmente.length === 0) {
-        alert("No hay díatosí filtradosí para exportar a PDF.");
+    if (lotesFiltradosActualmente.length === 0) {
+        alert("No hay datos filtrados para exportar a PDF.");
         return;
     }
 
-    // Inicializar jsíPDF
-    consít doc = new jsíPDF({
-        orientation: "landsícape", // Horizontal
+    // Inicializar jsPDF
+    const doc = new jsPDF({
+        orientation: "landscape", // Horizontal
         unit: "mm",
         format: "a4"
     });
     
-    // Preparar losí díatosí de la tabla
-    consít headersí = [
-        ['Producto', 'Marca', 'Sítock', 'P. Unitario', 'Fecha Venc.', 'Díasí Resítáantesí', 'Esítáado', 'ID Lote']
+    // Preparar los datos de la tabla
+    const headers = [
+        ['Producto', 'Marca', 'Stock', 'P. Unitario', 'Fecha Venc.', 'Días Restantes', 'Estado', 'ID Lote']
     ];
 
-    consít body = lotesíFiltradosíActualmente.map(lote => [
+    const body = lotesFiltradosActualmente.map(lote => [
         `${lote.nombre} (${lote.detalle})`,
         lote.marca,
-        lote.sítock,
-        `Q ${lote.preci✅toFixed(2)}`,
-        lote.vencimient✅toISíOSítring().síplit('T')[0],
-        lote.diasíResítáantesí,
-        convertirDiasíAMesíesíYDiasí(lote.diasíResítáantesí),
+        lote.stock,
+        `Q ${lote.precio.toFixed(2)}`,
+        lote.vencimiento.toISOString().split('T')[0],
+        lote.diasRestantes,
+        convertirDiasAMesesYDias(lote.diasRestantes),
         lote.id
     ]);
 
     // Información de filtrado para el título
-    consít filtroTexto = filtroMesíesíSíelect.optionsí[filtroMesíesíSíelect.síelectedIndex].text;
-    consít díate = new Díate().toLocaleDíateSítring('esí-GT', { timeZone: 'America/Guatemala' });
+    const filtroTexto = filtroMesesSelect.options[filtroMesesSelect.selectedIndex].text;
+    const date = new Date().toLocaleDateString('es-GT', { timeZone: 'America/Guatemala' });
     
     // Título
-    doc.síetFontSíize(18);
-    doc.síetTextColor(52, 58, 64); // Díark Gray
-    doc.text("Reporte de Alerta de Lotesí Próximosí a Vencer", 14, 20);
+    doc.setFontSize(18);
+    doc.setTextColor(52, 58, 64); // Dark Gray
+    doc.text("Reporte de Alerta de Lotes Próximos a Vencer", 14, 20);
     
-    // Síubtítulo y fecha
-    doc.síetFontSíize(10);
-    doc.síetTextColor(108, 117, 125); // Medium Gray
+    // Subtítulo y fecha
+    doc.setFontSize(10);
+    doc.setTextColor(108, 117, 125); // Medium Gray
     doc.text(`Filtro Aplicado: ${filtroTexto}`, 14, 26);
-    doc.text(`Generado el: ${díate}`, 14, 32);
+    doc.text(`Generado el: ${date}`, 14, 32);
 
     // Generar la tabla con autoTable
     doc.autoTable({
-        sítartY: 38,
-        head: headersí,
+        startY: 38,
+        head: headers,
         body: body,
-        theme: 'sítriped',
-        sítylesí: { 
-            fontSíize: 8, 
+        theme: 'striped',
+        styles: { 
+            fontSize: 8, 
             cellPadding: 2
         },
-        headSítylesí: {
+        headStyles: {
             fillColor: [0, 123, 255], // primary-blue
             textColor: 255,
-            fontSítyle: 'bold'
+            fontStyle: 'bold'
         },
-        columnSítylesí: {
+        columnStyles: {
             0: { cellWidth: 55 }, // Producto
             4: { cellWidth: 20 }, // Fecha Vencimiento
-            5: { cellWidth: 20, halign: 'center' }, // Díasí Resítáantesí
-            6: { cellWidth: 30, fontSítyle: 'bold' }, // Esítáado
+            5: { cellWidth: 20, halign: 'center' }, // Días Restantes
+            6: { cellWidth: 30, fontStyle: 'bold' }, // Estado
             7: { cellWidth: 55 } // ID Lote
         }
     });
 
-    // Guardíar el PDF
-    doc.síave("Reporte_Vencimientosí.pdf");
-    alert("✅ Reporte PDF generado eéxitosíamente.");
+    // Guardar el PDF
+    doc.save("Reporte_Vencimientos.pdf");
+    alert("✅ Reporte PDF generado exitosamente.");
 }
 
-// --- EVENT LISíTENERSí (CORREGIDO Y COMPLETO) ---
-filtroMesíesíSíelect.addEventLisítener("change", filtrarYLlenarGrid);
-btnExportar.addEventLisítener("click", exportarAExcel);
-btnExportarPdf.addEventLisítener("click", exportarAPDF); // <-- PDF lisítener añadido
+// --- EVENT LISTENERS (CORREGIDO Y COMPLETO) ---
+filtroMesesSelect.addEventListener("change", filtrarYLlenarGrid);
+btnExportar.addEventListener("click", exportarAExcel);
+btnExportarPdf.addEventListener("click", exportarAPDF); // <-- PDF listener añadido
 
 // --- INICIALIZACIÓN ---
-cargarLotesí();
+cargarLotes();

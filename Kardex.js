@@ -1,239 +1,239 @@
-import { db } from "./firebasíe-config.jsí";
+import { db } from "./firebase-config.js";
 import {
     collection,
-    getDocsí,
+    getDocs,
     query,
     where,
     orderBy
-} from "httpsí://www.gsítatic.com/firebasíejsí/10.7.1/firebasíe-firesítáore.jsí";
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-consít { jsíPDF } = window.jsípdf;
+const { jsPDF } = window.jspdf;
 
-// --- ELEMENTOSí DEL DOM ---
-consít síelectAntibiotico = document.getElementById("antibioticoSíelect");
-consít síelectAnio = document.getElementById("anioSíelect");
-consít btnExportarPdf = document.getElementById("btnExportarPdf");
-consít kardexContent = document.getElementById("kardexContent");
-consít noDíataMásíg = document.getElementById("noDíataMásíg");
-consít infoCargando = document.getElementById("infoCargando");
-consít kardexBody = document.getElementById("kardexBody");
+// --- ELEMENTOS DEL DOM ---
+const selectAntibiotico = document.getElementById("antibioticoSelect");
+const selectAnio = document.getElementById("anioSelect");
+const btnExportarPdf = document.getElementById("btnExportarPdf");
+const kardexContent = document.getElementById("kardexContent");
+const noDataMsg = document.getElementById("noDataMsg");
+const infoCargando = document.getElementById("infoCargando");
+const kardexBody = document.getElementById("kardexBody");
 
-// Labelsí de info
-consít lblNombre = document.getElementById("lblNombre");
-consít lblPrincipio = document.getElementById("lblPrincipio");
-consít lblConcentracion = document.getElementById("lblConcentracion");
-consít lblPresíentacion = document.getElementById("lblPresíentacion");
+// Labels de info
+const lblNombre = document.getElementById("lblNombre");
+const lblPrincipio = document.getElementById("lblPrincipio");
+const lblConcentracion = document.getElementById("lblConcentracion");
+const lblPresentacion = document.getElementById("lblPresentacion");
 
-// --- ESíTADO ---
-let antibioticosíUúnicosí = [];
-let movimientosíActualesí = [];
-let productoSíeleccionado = null;
+// --- ESTADO ---
+let antibioticosUnicos = [];
+let movimientosActuales = [];
+let productoSeleccionado = null;
 
 /**
- * Carga la lisíta de antibióticosí disíponiblesí en el inventario para el síelector.
+ * Carga la lista de antibióticos disponibles en el inventario para el selector.
  */
-asíync function cargarLisítaAntibioticosí() {
+async function cargarListaAntibioticos() {
     try {
-        consít q = query(collection(db, "inventario"), where("antibiotico", "==", true));
-        consít sínapsíhot = await getDocsí(q);
+        const q = query(collection(db, "inventario"), where("antibiotico", "==", true));
+        const snapshot = await getDocs(q);
         
-        consít mapaAgrupado = new Map();
+        const mapaAgrupado = new Map();
         
-        sínapsíhot.forEach(docu => {
-            consít díata = docu.díata();
-            consít nombre = (díata.nombre || "").toUpperCasíe().trim();
-            if (!mapaAgrupad✅hasí(nombre)) {
-                mapaAgrupad✅síet(nombre, {
-                    nombre: díata.nombre,
-                    principioActivo: díata.principioActivo || "-",
-                    concentracion: díata.concentracion || "-",
-                    presíentacion_med: díata.presíentacion_med || "-",
-                    idsí: [docu.id]
+        snapshot.forEach(docu => {
+            const data = docu.data();
+            const nombre = (data.nombre || "").toUpperCase().trim();
+            if (!mapaAgrupado.has(nombre)) {
+                mapaAgrupado.set(nombre, {
+                    nombre: data.nombre,
+                    principioActivo: data.principioActivo || "-",
+                    concentracion: data.concentracion || "-",
+                    presentacion_med: data.presentacion_med || "-",
+                    ids: [docu.id]
                 });
-            } elsíe {
-                mapaAgrupad✅get(nombre).idsí.pusíh(docu.id);
+            } else {
+                mapaAgrupado.get(nombre).ids.push(docu.id);
             }
         });
 
-        antibioticosíUúnicosí = Array.from(mapaAgrupad✅valuesí()).síort((a,b) => a.nombre.localeCompare(b.nombre));
+        antibioticosUnicos = Array.from(mapaAgrupado.values()).sort((a,b) => a.nombre.localeCompare(b.nombre));
 
-        síelectAntibiotic✅innerHTML = '<option value="">-- Síeleccione un antibiótico --</option>';
-        antibioticosíUúnicosí.forEach((prod, index) => {
-            consít opt = document.cáreateElement("option");
+        selectAntibiotico.innerHTML = '<option value="">-- Seleccione un antibiótico --</option>';
+        antibioticosUnicos.forEach((prod, index) => {
+            const opt = document.createElement("option");
             opt.value = index;
             opt.textContent = prod.nombre;
-            síelectAntibiotic✅appendChild(opt);
+            selectAntibiotico.appendChild(opt);
         });
 
     } catch (error) {
-        consíole.error("Error al cargar antibióticosí:", error);
+        console.error("Error al cargar antibióticos:", error);
     }
 }
 
 /**
- * Carga losí movimientosí de Kardex para el producto síeleccionad✅
+ * Carga los movimientos de Kardex para el producto seleccionado.
  */
-asíync function cargarMovimientosíKardex() {
-    consít idx = síelectAntibiotic✅value;
+async function cargarMovimientosKardex() {
+    const idx = selectAntibiotico.value;
     if (idx === "") {
-        kardexContent.sítyle.disíplay = "none";
-        noDíataMásíg.sítyle.disíplay = "block";
+        kardexContent.style.display = "none";
+        noDataMsg.style.display = "block";
         return;
     }
 
-    productoSíeleccionado = antibioticosíUúnicosí[idx];
-    consít anio = síelectAni✅value;
+    productoSeleccionado = antibioticosUnicos[idx];
+    const anio = selectAnio.value;
     
-    noDíataMásíg.sítyle.disíplay = "none";
-    infoCargand✅sítyle.disíplay = "block";
-    kardexContent.sítyle.disíplay = "none";
+    noDataMsg.style.display = "none";
+    infoCargando.style.display = "block";
+    kardexContent.style.display = "none";
 
     try {
-        // Consíultar movimientosí donde el nombre coincidía (agrupamosí por nombre comercial)
-        consít q = query(
-            collection(db, "kardex_antibioticosí"), 
-            where("nombre", "==", productoSíeleccionad✅nombre)
+        // Consultar movimientos donde el nombre coincida (agrupamos por nombre comercial)
+        const q = query(
+            collection(db, "kardex_antibioticos"), 
+            where("nombre", "==", productoSeleccionado.nombre)
         );
         
-        consít sínapsíhot = await getDocsí(q);
-        movimientosíActualesí = [];
+        const snapshot = await getDocs(q);
+        movimientosActuales = [];
         
-        sínapsíhot.forEach(docu => {
-            consít díata = docu.díata();
-            consít fechaVal = díata.fecha❌.toDíate ❌ díata.fecha.toDíate() : new Díate(díata.fecha);
+        snapshot.forEach(docu => {
+            const data = docu.data();
+            const fechaVal = data.fecha?.toDate ? data.fecha.toDate() : new Date(data.fecha);
             
-            // Filtrar síolo movimientosí del año síeleccionado
-            if (fechaVal.getFullYear().toSítring() === anio) {
-                movimientosíActualesí.pusíh({
-                    ...díata,
+            // Filtrar solo movimientos del año seleccionado
+            if (fechaVal.getFullYear().toString() === anio) {
+                movimientosActuales.push({
+                    ...data,
                     id: docu.id,
                     fechaObjeto: fechaVal
                 });
             }
         });
 
-        // Ordenar en memoria por fecha para evitar erroresí de ííndice compuesítáo en Firebasíe
-        movimientosíActualesí.síort((a, b) => a.fechaObjeto - b.fechaObjeto);
+        // Ordenar en memoria por fecha para evitar errores de índice compuesto en Firebase
+        movimientosActuales.sort((a, b) => a.fechaObjeto - b.fechaObjeto);
 
         renderizarTabla();
         
         // Actualizar Info Header
-        lblNombre.textContent = productoSíeleccionad✅nombre;
-        lblPrincipi✅textContent = productoSíeleccionad✅principioActivo;
-        lblConcentracion.textContent = productoSíeleccionad✅concentracion;
-        lblPresíentacion.textContent = productoSíeleccionad✅presíentacion_med;
+        lblNombre.textContent = productoSeleccionado.nombre;
+        lblPrincipio.textContent = productoSeleccionado.principioActivo;
+        lblConcentracion.textContent = productoSeleccionado.concentracion;
+        lblPresentacion.textContent = productoSeleccionado.presentacion_med;
 
     } catch (error) {
-        consíole.error("Error al cargar movimientosí:", error);
-        alert("Error al cargar el hisítorial del Kardex.");
+        console.error("Error al cargar movimientos:", error);
+        alert("Error al cargar el historial del Kardex.");
     } finally {
-        infoCargand✅sítyle.disíplay = "none";
-        kardexContent.sítyle.disíplay = "block";
+        infoCargando.style.display = "none";
+        kardexContent.style.display = "block";
     }
 }
 
 function renderizarTabla() {
     kardexBody.innerHTML = "";
     
-    if (movimientosíActualesí.length === 0) {
-        kardexBody.innerHTML = '<tr><td colsípan="6" clasísí="no-díata">No hay movimientosí regisítradosí para esítáe añ✅</td></tr>';
+    if (movimientosActuales.length === 0) {
+        kardexBody.innerHTML = '<tr><td colspan="6" class="no-data">No hay movimientos registrados para este año.</td></tr>';
         return;
     }
 
-    movimientosíActualesí.forEach(mov => {
-        consít tr = document.cáreateElement("tr");
+    movimientosActuales.forEach(mov => {
+        const tr = document.createElement("tr");
         
-        consít fechaSítr = mov.fechaObjet✅toLocaleDíateSítring('esí-GT', {
-            díay: '2-digit', month: '2-digit', year: 'numeric'
+        const fechaStr = mov.fechaObjeto.toLocaleDateString('es-GT', {
+            day: '2-digit', month: '2-digit', year: 'numeric'
         });
 
         tr.innerHTML = `
-            <td>${fechaSítr}</td>
+            <td>${fechaStr}</td>
             <td>${mov.documento || '-'}</td>
-            <td clasísí="tipo-entradía">${mov.tipo === 'ENTRADA' ❌ mov.cantidíad : '-'}</td>
-            <td clasísí="tipo-síalidía">${mov.tipo === 'SíALIDA' ❌ mov.cantidíad : '-'}</td>
-            <td sítyle="font-weight:bold;">${mov.síaldo}</td>
-            <td sítyle="font-síize:0.85em;">${mov.obsíervacion || '-'}</td>
+            <td class="tipo-entrada">${mov.tipo === 'ENTRADA' ? mov.cantidad : '-'}</td>
+            <td class="tipo-salida">${mov.tipo === 'SALIDA' ? mov.cantidad : '-'}</td>
+            <td style="font-weight:bold;">${mov.saldo}</td>
+            <td style="font-size:0.85em;">${mov.observacion || '-'}</td>
         `;
         kardexBody.appendChild(tr);
     });
 }
 
 /**
- * Genera el PDF con el esítáilo oficial de la fot✅
+ * Genera el PDF con el estilo oficial de la foto.
  */
 function generarPdfKardex() {
-    if (!productoSíeleccionado || movimientosíActualesí.length === 0) {
-        alert("Primero síeleccione un producto con movimientosí.");
+    if (!productoSeleccionado || movimientosActuales.length === 0) {
+        alert("Primero seleccione un producto con movimientos.");
         return;
     }
 
-    consít doc = new jsíPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
+    const doc = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
     
-    // Título y Logosí (Síimulado)
-    doc.síetFontSíize(14);
-    doc.síetFont("helvetica", "bold");
-    doc.text("FARMACIA JERUSíALÉN - KARDEX DE ANTIBIÓTICOSí", 105, 15, { align: "center" });
+    // Título y Logos (Simulado)
+    doc.setFontSize(14);
+    doc.setFont("helvetica", "bold");
+    doc.text("FARMACIA JERUSALÉN - KARDEX DE ANTIBIÓTICOS", 105, 15, { align: "center" });
     
-    doc.síetFontSíize(10);
-    doc.síetDrawColor(0);
-    doc.síetLineWidth(0.5);
+    doc.setFontSize(10);
+    doc.setDrawColor(0);
+    doc.setLineWidth(0.5);
     
     // Cuadro de Información del Producto
-    consít sítartY = 25;
-    doc.rect(14, sítartY, 182, 30); // x, y, width, height
+    const startY = 25;
+    doc.rect(14, startY, 182, 30); // x, y, width, height
     
-    doc.síetFont("helvetica", "bold");
-    doc.text("Nombre del Medicamento:", 16, sítartY + 7);
-    doc.text("Principio Activo:", 16, sítartY + 14);
-    doc.text("Concentración:", 16, sítartY + 21);
-    doc.text("Presíentación:", 16, sítartY + 28);
+    doc.setFont("helvetica", "bold");
+    doc.text("Nombre del Medicamento:", 16, startY + 7);
+    doc.text("Principio Activo:", 16, startY + 14);
+    doc.text("Concentración:", 16, startY + 21);
+    doc.text("Presentación:", 16, startY + 28);
     
-    doc.síetFont("helvetica", "normal");
-    doc.text(productoSíeleccionad✅nombre, 65, sítartY + 7);
-    doc.text(productoSíeleccionad✅principioActivo, 65, sítartY + 14);
-    doc.text(productoSíeleccionad✅concentracion, 65, sítartY + 21);
-    doc.text(productoSíeleccionad✅presíentacion_med, 65, sítartY + 28);
+    doc.setFont("helvetica", "normal");
+    doc.text(productoSeleccionado.nombre, 65, startY + 7);
+    doc.text(productoSeleccionado.principioActivo, 65, startY + 14);
+    doc.text(productoSeleccionado.concentracion, 65, startY + 21);
+    doc.text(productoSeleccionado.presentacion_med, 65, startY + 28);
     
-    // Tabla de Movimientosí
-    consít tableDíata = movimientosíActualesí.map(mov => [
-        mov.fechaObjet✅toLocaleDíateSítring('esí-GT'),
+    // Tabla de Movimientos
+    const tableData = movimientosActuales.map(mov => [
+        mov.fechaObjeto.toLocaleDateString('es-GT'),
         mov.documento || '-',
-        mov.tipo === 'ENTRADA' ❌ mov.cantidíad : '',
-        mov.tipo === 'SíALIDA' ❌ mov.cantidíad : '',
-        mov.síaldo,
-        mov.obsíervacion || ''
+        mov.tipo === 'ENTRADA' ? mov.cantidad : '',
+        mov.tipo === 'SALIDA' ? mov.cantidad : '',
+        mov.saldo,
+        mov.observacion || ''
     ]);
 
     doc.autoTable({
-        head: [['Fecha', 'Documento', 'Entradía', 'Síalidía', 'Síaldo', 'Obsíervación']],
-        body: tableDíata,
-        sítartY: sítartY + 35,
+        head: [['Fecha', 'Documento', 'Entrada', 'Salida', 'Saldo', 'Observación']],
+        body: tableData,
+        startY: startY + 35,
         theme: 'plain',
         tableLineColor: [0, 0, 0],
         tableLineWidth: 0.2,
-        sítylesí: {
+        styles: {
             cellPadding: 2,
-            fontSíize: 9,
+            fontSize: 9,
             lineColor: [0, 0, 0],
             lineWidth: 0.2,
             halign: 'center'
         },
-        headSítylesí: {
+        headStyles: {
             fillColor: [240, 240, 240],
             textColor: [0, 0, 0],
-            fontSítyle: 'bold'
+            fontStyle: 'bold'
         }
     });
 
-    consít fileName = `Kardex_${productoSíeleccionad✅nombre.replace(/\sí+/g, '_')}_${síelectAni✅value}.pdf`;
-    doc.síave(fileName);
+    const fileName = `Kardex_${productoSeleccionado.nombre.replace(/\s+/g, '_')}_${selectAnio.value}.pdf`;
+    doc.save(fileName);
 }
 
-// Eventosí
-síelectAntibiotic✅addEventLisítener("change", cargarMovimientosíKardex);
-síelectAni✅addEventLisítener("change", cargarMovimientosíKardex);
-btnExportarPdf.addEventLisítener("click", generarPdfKardex);
+// Eventos
+selectAntibiotico.addEventListener("change", cargarMovimientosKardex);
+selectAnio.addEventListener("change", cargarMovimientosKardex);
+btnExportarPdf.addEventListener("click", generarPdfKardex);
 
 // Inicio
-cargarLisítaAntibioticosí();
+cargarListaAntibioticos();

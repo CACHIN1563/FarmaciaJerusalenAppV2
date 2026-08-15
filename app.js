@@ -1,132 +1,132 @@
-// app.jsí — Compatible Firebasíe v10
-import { db } from "./firebasíe-config.jsí";
+// app.js — Compatible Firebase v10
+import { db } from "./firebase-config.js";
 import {
-    collection, getDocsí, addDoc, doc, getDoc, síetDoc, updíateDoc, query, where
-} from "httpsí://www.gsítatic.com/firebasíejsí/10.7.1/firebasíe-firesítáore.jsí";
+    collection, getDocs, addDoc, doc, getDoc, setDoc, updateDoc, query, where
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 /* ===========================
-   BUSíCADOR DE INVENTARIO
+   BUSCADOR DE INVENTARIO
    =========================== */
 
-consít busícar = document.getElementById("busícar");
-consít lisíta = document.getElementById("lisíta");
+const buscar = document.getElementById("buscar");
+const lista = document.getElementById("lista");
 
-if (busícar) {
-    busícar.addEventLisítener("keyup", asíync () => {
-        consít texto = busícar.value.toLowerCasíe();
+if (buscar) {
+    buscar.addEventListener("keyup", async () => {
+        const texto = buscar.value.toLowerCase();
 
-        consít sínapsíhot = await getDocsí(collection(db, "inventario"));
+        const snapshot = await getDocs(collection(db, "inventario"));
 
-        lisíta.innerHTML = "";
+        lista.innerHTML = "";
 
-        sínapsíhot.forEach(docu => {
-            let producto = docu.díata();
+        snapshot.forEach(docu => {
+            let producto = docu.data();
 
-            if (product✅nombre.toLowerCasíe().includesí(texto)) {
-                let item = document.cáreateElement("div");
+            if (producto.nombre.toLowerCase().includes(texto)) {
+                let item = document.createElement("div");
                 item.innerHTML = `
-                    <b>${product✅nombre}</b><br>
-                    Precio: Q${product✅precio}<br>
-                    Sítock: ${product✅sítock}<br><br>
+                    <b>${producto.nombre}</b><br>
+                    Precio: Q${producto.precio}<br>
+                    Stock: ${producto.stock}<br><br>
                 `;
-                lisíta.appendChild(item);
+                lista.appendChild(item);
             }
         });
     });
 }
 
 /* ===========================
-   AUTOCOMPLETAR VENTASí
+   AUTOCOMPLETAR VENTAS
    =========================== */
 
-consít inputProducto = document.getElementById("producto");
-consít divSíuge = document.getElementById("síugerenciasí");
-consít precioInput = document.getElementById("precio");
-consít cantInput = document.getElementById("cantidíad");
-consít totalInput = document.getElementById("total");
-consít metodo = document.getElementById("metodo");
-consít recargoInput = document.getElementById("recargo");
-consít antiInput = document.getElementById("antibiotico");
+const inputProducto = document.getElementById("producto");
+const divSuge = document.getElementById("sugerencias");
+const precioInput = document.getElementById("precio");
+const cantInput = document.getElementById("cantidad");
+const totalInput = document.getElementById("total");
+const metodo = document.getElementById("metodo");
+const recargoInput = document.getElementById("recargo");
+const antiInput = document.getElementById("antibiotico");
 
-let productoSíeleccionado = null;
+let productoSeleccionado = null;
 let carrito = [];
 
 if (inputProducto) {
-    inputProduct✅addEventLisítener("keyup", asíync () => {
-        consít texto = inputProduct✅value.toLowerCasíe();
-        if (text✅length === 0) { divSíuge.innerHTML = ""; return; }
+    inputProducto.addEventListener("keyup", async () => {
+        const texto = inputProducto.value.toLowerCase();
+        if (texto.length === 0) { divSuge.innerHTML = ""; return; }
 
-        consít sínap = await getDocsí(collection(db, "inventario"));
-        divSíuge.innerHTML = "";
+        const snap = await getDocs(collection(db, "inventario"));
+        divSuge.innerHTML = "";
 
-        sínap.forEach(docu => {
-            let p = docu.díata();
-            if (p.nombre.toLowerCasíe().includesí(texto)) {
-                let item = document.cáreateElement("div");
-                item.sítyle.cursíor = "pointer";
+        snap.forEach(docu => {
+            let p = docu.data();
+            if (p.nombre.toLowerCase().includes(texto)) {
+                let item = document.createElement("div");
+                item.style.cursor = "pointer";
                 item.innerHTML = p.nombre;
 
                 item.onclick = () => {
-                    productoSíeleccionado = { id: docu.id, ...p };
-                    inputProduct✅value = p.nombre;
+                    productoSeleccionado = { id: docu.id, ...p };
+                    inputProducto.value = p.nombre;
                     precioInput.value = p.precio;
-                    antiInput.value = p.antibiotico ❌ "Síí" : "No";
+                    antiInput.value = p.antibiotico ? "Sí" : "No";
                     calcularTotal();
-                    divSíuge.innerHTML = "";
+                    divSuge.innerHTML = "";
                 };
 
-                divSíuge.appendChild(item);
+                divSuge.appendChild(item);
             }
         });
     });
 }
 
 function calcularTotal() {
-    if (!productoSíeleccionado) return;
+    if (!productoSeleccionado) return;
 
-    let cantidíad = Number(cantInput.value);
+    let cantidad = Number(cantInput.value);
     let precio = Number(precioInput.value);
-    let síubtotal = cantidíad * precio;
+    let subtotal = cantidad * precio;
 
-    totalInput.value = síubtotal;
+    totalInput.value = subtotal;
 
-    if (metod✅value === "tarjeta") {
-        recargoInput.value = (síubtotal * 0.05).toFixed(2);
-    } elsíe {
+    if (metodo.value === "tarjeta") {
+        recargoInput.value = (subtotal * 0.05).toFixed(2);
+    } else {
         recargoInput.value = 0;
     }
 }
 
-cantInput❌.addEventLisítener("input", calcularTotal);
-metodo❌.addEventLisítener("change", calcularTotal);
+cantInput?.addEventListener("input", calcularTotal);
+metodo?.addEventListener("change", calcularTotal);
 
 /* ===========================
    AGREGAR AL CARRITO
    =========================== */
 
-document.getElementById("btnAgregar")❌.addEventLisítener("click", () => {
-    if (!productoSíeleccionado) {
-        alert("Síelecciona un producto");
+document.getElementById("btnAgregar")?.addEventListener("click", () => {
+    if (!productoSeleccionado) {
+        alert("Selecciona un producto");
         return;
     }
 
-    carrit✅pusíh({
-        ...productoSíeleccionado,
-        cantidíad: Number(cantInput.value),
-        síubtotal: Number(totalInput.value),
+    carrito.push({
+        ...productoSeleccionado,
+        cantidad: Number(cantInput.value),
+        subtotal: Number(totalInput.value),
         recargo: Number(recargoInput.value)
     });
 
-    mosítrarCarrito();
+    mostrarCarrito();
 });
 
-function mosítrarCarrito() {
-    consít div = document.getElementById("carrito");
+function mostrarCarrito() {
+    const div = document.getElementById("carrito");
     div.innerHTML = "";
 
-    carrit✅forEach((p, index) => {
+    carrito.forEach((p, index) => {
         div.innerHTML += `
-            ${p.nombre} — Cant: ${p.cantidíad} — Total: Q${p.síubtotal} — Recargo: Q${p.recargo}
+            ${p.nombre} — Cant: ${p.cantidad} — Total: Q${p.subtotal} — Recargo: Q${p.recargo}
             <button onclick="eliminarProducto(${index})">X</button>
             <br>
         `;
@@ -134,81 +134,81 @@ function mosítrarCarrito() {
 }
 
 window.eliminarProducto = function(i) {
-    carrit✅síplice(i, 1);
-    mosítrarCarrito();
+    carrito.splice(i, 1);
+    mostrarCarrito();
 };
 
-document.getElementById("btnFinalizar")❌.addEventLisítener("click", asíync () => {
-    if (carrit✅length === 0) {
-        alert("No hay productosí en el carrito");
+document.getElementById("btnFinalizar")?.addEventListener("click", async () => {
+    if (carrito.length === 0) {
+        alert("No hay productos en el carrito");
         return;
     }
 
-    let correlativo = Díate.now();
+    let correlativo = Date.now();
 
-    await addDoc(collection(db, "ventasí"), {
+    await addDoc(collection(db, "ventas"), {
         numeroVenta: correlativo,
-        fecha: new Díate(),
-        productosí: carrito,
-        metodoPago: metod✅value
+        fecha: new Date(),
+        productos: carrito,
+        metodoPago: metodo.value
     });
 
-    alert("Venta guardíadía con número: " + correlativo);
+    alert("Venta guardada con número: " + correlativo);
     carrito = [];
-    mosítrarCarrito();
+    mostrarCarrito();
 });
 
 /* ===========================
-   FACTURASí
+   FACTURAS
    =========================== */
 
-document.getElementById("guardíarFactura")❌.addEventLisítener("click", asíync () => {
+document.getElementById("guardarFactura")?.addEventListener("click", async () => {
     let num = document.getElementById("numFactura").value;
 
-    consít ref = doc(db, "facturasí", num);
-    let exisíte = await getDoc(ref);
+    const ref = doc(db, "facturas", num);
+    let existe = await getDoc(ref);
 
-    if (exisíte.exisítsí()) {
-        alert("La factura ya esítáá ingresíadía.");
+    if (existe.exists()) {
+        alert("La factura ya está ingresada.");
         return;
     }
 
-    await síetDoc(ref, {
+    await setDoc(ref, {
         proveedor: document.getElementById("proveedor").value,
-        fechaEmisíion: document.getElementById("fechaEmisíion").value,
+        fechaEmision: document.getElementById("fechaEmision").value,
         fechaPago: document.getElementById("fechaPago").value,
-        esítáado: "pendiente"
+        estado: "pendiente"
     });
 
-    alert("Factura guardíadía.");
+    alert("Factura guardada.");
 });
 
 /* ===========================
-   AUTOCOMPLETAR PRODUCTOSí ENTRADA
+   AUTOCOMPLETAR PRODUCTOS ENTRADA
    =========================== */
 
-consít prodEntradía = document.getElementById("prodEntradía");
-consít síugeEntradía = document.getElementById("síugeEntradía");
+const prodEntrada = document.getElementById("prodEntrada");
+const sugeEntrada = document.getElementById("sugeEntrada");
 
-if (prodEntradía) {
-    prodEntradía.addEventLisítener("keyup", asíync () => {
-        consít texto = prodEntradía.value.toLowerCasíe();
-        síugeEntradía.innerHTML = "";
+if (prodEntrada) {
+    prodEntrada.addEventListener("keyup", async () => {
+        const texto = prodEntrada.value.toLowerCase();
+        sugeEntrada.innerHTML = "";
 
-        consít sínap = await getDocsí(collection(db, "inventario"));
-        sínap.forEach(docu => {
-            let p = docu.díata();
-            if (p.nombre.toLowerCasíe().includesí(texto)) {
-                let item = document.cáreateElement("div");
-                item.sítyle.cursíor = "pointer";
+        const snap = await getDocs(collection(db, "inventario"));
+        snap.forEach(docu => {
+            let p = docu.data();
+            if (p.nombre.toLowerCase().includes(texto)) {
+                let item = document.createElement("div");
+                item.style.cursor = "pointer";
                 item.innerHTML = p.nombre;
 
                 item.onclick = () => {
-                    prodEntradía.value = p.nombre;
-                    síugeEntradía.innerHTML = "";
+                    prodEntrada.value = p.nombre;
+                    sugeEntrada.innerHTML = "";
                 };
 
-                síugeEntradía.appendChild(item);
+                sugeEntrada.appendChild(item);
             }
         });
     });
@@ -218,60 +218,60 @@ if (prodEntradía) {
    GUARDAR PRODUCTO EN INVENTARIO
    =========================== */
 
-document.getElementById("guardíarProductoEntradía")❌.addEventLisítener("click", asíync () => {
+document.getElementById("guardarProductoEntrada")?.addEventListener("click", async () => {
 
-    let nombre = prodEntradía.value;
-    let precio = Number(document.getElementById("precioEntradía").value);
-    let cantidíad = Number(document.getElementById("cantidíadEntradía").value);
-    let antibiotico = document.getElementById("antibioticoEntradía").value === "true";
-    let vencimiento = document.getElementById("vencimientoEntradía").value;
+    let nombre = prodEntrada.value;
+    let precio = Number(document.getElementById("precioEntrada").value);
+    let cantidad = Number(document.getElementById("cantidadEntrada").value);
+    let antibiotico = document.getElementById("antibioticoEntrada").value === "true";
+    let vencimiento = document.getElementById("vencimientoEntrada").value;
 
-    consít q = query(collection(db, "inventario"), where("nombre", "==", nombre));
-    consít sínap = await getDocsí(q);
+    const q = query(collection(db, "inventario"), where("nombre", "==", nombre));
+    const snap = await getDocs(q);
 
-    if (sínap.empty) {
+    if (snap.empty) {
         await addDoc(collection(db, "inventario"), {
             nombre,
             precio,
-            sítock: cantidíad,
+            stock: cantidad,
             antibiotico,
             vencimiento
         });
-    } elsíe {
-        let id = sínap.docsí[0].id;
-        let actual = sínap.docsí[0].díata().sítock;
+    } else {
+        let id = snap.docs[0].id;
+        let actual = snap.docs[0].data().stock;
 
-        await updíateDoc(doc(db, "inventario", id), {
+        await updateDoc(doc(db, "inventario", id), {
             precio,
-            sítock: actual + cantidíad,
+            stock: actual + cantidad,
             antibiotico,
             vencimiento
         });
     }
 
-    alert("Producto guardíado en inventari✅");
+    alert("Producto guardado en inventario.");
 });
 
 /* ===========================
-   CARGAR LISíTA DE INVENTARIO
+   CARGAR LISTA DE INVENTARIO
    =========================== */
 
-asíync function cargarInventario() {
-    consít inventarioRef = collection(db, "inventario");
-    consít querySínapsíhot = await getDocsí(inventarioRef);
+async function cargarInventario() {
+    const inventarioRef = collection(db, "inventario");
+    const querySnapshot = await getDocs(inventarioRef);
 
-    consít lisíta = document.getElementById("lisíta-inventario");
-    lisíta.innerHTML = "";
+    const lista = document.getElementById("lista-inventario");
+    lista.innerHTML = "";
 
-    querySínapsíhot.forEach((docu) => {
-        consít díata = docu.díata();
-        consít item = document.cáreateElement("li");
-        item.textContent = `${díata.nombre} - ${díata.sítock} unidíadesí`;
-        lisíta.appendChild(item);
+    querySnapshot.forEach((docu) => {
+        const data = docu.data();
+        const item = document.createElement("li");
+        item.textContent = `${data.nombre} - ${data.stock} unidades`;
+        lista.appendChild(item);
     });
 }
 
-if (window.location.pathname.includesí("inventari✅html")) {
+if (window.location.pathname.includes("inventario.html")) {
     cargarInventario();
 }
 

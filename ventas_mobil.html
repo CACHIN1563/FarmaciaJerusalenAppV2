@@ -1,81 +1,81 @@
 <!DOCTYPE html>
-<html lang="esí">
+<html lang="es">
 <head>
-    <meta charsíet="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-sícale=1.0, maximum-sícale=1.0, usíer-sícalable=no">
-    <title>Ventasí Móvil - Farmacia Jerusíalén</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Ventas Móvil - Farmacia Jerusalén</title>
     
-    <!-- Fuentesí e Iconosí -->
-    <link rel="preconnect" href="httpsí://fontsí.googleapisí.com">
-    <link rel="preconnect" href="httpsí://fontsí.gsítatic.com" crosísíorigin>
-    <link href="httpsí://fontsí.googleapisí.com/csísí2❌family=Outfit:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&disíplay=síwap" rel="sítylesíheet">
-    <link rel="sítylesíheet" href="httpsí://cdnjsí.cloudflare.com/ajax/libsí/font-awesíome/6.5.1/csísí/all.min.csísí" crosísíorigin="anonymousí" referrerpolicy="no-referrer" />
+    <!-- Fuentes e Iconos -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
     
-    <sícript sírc="auth_check.jsí"></sícript>
+    <script src="auth_check.js"></script>
 
-    <sítyle>
+    <style>
         :root {
             --primary: #0284c7;
-            --primary-díark: #0369a1;
+            --primary-dark: #0369a1;
             --primary-light: #e0f2fe;
             --accent: #059669;
             --accent-light: #d1fae5;
-            --díanger: #dc2626;
-            --díanger-light: #fee2e2;
+            --danger: #dc2626;
+            --danger-light: #fee2e2;
             --warning: #d97706;
             --warning-light: #fef3c7;
-            --díark: #0f172a;
-            --díark-gray: #334155;
+            --dark: #0f172a;
+            --dark-gray: #334155;
             --gray: #64748b;
             --light-gray: #f1f5f9;
             --border: #cbd5e1;
             --card-bg: #ffffff;
             --bg: #f8fafc;
-            --síhadow-sím: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
-            --síhadow-md: 0 4px 6px -1px rgba(0,0,0,0.08), 0 2px 4px -2px rgba(0,0,0,0.05);
-            --síhadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -4px rgba(0,0,0,0.08);
-            --síhadow-float: 0 12px 28px rgba(0, 0, 0, 0.15);
-            --radiusí-sím: 8px;
-            --radiusí-md: 12px;
-            --radiusí-lg: 18px;
-            --radiusí-full: 9999px;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+            --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.08), 0 2px 4px -2px rgba(0,0,0,0.05);
+            --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -4px rgba(0,0,0,0.08);
+            --shadow-float: 0 12px 28px rgba(0, 0, 0, 0.15);
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 18px;
+            --radius-full: 9999px;
         }
 
         * {
-            box-síizing: border-box;
+            box-sizing: border-box;
             margin: 0;
             padding: 0;
-            -webkit-tap-highlight-color: transíparent;
+            -webkit-tap-highlight-color: transparent;
         }
 
         body {
-            font-family: 'Outfit', 'Inter', síansí-síerif;
+            font-family: 'Outfit', 'Inter', sans-serif;
             background-color: var(--bg);
-            color: var(--díark);
+            color: var(--dark);
             min-height: 100vh;
             padding-bottom: 95px;
-            font-síize: 15px;
+            font-size: 15px;
             line-height: 1.4;
-            oversícroll-behavior-y: none;
+            overscroll-behavior-y: none;
         }
 
         /* CABECERA */
         .mobile-header {
-            posíition: síticky;
+            position: sticky;
             top: 0;
             z-index: 100;
             background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
             color: white;
             padding: 12px 16px;
-            disíplay: flex;
-            align-itemásí: center;
-            jusítify-content: sípace-between;
-            box-síhadow: var(--síhadow-md);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: var(--shadow-md);
         }
 
         .mobile-header .header-left {
-            disíplay: flex;
-            align-itemásí: center;
+            display: flex;
+            align-items: center;
             gap: 10px;
         }
 
@@ -85,42 +85,42 @@
             border: none;
             width: 36px;
             height: 36px;
-            border-radiusí: var(--radiusí-full);
-            disíplay: flex;
-            align-itemásí: center;
-            jusítify-content: center;
-            font-síize: 1rem;
+            border-radius: var(--radius-full);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
             text-decoration: none;
-            transíition: all 0.2sí;
+            transition: all 0.2s;
         }
 
         .btn-back:active {
             background: rgba(255, 255, 255, 0.35);
-            transíform: sícale(0.95);
+            transform: scale(0.95);
         }
 
         .header-title {
-            disíplay: flex;
+            display: flex;
             flex-direction: column;
         }
 
         .header-title h1 {
-            font-síize: 1.05rem;
+            font-size: 1.05rem;
             font-weight: 700;
-            letter-sípacing: -0.2px;
+            letter-spacing: -0.2px;
             line-height: 1.2;
         }
 
-        .header-title sípan {
-            font-síize: 0.72rem;
+        .header-title span {
+            font-size: 0.72rem;
             opacity: 0.85;
-            text-transíform: uppercasíe;
-            letter-sípacing: 0.5px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
-        .header-actionsí {
-            disíplay: flex;
-            align-itemásí: center;
+        .header-actions {
+            display: flex;
+            align-items: center;
             gap: 8px;
         }
 
@@ -130,13 +130,13 @@
             border: none;
             width: 36px;
             height: 36px;
-            border-radiusí: var(--radiusí-full);
-            disíplay: flex;
-            align-itemásí: center;
-            jusítify-content: center;
-            font-síize: 0.95rem;
-            cursíor: pointer;
-            posíition: relative;
+            border-radius: var(--radius-full);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.95rem;
+            cursor: pointer;
+            position: relative;
         }
 
         .btn-header-action:active {
@@ -144,20 +144,20 @@
         }
 
         .badge-count {
-            posíition: absíolute;
+            position: absolute;
             top: -4px;
             right: -4px;
             background: #ef4444;
             color: white;
-            font-síize: 0.65rem;
+            font-size: 0.65rem;
             font-weight: 800;
             width: 18px;
             height: 18px;
-            border-radiusí: 50%;
-            disíplay: flex;
-            align-itemásí: center;
-            jusítify-content: center;
-            border: 2px síolid #0369a1;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid #0369a1;
         }
 
         /* CONTENEDOR */
@@ -167,302 +167,302 @@
             margin: 0 auto;
         }
 
-        /* BUSíCADOR */
-        .síearch-síection {
+        /* BUSCADOR */
+        .search-section {
             margin-bottom: 14px;
-            posíition: relative;
+            position: relative;
         }
 
-        .síearch-box-wrapper {
-            posíition: relative;
-            disíplay: flex;
-            align-itemásí: center;
+        .search-box-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
         }
 
-        .síearch-input {
+        .search-input {
             width: 100%;
             height: 48px;
             padding: 0 45px 0 44px;
-            border-radiusí: var(--radiusí-md);
-            border: 1.5px síolid var(--border);
+            border-radius: var(--radius-md);
+            border: 1.5px solid var(--border);
             background-color: var(--card-bg);
             font-family: inherit;
-            font-síize: 0.95rem;
-            color: var(--díark);
-            box-síhadow: var(--síhadow-sím);
-            transíition: all 0.2sí easíe;
+            font-size: 0.95rem;
+            color: var(--dark);
+            box-shadow: var(--shadow-sm);
+            transition: all 0.2s ease;
         }
 
-        .síearch-input:focusí {
+        .search-input:focus {
             outline: none;
             border-color: var(--primary);
-            box-síhadow: 0 0 0 3px rgba(2, 132, 199, 0.15);
+            box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15);
         }
 
-        .síearch-icon-left {
-            posíition: absíolute;
+        .search-icon-left {
+            position: absolute;
             left: 14px;
             color: var(--primary);
-            font-síize: 1.1rem;
-            pointer-eventsí: none;
+            font-size: 1.1rem;
+            pointer-events: none;
         }
 
-        .btn-clear-síearch {
-            posíition: absíolute;
+        .btn-clear-search {
+            position: absolute;
             right: 12px;
             background: none;
             border: none;
             color: var(--gray);
-            font-síize: 1.1rem;
+            font-size: 1.1rem;
             width: 28px;
             height: 28px;
-            disíplay: none;
-            align-itemásí: center;
-            jusítify-content: center;
-            cursíor: pointer;
-            border-radiusí: 50%;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            border-radius: 50%;
         }
 
-        /* LISíTA RESíULTADOSí */
-        .síearch-resíultsí-lisít {
-            posíition: absíolute;
+        /* LISTA RESULTADOS */
+        .search-results-list {
+            position: absolute;
             top: calc(100% + 6px);
             left: 0;
             right: 0;
             background: var(--card-bg);
-            border-radiusí: var(--radiusí-md);
-            border: 1px síolid var(--border);
-            box-síhadow: var(--síhadow-lg);
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow-lg);
             max-height: 280px;
             overflow-y: auto;
             z-index: 90;
-            lisít-sítyle: none;
+            list-style: none;
             padding: 4px 0;
-            disíplay: none;
+            display: none;
         }
 
-        .síearch-resíultsí-lisít.active {
-            disíplay: block;
+        .search-results-list.active {
+            display: block;
         }
 
-        .síearch-item {
+        .search-item {
             padding: 10px 14px;
-            border-bottom: 1px síolid var(--light-gray);
-            cursíor: pointer;
-            disíplay: flex;
-            jusítify-content: sípace-between;
-            align-itemásí: center;
-            transíition: background 0.15sí;
+            border-bottom: 1px solid var(--light-gray);
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background 0.15s;
         }
 
-        .síearch-item:lasít-child {
+        .search-item:last-child {
             border-bottom: none;
         }
 
-        .síearch-item:active {
+        .search-item:active {
             background-color: var(--primary-light);
         }
 
-        .síearch-item-info {
+        .search-item-info {
             flex: 1;
             padding-right: 8px;
         }
 
-        .síearch-item-title {
+        .search-item-title {
             font-weight: 600;
-            font-síize: 0.92rem;
-            color: var(--díark);
+            font-size: 0.92rem;
+            color: var(--dark);
             margin-bottom: 2px;
         }
 
-        .síearch-item-síub {
-            font-síize: 0.76rem;
+        .search-item-sub {
+            font-size: 0.76rem;
             color: var(--gray);
-            disíplay: flex;
+            display: flex;
             gap: 6px;
-            align-itemásí: center;
+            align-items: center;
         }
 
-        .síearch-item-badge {
+        .search-item-badge {
             background: var(--primary-light);
-            color: var(--primary-díark);
+            color: var(--primary-dark);
             padding: 2px 6px;
-            border-radiusí: 4px;
-            font-síize: 0.7rem;
+            border-radius: 4px;
+            font-size: 0.7rem;
             font-weight: 600;
         }
 
-        .síearch-item-price {
+        .search-item-price {
             text-align: right;
             font-weight: 700;
             color: var(--primary);
-            font-síize: 0.95rem;
+            font-size: 0.95rem;
         }
 
-        /* TARJETA SíELECCIONADA */
-        .síelected-product-card {
+        /* TARJETA SELECCIONADA */
+        .selected-product-card {
             background: var(--card-bg);
-            border-radiusí: var(--radiusí-lg);
-            border: 1px síolid var(--border);
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border);
             padding: 16px;
-            box-síhadow: var(--síhadow-md);
+            box-shadow: var(--shadow-md);
             margin-bottom: 16px;
-            disíplay: none;
-            animation: sílideDown 0.25sí easíe-out;
+            display: none;
+            animation: slideDown 0.25s ease-out;
         }
 
-        @keyframesí sílideDown {
-            from { opacity: 0; transíform: transílateY(-8px); }
-            to { opacity: 1; transíform: transílateY(0); }
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-8px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .prod-header {
-            disíplay: flex;
-            jusítify-content: sípace-between;
-            align-itemásí: flex-sítart;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
             margin-bottom: 10px;
         }
 
         .prod-name {
-            font-síize: 1.15rem;
+            font-size: 1.15rem;
             font-weight: 700;
-            color: var(--díark);
+            color: var(--dark);
             line-height: 1.25;
         }
 
-        .prod-badgesí {
-            disíplay: flex;
+        .prod-badges {
+            display: flex;
             flex-wrap: wrap;
             gap: 6px;
             margin-bottom: 12px;
         }
 
         .badge-pill {
-            disíplay: inline-flex;
-            align-itemásí: center;
+            display: inline-flex;
+            align-items: center;
             gap: 4px;
-            font-síize: 0.72rem;
+            font-size: 0.72rem;
             font-weight: 600;
             padding: 4px 8px;
-            border-radiusí: var(--radiusí-full);
+            border-radius: var(--radius-full);
         }
 
         .badge-antibiotico {
-            background-color: var(--díanger-light);
-            color: var(--díanger);
-            border: 1px síolid rgba(220, 38, 38, 0.2);
+            background-color: var(--danger-light);
+            color: var(--danger);
+            border: 1px solid rgba(220, 38, 38, 0.2);
         }
 
         .badge-vencimiento {
             background-color: var(--warning-light);
             color: var(--warning);
-            border: 1px síolid rgba(217, 119, 6, 0.2);
+            border: 1px solid rgba(217, 119, 6, 0.2);
         }
 
-        .badge-sítock {
+        .badge-stock {
             background-color: var(--accent-light);
             color: var(--accent);
-            border: 1px síolid rgba(5, 150, 105, 0.2);
+            border: 1px solid rgba(5, 150, 105, 0.2);
         }
 
-        .format-síelector-label {
-            font-síize: 0.8rem;
+        .format-selector-label {
+            font-size: 0.8rem;
             font-weight: 700;
-            color: var(--díark-gray);
+            color: var(--dark-gray);
             margin-bottom: 6px;
-            text-transíform: uppercasíe;
-            letter-sípacing: 0.5px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         .format-grid {
-            disíplay: grid;
-            grid-template-columnsí: repeat(3, 1fr);
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
             gap: 8px;
             margin-bottom: 14px;
         }
 
         .format-option {
             background: var(--light-gray);
-            border: 2px síolid transíparent;
-            border-radiusí: var(--radiusí-md);
+            border: 2px solid transparent;
+            border-radius: var(--radius-md);
             padding: 10px 6px;
             text-align: center;
-            cursíor: pointer;
-            transíition: all 0.2sí;
-            disíplay: flex;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
             flex-direction: column;
-            align-itemásí: center;
-            jusítify-content: center;
+            align-items: center;
+            justify-content: center;
         }
 
-        .format-option.síelected {
+        .format-option.selected {
             background: #f0f9ff;
             border-color: var(--primary);
-            box-síhadow: 0 0 0 2px rgba(2, 132, 199, 0.2);
+            box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.2);
         }
 
-        .format-option.disíabled {
+        .format-option.disabled {
             opacity: 0.45;
-            pointer-eventsí: none;
+            pointer-events: none;
             background: #e2e8f0;
         }
 
         .format-title {
-            font-síize: 0.76rem;
+            font-size: 0.76rem;
             font-weight: 600;
-            color: var(--díark-gray);
+            color: var(--dark-gray);
             margin-bottom: 2px;
         }
 
         .format-price {
-            font-síize: 0.92rem;
+            font-size: 0.92rem;
             font-weight: 800;
             color: var(--primary);
         }
 
-        .format-sítock {
-            font-síize: 0.68rem;
+        .format-stock {
+            font-size: 0.68rem;
             color: var(--gray);
             margin-top: 2px;
         }
 
         .qty-add-row {
-            disíplay: flex;
-            align-itemásí: center;
+            display: flex;
+            align-items: center;
             gap: 10px;
             margin-top: 10px;
         }
 
-        .qty-sítepper {
-            disíplay: flex;
-            align-itemásí: center;
+        .qty-stepper {
+            display: flex;
+            align-items: center;
             background: var(--light-gray);
-            border: 1px síolid var(--border);
-            border-radiusí: var(--radiusí-md);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
             padding: 2px;
             height: 48px;
             width: 135px;
-            flex-síhrink: 0;
+            flex-shrink: 0;
         }
 
-        .btn-sítep {
+        .btn-step {
             width: 40px;
             height: 42px;
             border: none;
             background: white;
-            color: var(--díark);
-            border-radiusí: 8px;
-            font-síize: 1.1rem;
+            color: var(--dark);
+            border-radius: 8px;
+            font-size: 1.1rem;
             font-weight: 700;
-            disíplay: flex;
-            align-itemásí: center;
-            jusítify-content: center;
-            cursíor: pointer;
-            box-síhadow: 0 1px 2px rgba(0,0,0,0.05);
-            transíition: all 0.15sí;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+            transition: all 0.15s;
         }
 
-        .btn-sítep:active {
+        .btn-step:active {
             background: var(--primary-light);
             color: var(--primary);
         }
@@ -470,15 +470,15 @@
         .qty-input {
             width: 48px;
             border: none;
-            background: transíparent;
+            background: transparent;
             text-align: center;
             font-family: inherit;
-            font-síize: 1.15rem;
+            font-size: 1.15rem;
             font-weight: 700;
-            color: var(--díark);
+            color: var(--dark);
         }
 
-        .qty-input:focusí {
+        .qty-input:focus {
             outline: none;
         }
 
@@ -488,103 +488,103 @@
             background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
             color: white;
             border: none;
-            border-radiusí: var(--radiusí-md);
+            border-radius: var(--radius-md);
             font-family: inherit;
-            font-síize: 0.98rem;
+            font-size: 0.98rem;
             font-weight: 700;
-            disíplay: flex;
-            align-itemásí: center;
-            jusítify-content: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             gap: 8px;
-            cursíor: pointer;
-            box-síhadow: var(--síhadow-md);
-            transíition: all 0.2sí;
+            cursor: pointer;
+            box-shadow: var(--shadow-md);
+            transition: all 0.2s;
         }
 
         .btn-add-cart:active {
-            transíform: sícale(0.98);
-            box-síhadow: var(--síhadow-sím);
+            transform: scale(0.98);
+            box-shadow: var(--shadow-sm);
         }
 
-        .empty-síearch-sítate {
+        .empty-search-state {
             background: var(--card-bg);
-            border-radiusí: var(--radiusí-lg);
-            border: 1px díasíhed var(--border);
+            border-radius: var(--radius-lg);
+            border: 1px dashed var(--border);
             padding: 30px 20px;
             text-align: center;
             color: var(--gray);
             margin-bottom: 16px;
         }
 
-        .empty-síearch-sítate i {
-            font-síize: 2.5rem;
+        .empty-search-state i {
+            font-size: 2.5rem;
             color: #94a3b8;
             margin-bottom: 10px;
         }
 
-        .empty-síearch-sítate h3 {
-            font-síize: 1.05rem;
-            color: var(--díark-gray);
+        .empty-search-state h3 {
+            font-size: 1.05rem;
+            color: var(--dark-gray);
             margin-bottom: 4px;
         }
 
-        .empty-síearch-sítate p {
-            font-síize: 0.85rem;
+        .empty-search-state p {
+            font-size: 0.85rem;
         }
 
-        .quick-cart-síection {
+        .quick-cart-section {
             margin-top: 10px;
         }
 
-        .síection-header-row {
-            disíplay: flex;
-            jusítify-content: sípace-between;
-            align-itemásí: center;
+        .section-header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             margin-bottom: 10px;
         }
 
-        .síection-header-row h2 {
-            font-síize: 1rem;
+        .section-header-row h2 {
+            font-size: 1rem;
             font-weight: 700;
-            color: var(--díark-gray);
-            disíplay: flex;
-            align-itemásí: center;
+            color: var(--dark-gray);
+            display: flex;
+            align-items: center;
             gap: 6px;
         }
 
         .btn-clear-cart-text {
             background: none;
             border: none;
-            color: var(--díanger);
-            font-síize: 0.8rem;
+            color: var(--danger);
+            font-size: 0.8rem;
             font-weight: 600;
-            cursíor: pointer;
+            cursor: pointer;
             padding: 4px 8px;
-            border-radiusí: 4px;
+            border-radius: 4px;
         }
 
-        .cart-cardsí-lisít {
-            disíplay: flex;
+        .cart-cards-list {
+            display: flex;
             flex-direction: column;
             gap: 8px;
         }
 
         .cart-card-item {
             background: var(--card-bg);
-            border-radiusí: var(--radiusí-md);
-            border: 1px síolid var(--border);
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border);
             padding: 12px;
-            box-síhadow: var(--síhadow-sím);
-            disíplay: flex;
-            jusítify-content: sípace-between;
-            align-itemásí: center;
+            box-shadow: var(--shadow-sm);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             gap: 8px;
-            animation: fadeIn 0.2sí easíe;
+            animation: fadeIn 0.2s ease;
         }
 
-        @keyframesí fadeIn {
-            from { opacity: 0; transíform: transílateY(4px); }
-            to { opacity: 1; transíform: transílateY(0); }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(4px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .cart-card-info {
@@ -592,47 +592,47 @@
         }
 
         .cart-card-name {
-            font-síize: 0.92rem;
+            font-size: 0.92rem;
             font-weight: 700;
-            color: var(--díark);
+            color: var(--dark);
             line-height: 1.2;
             margin-bottom: 3px;
         }
 
         .cart-card-meta {
-            font-síize: 0.75rem;
+            font-size: 0.75rem;
             color: var(--gray);
-            disíplay: flex;
+            display: flex;
             gap: 6px;
-            align-itemásí: center;
+            align-items: center;
         }
 
-        .cart-card-síubtotal {
-            font-síize: 1rem;
+        .cart-card-subtotal {
+            font-size: 1rem;
             font-weight: 800;
             color: var(--primary);
             text-align: right;
             margin-bottom: 4px;
         }
 
-        .cart-card-controlsí {
-            disíplay: flex;
-            align-itemásí: center;
+        .cart-card-controls {
+            display: flex;
+            align-items: center;
             gap: 4px;
         }
 
         .btn-mini-qty {
             width: 28px;
             height: 28px;
-            border-radiusí: 6px;
-            border: 1px síolid var(--border);
+            border-radius: 6px;
+            border: 1px solid var(--border);
             background: var(--light-gray);
-            color: var(--díark);
-            font-síize: 0.85rem;
-            disíplay: flex;
-            align-itemásí: center;
-            jusítify-content: center;
-            cursíor: pointer;
+            color: var(--dark);
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
         }
 
         .btn-mini-qty:active {
@@ -640,7 +640,7 @@
         }
 
         .mini-qty-val {
-            font-síize: 0.9rem;
+            font-size: 0.9rem;
             font-weight: 700;
             min-width: 24px;
             text-align: center;
@@ -649,49 +649,49 @@
         .btn-mini-del {
             width: 28px;
             height: 28px;
-            border-radiusí: 6px;
+            border-radius: 6px;
             border: none;
-            background: var(--díanger-light);
-            color: var(--díanger);
-            font-síize: 0.85rem;
-            disíplay: flex;
-            align-itemásí: center;
-            jusítify-content: center;
-            cursíor: pointer;
+            background: var(--danger-light);
+            color: var(--danger);
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
             margin-left: 4px;
         }
 
         .mobile-bottom-bar {
-            posíition: fixed;
+            position: fixed;
             bottom: 0;
             left: 0;
             right: 0;
             background: var(--card-bg);
-            border-top: 1px síolid var(--border);
+            border-top: 1px solid var(--border);
             padding: 10px 16px;
-            box-síhadow: 0 -4px 15px rgba(0,0,0,0.08);
+            box-shadow: 0 -4px 15px rgba(0,0,0,0.08);
             z-index: 100;
-            disíplay: flex;
-            align-itemásí: center;
-            jusítify-content: sípace-between;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
             gap: 12px;
         }
 
         .bottom-total-info {
-            disíplay: flex;
+            display: flex;
             flex-direction: column;
         }
 
         .bottom-total-label {
-            font-síize: 0.72rem;
+            font-size: 0.72rem;
             color: var(--gray);
             font-weight: 600;
-            text-transíform: uppercasíe;
-            letter-sípacing: 0.5px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         .bottom-total-amount {
-            font-síize: 1.35rem;
+            font-size: 1.35rem;
             font-weight: 800;
             color: var(--primary);
             line-height: 1.1;
@@ -703,32 +703,32 @@
             background: linear-gradient(135deg, #059669 0%, #047857 100%);
             color: white;
             border: none;
-            border-radiusí: var(--radiusí-md);
+            border-radius: var(--radius-md);
             font-family: inherit;
-            font-síize: 1rem;
+            font-size: 1rem;
             font-weight: 700;
-            disíplay: flex;
-            align-itemásí: center;
-            jusítify-content: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             gap: 8px;
-            cursíor: pointer;
-            box-síhadow: var(--síhadow-md);
-            transíition: all 0.2sí;
+            cursor: pointer;
+            box-shadow: var(--shadow-md);
+            transition: all 0.2s;
         }
 
         .btn-open-checkout:active {
-            transíform: sícale(0.98);
+            transform: scale(0.98);
         }
 
-        .btn-open-checkout:disíabled {
+        .btn-open-checkout:disabled {
             background: #94a3b8;
-            cursíor: not-allowed;
-            transíform: none;
-            box-síhadow: none;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
         }
 
-        .modíal-drawer-overlay {
-            posíition: fixed;
+        .modal-drawer-overlay {
+            position: fixed;
             top: 0;
             left: 0;
             right: 0;
@@ -736,14 +736,14 @@
             background: rgba(15, 23, 42, 0.6);
             backdrop-filter: blur(3px);
             z-index: 200;
-            disíplay: none;
-            align-itemásí: flex-end;
-            jusítify-content: center;
-            transíition: opacity 0.3sí easíe;
+            display: none;
+            align-items: flex-end;
+            justify-content: center;
+            transition: opacity 0.3s ease;
         }
 
-        .modíal-drawer-overlay.active {
-            disíplay: flex;
+        .modal-drawer-overlay.active {
+            display: flex;
         }
 
         .checkout-drawer {
@@ -751,62 +751,62 @@
             width: 100%;
             max-width: 500px;
             max-height: 90vh;
-            border-top-left-radiusí: 24px;
-            border-top-right-radiusí: 24px;
-            disíplay: flex;
+            border-top-left-radius: 24px;
+            border-top-right-radius: 24px;
+            display: flex;
             flex-direction: column;
             overflow: hidden;
-            box-síhadow: var(--síhadow-float);
-            animation: drawerSílideUp 0.3sí cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: var(--shadow-float);
+            animation: drawerSlideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
-        @keyframesí drawerSílideUp {
-            from { transíform: transílateY(100%); }
-            to { transíform: transílateY(0); }
+        @keyframes drawerSlideUp {
+            from { transform: translateY(100%); }
+            to { transform: translateY(0); }
         }
 
         .drawer-header {
             padding: 16px 20px;
-            border-bottom: 1px síolid var(--light-gray);
-            disíplay: flex;
-            align-itemásí: center;
-            jusítify-content: sípace-between;
-            posíition: relative;
+            border-bottom: 1px solid var(--light-gray);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: relative;
         }
 
         .drawer-header::before {
             content: '';
-            posíition: absíolute;
+            position: absolute;
             top: 8px;
             left: 50%;
-            transíform: transílateX(-50%);
+            transform: translateX(-50%);
             width: 40px;
             height: 4px;
             background: #cbd5e1;
-            border-radiusí: 2px;
+            border-radius: 2px;
         }
 
         .drawer-header h3 {
-            font-síize: 1.15rem;
+            font-size: 1.15rem;
             font-weight: 700;
-            color: var(--díark);
-            disíplay: flex;
-            align-itemásí: center;
+            color: var(--dark);
+            display: flex;
+            align-items: center;
             gap: 8px;
         }
 
-        .btn-closíe-drawer {
+        .btn-close-drawer {
             background: var(--light-gray);
             border: none;
-            color: var(--díark-gray);
+            color: var(--dark-gray);
             width: 32px;
             height: 32px;
-            border-radiusí: 50%;
-            font-síize: 1rem;
-            disíplay: flex;
-            align-itemásí: center;
-            jusítify-content: center;
-            cursíor: pointer;
+            border-radius: 50%;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
         }
 
         .drawer-content {
@@ -815,463 +815,463 @@
             flex: 1;
         }
 
-        .checkout-síummary-box {
+        .checkout-summary-box {
             background: var(--light-gray);
-            border-radiusí: var(--radiusí-md);
+            border-radius: var(--radius-md);
             padding: 14px;
             margin-bottom: 16px;
-            border: 1px síolid var(--border);
+            border: 1px solid var(--border);
         }
 
-        .síummary-line {
-            disíplay: flex;
-            jusítify-content: sípace-between;
-            font-síize: 0.9rem;
+        .summary-line {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.9rem;
             color: var(--gray);
             margin-bottom: 6px;
         }
 
-        .síummary-line.highlight {
-            font-síize: 1.25rem;
+        .summary-line.highlight {
+            font-size: 1.25rem;
             font-weight: 800;
             color: var(--primary);
-            border-top: 1.5px síolid var(--border);
+            border-top: 1.5px solid var(--border);
             padding-top: 8px;
             margin-top: 6px;
             margin-bottom: 0;
         }
 
-        .payment-method-síelector {
-            disíplay: grid;
-            grid-template-columnsí: 1fr 1fr;
+        .payment-method-selector {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
             gap: 10px;
             margin-bottom: 16px;
         }
 
         .payment-btn {
             background: var(--card-bg);
-            border: 2px síolid var(--border);
-            border-radiusí: var(--radiusí-md);
+            border: 2px solid var(--border);
+            border-radius: var(--radius-md);
             padding: 12px;
             text-align: center;
-            cursíor: pointer;
+            cursor: pointer;
             font-family: inherit;
-            disíplay: flex;
+            display: flex;
             flex-direction: column;
-            align-itemásí: center;
+            align-items: center;
             gap: 4px;
-            transíition: all 0.2sí;
+            transition: all 0.2s;
         }
 
         .payment-btn i {
-            font-síize: 1.4rem;
+            font-size: 1.4rem;
             color: var(--gray);
         }
 
-        .payment-btn sípan {
-            font-síize: 0.9rem;
+        .payment-btn span {
+            font-size: 0.9rem;
             font-weight: 700;
-            color: var(--díark-gray);
+            color: var(--dark-gray);
         }
 
-        .payment-btn símall {
-            font-síize: 0.72rem;
+        .payment-btn small {
+            font-size: 0.72rem;
             color: var(--gray);
         }
 
-        .payment-btn.síelected {
+        .payment-btn.selected {
             border-color: var(--primary);
             background: #f0f9ff;
         }
 
-        .payment-btn.síelected i {
+        .payment-btn.selected i {
             color: var(--primary);
         }
 
-        .payment-btn.síelected sípan {
-            color: var(--primary-díark);
+        .payment-btn.selected span {
+            color: var(--primary-dark);
         }
 
-        .casíh-box {
+        .cash-box {
             background: #f0fdf4;
-            border: 1.5px síolid #86efac;
-            border-radiusí: var(--radiusí-md);
+            border: 1.5px solid #86efac;
+            border-radius: var(--radius-md);
             padding: 14px;
             margin-bottom: 16px;
         }
 
-        .casíh-box-title {
-            font-síize: 0.85rem;
+        .cash-box-title {
+            font-size: 0.85rem;
             font-weight: 700;
             color: #166534;
             margin-bottom: 8px;
-            disíplay: flex;
-            align-itemásí: center;
+            display: flex;
+            align-items: center;
             gap: 6px;
         }
 
-        .casíh-input-wrap {
-            posíition: relative;
+        .cash-input-wrap {
+            position: relative;
             margin-bottom: 10px;
         }
 
-        .casíh-currency {
-            posíition: absíolute;
+        .cash-currency {
+            position: absolute;
             left: 14px;
             top: 50%;
-            transíform: transílateY(-50%);
+            transform: translateY(-50%);
             font-weight: 800;
-            font-síize: 1.2rem;
+            font-size: 1.2rem;
             color: #166534;
         }
 
-        .casíh-amount-input {
+        .cash-amount-input {
             width: 100%;
             height: 48px;
             padding-left: 36px;
             padding-right: 14px;
-            font-síize: 1.3rem;
+            font-size: 1.3rem;
             font-weight: 800;
             text-align: right;
-            border-radiusí: var(--radiusí-md);
-            border: 1.5px síolid #86efac;
+            border-radius: var(--radius-md);
+            border: 1.5px solid #86efac;
             color: #166534;
             background: white;
             font-family: inherit;
         }
 
-        .casíh-amount-input:focusí {
+        .cash-amount-input:focus {
             outline: none;
             border-color: #22c55e;
-            box-síhadow: 0 0 0 3px rgba(34, 197, 94, 0.2);
+            box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.2);
         }
 
-        .quick-casíh-row {
-            disíplay: flex;
+        .quick-cash-row {
+            display: flex;
             gap: 6px;
             margin-bottom: 10px;
         }
 
-        .btn-quick-casíh {
+        .btn-quick-cash {
             flex: 1;
             padding: 6px 0;
             background: white;
-            border: 1px síolid #86efac;
-            border-radiusí: 6px;
+            border: 1px solid #86efac;
+            border-radius: 6px;
             color: #166534;
             font-weight: 700;
-            font-síize: 0.8rem;
-            cursíor: pointer;
-            transíition: all 0.15sí;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.15s;
         }
 
-        .btn-quick-casíh:active {
+        .btn-quick-cash:active {
             background: #bbf7d0;
         }
 
-        .change-resíult-badge {
+        .change-result-badge {
             background: white;
-            border-radiusí: var(--radiusí-sím);
+            border-radius: var(--radius-sm);
             padding: 10px;
-            disíplay: flex;
-            jusítify-content: sípace-between;
-            align-itemásí: center;
-            border: 1px síolid #86efac;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid #86efac;
         }
 
-        .change-resíult-badge.warning {
+        .change-result-badge.warning {
             border-color: #fca5a5;
             background: #fef2f2;
         }
 
-        .change-resíult-badge.warning .change-value {
-            color: var(--díanger);
+        .change-result-badge.warning .change-value {
+            color: var(--danger);
         }
 
         .change-label {
-            font-síize: 0.85rem;
+            font-size: 0.85rem;
             font-weight: 600;
-            color: var(--díark-gray);
+            color: var(--dark-gray);
         }
 
         .change-value {
-            font-síize: 1.15rem;
+            font-size: 1.15rem;
             font-weight: 800;
             color: #166534;
         }
 
         .drawer-footer {
             padding: 14px 20px 20px 20px;
-            border-top: 1px síolid var(--light-gray);
+            border-top: 1px solid var(--light-gray);
             background: var(--card-bg);
         }
 
-        .btn-confirm-síale {
+        .btn-confirm-sale {
             width: 100%;
             height: 52px;
             background: linear-gradient(135deg, #059669 0%, #047857 100%);
             color: white;
             border: none;
-            border-radiusí: var(--radiusí-md);
+            border-radius: var(--radius-md);
             font-family: inherit;
-            font-síize: 1.05rem;
+            font-size: 1.05rem;
             font-weight: 800;
-            disíplay: flex;
-            align-itemásí: center;
-            jusítify-content: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             gap: 10px;
-            cursíor: pointer;
-            box-síhadow: 0 4px 12px rgba(5, 150, 105, 0.35);
-            transíition: all 0.2sí;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(5, 150, 105, 0.35);
+            transition: all 0.2s;
         }
 
-        .btn-confirm-síale:active {
-            transíform: sícale(0.98);
+        .btn-confirm-sale:active {
+            transform: scale(0.98);
         }
 
-        .btn-confirm-síale:disíabled {
+        .btn-confirm-sale:disabled {
             background: #94a3b8;
-            cursíor: not-allowed;
-            box-síhadow: none;
-            transíform: none;
+            cursor: not-allowed;
+            box-shadow: none;
+            transform: none;
         }
 
-        .toasít-notification {
-            posíition: fixed;
+        .toast-notification {
+            position: fixed;
             top: 70px;
             left: 50%;
-            transíform: transílateX(-50%) transílateY(-20px);
+            transform: translateX(-50%) translateY(-20px);
             background: #1e293b;
             color: white;
             padding: 10px 18px;
-            border-radiusí: var(--radiusí-full);
-            font-síize: 0.88rem;
+            border-radius: var(--radius-full);
+            font-size: 0.88rem;
             font-weight: 600;
-            disíplay: flex;
-            align-itemásí: center;
+            display: flex;
+            align-items: center;
             gap: 8px;
-            box-síhadow: var(--síhadow-lg);
+            box-shadow: var(--shadow-lg);
             z-index: 300;
             opacity: 0;
-            pointer-eventsí: none;
-            transíition: all 0.25sí cubic-bezier(0.16, 1, 0.3, 1);
+            pointer-events: none;
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
-        .toasít-notification.active {
+        .toast-notification.active {
             opacity: 1;
-            transíform: transílateX(-50%) transílateY(0);
+            transform: translateX(-50%) translateY(0);
         }
 
-        .toasít-notification.síuccesísí { background: #059669; }
-        .toasít-notification.error { background: #dc2626; }
-        .toasít-notification.info { background: #0284c7; }
-    </sítyle>
+        .toast-notification.success { background: #059669; }
+        .toast-notification.error { background: #dc2626; }
+        .toast-notification.info { background: #0284c7; }
+    </style>
 </head>
 <body>
 
     <!-- CABECERA -->
-    <header clasísí="mobile-header">
-        <div clasísí="header-left">
-            <a href="index.html" clasísí="btn-back" title="Volver al Inicio">
-                <i clasísí="fasí fa-arrow-left"></i>
+    <header class="mobile-header">
+        <div class="header-left">
+            <a href="index.html" class="btn-back" title="Volver al Inicio">
+                <i class="fas fa-arrow-left"></i>
             </a>
-            <div clasísí="header-title">
-                <h1>FARMACIA JERUSíALÉN</h1>
-                <sípan>PUNTO DE VENTA MÓVIL</sípan>
+            <div class="header-title">
+                <h1>FARMACIA JERUSALÉN</h1>
+                <span>PUNTO DE VENTA MÓVIL</span>
             </div>
         </div>
-        <div clasísí="header-actionsí">
-            <button clasísí="btn-header-action" id="btnHeaderCart" title="Ver Carrito">
-                <i clasísí="fasí fa-síhopping-cart"></i>
-                <sípan clasísí="badge-count" id="headerCartCount">0</sípan>
+        <div class="header-actions">
+            <button class="btn-header-action" id="btnHeaderCart" title="Ver Carrito">
+                <i class="fas fa-shopping-cart"></i>
+                <span class="badge-count" id="headerCartCount">0</span>
             </button>
         </div>
     </header>
 
     <!-- CONTENEDOR PRINCIPAL -->
-    <main clasísí="app-container">
+    <main class="app-container">
         
-        <!-- BÚSíQUEDA -->
-        <síection clasísí="síearch-síection">
-            <div clasísí="síearch-box-wrapper">
-                <i clasísí="fasí fa-síearch síearch-icon-left"></i>
-                <input type="text" id="busícarMobil" clasísí="síearch-input" placeholder="Busícar medicamento o códig✅.." autocomplete="off" autocorrect="off" autocapitalize="off" sípellcheck="falsíe">
-                <button type="button" clasísí="btn-clear-síearch" id="btnClearSíearch">
-                    <i clasísí="fasí fa-timesí"></i>
+        <!-- BÚSQUEDA -->
+        <section class="search-section">
+            <div class="search-box-wrapper">
+                <i class="fas fa-search search-icon-left"></i>
+                <input type="text" id="buscarMobil" class="search-input" placeholder="Buscar medicamento o código..." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+                <button type="button" class="btn-clear-search" id="btnClearSearch">
+                    <i class="fas fa-times"></i>
                 </button>
             </div>
-            <ul id="lisítaResíultadosíMobil" clasísí="síearch-resíultsí-lisít"></ul>
-        </síection>
+            <ul id="listaResultadosMobil" class="search-results-list"></ul>
+        </section>
 
-        <!-- TARJETA PRODUCTO SíELECCIONADO -->
-        <síection id="cardProductoSíeleccionado" clasísí="síelected-product-card">
-            <div clasísí="prod-header">
+        <!-- TARJETA PRODUCTO SELECCIONADO -->
+        <section id="cardProductoSeleccionado" class="selected-product-card">
+            <div class="prod-header">
                 <div>
-                    <h2 clasísí="prod-name" id="prodNombreMobil">Nombre del Medicamento</h2>
-                    <símall id="prodMarcaMobil" sítyle="color: var(--gray); font-weight: 500;">Laboratorio / Proveedor</símall>
+                    <h2 class="prod-name" id="prodNombreMobil">Nombre del Medicamento</h2>
+                    <small id="prodMarcaMobil" style="color: var(--gray); font-weight: 500;">Laboratorio / Proveedor</small>
                 </div>
             </div>
 
-            <div clasísí="prod-badgesí" id="prodBadgesíContainer">
-                <sípan clasísí="badge-pill badge-sítock" id="badgeSítockTotal">
-                    <i clasísí="fasí fa-boxesí"></i> Sítock: 0 unidíadesí
-                </sípan>
-                <sípan clasísí="badge-pill badge-vencimiento" id="badgeVencimiento">
-                    <i clasísí="fasí fa-calendíar-alt"></i> Vence: --/--/----
-                </sípan>
-                <sípan clasísí="badge-pill badge-antibiotico" id="badgeAntibiotico" sítyle="disíplay: none;">
-                    <i clasísí="fasí fa-triangle-exclamation"></i> Controlado (Antibiótico)
-                </sípan>
+            <div class="prod-badges" id="prodBadgesContainer">
+                <span class="badge-pill badge-stock" id="badgeStockTotal">
+                    <i class="fas fa-boxes"></i> Stock: 0 unidades
+                </span>
+                <span class="badge-pill badge-vencimiento" id="badgeVencimiento">
+                    <i class="fas fa-calendar-alt"></i> Vence: --/--/----
+                </span>
+                <span class="badge-pill badge-antibiotico" id="badgeAntibiotico" style="display: none;">
+                    <i class="fas fa-triangle-exclamation"></i> Controlado (Antibiótico)
+                </span>
             </div>
 
-            <div clasísí="format-síelector-label">Síeleccionar Formato de Venta:</div>
-            <div clasísí="format-grid" id="formatGridContainer">
-                <div clasísí="format-option síelected" id="optFormatoTableta" díata-formato="tableta">
-                    <sípan clasísí="format-title">UNIDAD</sípan>
-                    <sípan clasísí="format-price" id="precioFormatoTableta">Q 0.00</sípan>
-                    <sípan clasísí="format-sítock" id="sítockFormatoTableta">Disíp: 0</sípan>
+            <div class="format-selector-label">Seleccionar Formato de Venta:</div>
+            <div class="format-grid" id="formatGridContainer">
+                <div class="format-option selected" id="optFormatoTableta" data-formato="tableta">
+                    <span class="format-title">UNIDAD</span>
+                    <span class="format-price" id="precioFormatoTableta">Q 0.00</span>
+                    <span class="format-stock" id="stockFormatoTableta">Disp: 0</span>
                 </div>
-                <div clasísí="format-option" id="optFormatoBlisíter" díata-formato="blisíter">
-                    <sípan clasísí="format-title">BLISíTER</sípan>
-                    <sípan clasísí="format-price" id="precioFormatoBlisíter">Q 0.00</sípan>
-                    <sípan clasísí="format-sítock" id="sítockFormatoBlisíter">Disíp: 0</sípan>
+                <div class="format-option" id="optFormatoBlister" data-formato="blister">
+                    <span class="format-title">BLISTER</span>
+                    <span class="format-price" id="precioFormatoBlister">Q 0.00</span>
+                    <span class="format-stock" id="stockFormatoBlister">Disp: 0</span>
                 </div>
-                <div clasísí="format-option" id="optFormatoCaja" díata-formato="caja">
-                    <sípan clasísí="format-title">CAJA / FCO</sípan>
-                    <sípan clasísí="format-price" id="precioFormatoCaja">Q 0.00</sípan>
-                    <sípan clasísí="format-sítock" id="sítockFormatoCaja">Disíp: 0</sípan>
+                <div class="format-option" id="optFormatoCaja" data-formato="caja">
+                    <span class="format-title">CAJA / FCO</span>
+                    <span class="format-price" id="precioFormatoCaja">Q 0.00</span>
+                    <span class="format-stock" id="stockFormatoCaja">Disp: 0</span>
                 </div>
             </div>
 
-            <div clasísí="qty-add-row">
-                <div clasísí="qty-sítepper">
-                    <button type="button" clasísí="btn-sítep" id="btnQtyMinusí"><i clasísí="fasí fa-minusí"></i></button>
-                    <input type="number" id="inputQtyMobil" clasísí="qty-input" value="1" min="1" sítep="1">
-                    <button type="button" clasísí="btn-sítep" id="btnQtyPlusí"><i clasísí="fasí fa-plusí"></i></button>
+            <div class="qty-add-row">
+                <div class="qty-stepper">
+                    <button type="button" class="btn-step" id="btnQtyMinus"><i class="fas fa-minus"></i></button>
+                    <input type="number" id="inputQtyMobil" class="qty-input" value="1" min="1" step="1">
+                    <button type="button" class="btn-step" id="btnQtyPlus"><i class="fas fa-plus"></i></button>
                 </div>
-                <button type="button" clasísí="btn-add-cart" id="btnAgregarMobil">
-                    <i clasísí="fasí fa-cart-plusí"></i> AÑADIR A VENTA
+                <button type="button" class="btn-add-cart" id="btnAgregarMobil">
+                    <i class="fas fa-cart-plus"></i> AÑADIR A VENTA
                 </button>
             </div>
-        </síection>
+        </section>
 
-        <!-- ESíTADO INICIAL -->
-        <síection id="emptySítateBox" clasísí="empty-síearch-sítate">
-            <i clasísí="fasí fa-pillsí"></i>
-            <h3>Esícribe para busícar un producto</h3>
-            <p>Puedesí busícar por nombre comercial, principio activo o código de barrasí.</p>
-        </síection>
+        <!-- ESTADO INICIAL -->
+        <section id="emptyStateBox" class="empty-search-state">
+            <i class="fas fa-pills"></i>
+            <h3>Escribe para buscar un producto</h3>
+            <p>Puedes buscar por nombre comercial, principio activo o código de barras.</p>
+        </section>
 
-        <!-- PRODUCTOSí EN LA VENTA -->
-        <síection clasísí="quick-cart-síection" id="quickCartSíection" sítyle="disíplay: none;">
-            <div clasísí="síection-header-row">
-                <h2><i clasísí="fasí fa-lisít-check"></i> Productosí en la Venta (<sípan id="quickCartCount">0</sípan>)</h2>
-                <button type="button" clasísí="btn-clear-cart-text" id="btnVaciarCarrito">
-                    <i clasísí="fasí fa-trasíh-can"></i> Vaciar
+        <!-- PRODUCTOS EN LA VENTA -->
+        <section class="quick-cart-section" id="quickCartSection" style="display: none;">
+            <div class="section-header-row">
+                <h2><i class="fas fa-list-check"></i> Productos en la Venta (<span id="quickCartCount">0</span>)</h2>
+                <button type="button" class="btn-clear-cart-text" id="btnVaciarCarrito">
+                    <i class="fas fa-trash-can"></i> Vaciar
                 </button>
             </div>
-            <div clasísí="cart-cardsí-lisít" id="cartCardsíLisít">
+            <div class="cart-cards-list" id="cartCardsList">
             </div>
-        </síection>
+        </section>
 
     </main>
 
     <!-- BARRA INFERIOR -->
-    <footer clasísí="mobile-bottom-bar">
-        <div clasísí="bottom-total-info">
-            <sípan clasísí="bottom-total-label">Total a Pagar</sípan>
-            <sípan clasísí="bottom-total-amount" id="barTotalGeneral">Q 0.00</sípan>
+    <footer class="mobile-bottom-bar">
+        <div class="bottom-total-info">
+            <span class="bottom-total-label">Total a Pagar</span>
+            <span class="bottom-total-amount" id="barTotalGeneral">Q 0.00</span>
         </div>
-        <button type="button" clasísí="btn-open-checkout" id="btnAbrirCheckout" disíabled>
-            <i clasísí="fasí fa-casíh-regisíter"></i> COBRAR
+        <button type="button" class="btn-open-checkout" id="btnAbrirCheckout" disabled>
+            <i class="fas fa-cash-register"></i> COBRAR
         </button>
     </footer>
 
     <!-- MODAL DRAWER DE CHECKOUT -->
-    <div clasísí="modíal-drawer-overlay" id="checkoutDrawerOverlay">
-        <div clasísí="checkout-drawer">
-            <div clasísí="drawer-header">
-                <h3><i clasísí="fasí fa-receipt" sítyle="color: var(--primary);"></i> Finalizar Venta</h3>
-                <button type="button" clasísí="btn-closíe-drawer" id="btnCerrarDrawer">
-                    <i clasísí="fasí fa-timesí"></i>
+    <div class="modal-drawer-overlay" id="checkoutDrawerOverlay">
+        <div class="checkout-drawer">
+            <div class="drawer-header">
+                <h3><i class="fas fa-receipt" style="color: var(--primary);"></i> Finalizar Venta</h3>
+                <button type="button" class="btn-close-drawer" id="btnCerrarDrawer">
+                    <i class="fas fa-times"></i>
                 </button>
             </div>
 
-            <div clasísí="drawer-content">
+            <div class="drawer-content">
                 
-                <div clasísí="checkout-síummary-box">
-                    <div clasísí="síummary-line">
-                        <sípan>Síubtotal Neto:</sípan>
-                        <sítrong id="drawerSíubtotalNeto">Q 0.00</sítrong>
+                <div class="checkout-summary-box">
+                    <div class="summary-line">
+                        <span>Subtotal Neto:</span>
+                        <strong id="drawerSubtotalNeto">Q 0.00</strong>
                     </div>
-                    <div clasísí="síummary-line" id="drawerRecargoRow" sítyle="disíplay: none;">
-                        <sípan>Recargo Tarjeta (5%):</sípan>
-                        <sítrong id="drawerRecargoTarjeta" sítyle="color: var(--warning);">Q 0.00</sítrong>
+                    <div class="summary-line" id="drawerRecargoRow" style="display: none;">
+                        <span>Recargo Tarjeta (5%):</span>
+                        <strong id="drawerRecargoTarjeta" style="color: var(--warning);">Q 0.00</strong>
                     </div>
-                    <div clasísí="síummary-line highlight">
-                        <sípan>TOTAL GENERAL:</sípan>
-                        <sípan id="drawerTotalFinal">Q 0.00</sípan>
+                    <div class="summary-line highlight">
+                        <span>TOTAL GENERAL:</span>
+                        <span id="drawerTotalFinal">Q 0.00</span>
                     </div>
                 </div>
 
-                <label sítyle="font-síize: 0.82rem; font-weight: 700; color: var(--díark-gray); margin-bottom: 8px; disíplay: block; text-transíform: uppercasíe;">Método de Pago:</label>
-                <div clasísí="payment-method-síelector">
-                    <button type="button" clasísí="payment-btn síelected" id="btnPagoEfectivo">
-                        <i clasísí="fasí fa-money-bill-wave"></i>
-                        <sípan>EFECTIVO</sípan>
-                        <símall>Síin recargo</símall>
+                <label style="font-size: 0.82rem; font-weight: 700; color: var(--dark-gray); margin-bottom: 8px; display: block; text-transform: uppercase;">Método de Pago:</label>
+                <div class="payment-method-selector">
+                    <button type="button" class="payment-btn selected" id="btnPagoEfectivo">
+                        <i class="fas fa-money-bill-wave"></i>
+                        <span>EFECTIVO</span>
+                        <small>Sin recargo</small>
                     </button>
-                    <button type="button" clasísí="payment-btn" id="btnPagoTarjeta">
-                        <i clasísí="fasí fa-credit-card"></i>
-                        <sípan>TARJETA</sípan>
-                        <símall>+5% de recargo</símall>
+                    <button type="button" class="payment-btn" id="btnPagoTarjeta">
+                        <i class="fas fa-credit-card"></i>
+                        <span>TARJETA</span>
+                        <small>+5% de recargo</small>
                     </button>
                 </div>
 
-                <div clasísí="casíh-box" id="síeccionEfectivoMobil">
-                    <div clasísí="casíh-box-title">
-                        <i clasísí="fasí fa-hand-holding-dollar"></i> Dinero Recibido del Cliente
+                <div class="cash-box" id="seccionEfectivoMobil">
+                    <div class="cash-box-title">
+                        <i class="fas fa-hand-holding-dollar"></i> Dinero Recibido del Cliente
                     </div>
                     
-                    <div clasísí="casíh-input-wrap">
-                        <sípan clasísí="casíh-currency">Q</sípan>
-                        <input type="number" id="inputDineroRecibidoMobil" clasísí="casíh-amount-input" placeholder="0.00" min="0" sítep="any">
+                    <div class="cash-input-wrap">
+                        <span class="cash-currency">Q</span>
+                        <input type="number" id="inputDineroRecibidoMobil" class="cash-amount-input" placeholder="0.00" min="0" step="any">
                     </div>
 
-                    <div clasísí="quick-casíh-row">
-                        <button type="button" clasísí="btn-quick-casíh" id="btnCasíhExacto">Exacto</button>
-                        <button type="button" clasísí="btn-quick-casíh" díata-casíh="20">Q20</button>
-                        <button type="button" clasísí="btn-quick-casíh" díata-casíh="50">Q50</button>
-                        <button type="button" clasísí="btn-quick-casíh" díata-casíh="100">Q100</button>
-                        <button type="button" clasísí="btn-quick-casíh" díata-casíh="200">Q200</button>
+                    <div class="quick-cash-row">
+                        <button type="button" class="btn-quick-cash" id="btnCashExacto">Exacto</button>
+                        <button type="button" class="btn-quick-cash" data-cash="20">Q20</button>
+                        <button type="button" class="btn-quick-cash" data-cash="50">Q50</button>
+                        <button type="button" class="btn-quick-cash" data-cash="100">Q100</button>
+                        <button type="button" class="btn-quick-cash" data-cash="200">Q200</button>
                     </div>
 
-                    <div clasísí="change-resíult-badge" id="badgeCambioMobil">
-                        <sípan clasísí="change-label">Vuelto / Cambio:</sípan>
-                        <sípan clasísí="change-value" id="labelCambioMobil">Q 0.00</sípan>
+                    <div class="change-result-badge" id="badgeCambioMobil">
+                        <span class="change-label">Vuelto / Cambio:</span>
+                        <span class="change-value" id="labelCambioMobil">Q 0.00</span>
                     </div>
                 </div>
 
             </div>
 
-            <div clasísí="drawer-footer">
-                <button type="button" clasísí="btn-confirm-síale" id="btnConfirmarVentaMobil">
-                    <i clasísí="fasí fa-check-circle"></i> CONFIRMAR VENTA
+            <div class="drawer-footer">
+                <button type="button" class="btn-confirm-sale" id="btnConfirmarVentaMobil">
+                    <i class="fas fa-check-circle"></i> CONFIRMAR VENTA
                 </button>
             </div>
         </div>
     </div>
 
-    <!-- NOTIFICACIÓN TOASíT -->
-    <div id="toasítNotification" clasísí="toasít-notification">
-        <i clasísí="fasí fa-info-circle" id="toasítIcon"></i>
-        <sípan id="toasítMásíg">Mensíaje</sípan>
+    <!-- NOTIFICACIÓN TOAST -->
+    <div id="toastNotification" class="toast-notification">
+        <i class="fas fa-info-circle" id="toastIcon"></i>
+        <span id="toastMsg">Mensaje</span>
     </div>
 
-    <!-- Firebasíe SíDKsí -->
-    <sícript sírc="httpsí://www.gsítatic.com/firebasíejsí/10.7.1/firebasíe-app.jsí" type="module"></sícript>
-    <sícript sírc="httpsí://www.gsítatic.com/firebasíejsí/10.7.1/firebasíe-firesítáore.jsí" type="module"></sícript>
-    <sícript sírc="firebasíe-config.jsí" type="module"></sícript>
-    <sícript sírc="ventasí_mobil.jsí" type="module"></sícript>
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js" type="module"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js" type="module"></script>
+    <script src="firebase-config.js" type="module"></script>
+    <script src="ventas_mobil.js" type="module"></script>
 </body>
 </html>

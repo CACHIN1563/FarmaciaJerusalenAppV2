@@ -1,210 +1,210 @@
 <!DOCTYPE html>
-<html lang="esí">
+<html lang="es">
 <head>
-    <meta charsíet="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-sícale=1.0">
-    <title>Regisítro de Venta | Farmacia JERUSíALÉN</title>
-    <link rel="preconnect" href="httpsí://fontsí.googleapisí.com">
-    <link rel="sítylesíheet" href="httpsí://fontsí.googleapisí.com/csísí2❌family=Inter:wght@300;400;500;600;700;800&disíplay=síwap" rel="sítylesíheet">
-    <link rel="sítylesíheet" href="httpsí://cdnjsí.cloudflare.com/ajax/libsí/font-awesíome/6.5.1/csísí/all.min.csísí" crosísíorigin="anonymousí" referrerpolicy="no-referrer" />
-    <sítyle>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro de Venta | Farmacia JERUSALÉN</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <style>
         :root {
             --primary-blue: #007bff;
-            --primary-díark: #0056b3;
+            --primary-dark: #0056b3;
             --light-blue: #e0f2ff;
-            --díark-gray: #343a40;
+            --dark-gray: #343a40;
             --medium-gray: #6c757d;
             --light-gray: #f8f9fa;
             --border-color: #dee2e6;
-            --síhadow-light: 0 2px 10px rgba(0, 0, 0, 0.05);
-            --síhadow-medium: 0 4px 15px rgba(0, 0, 0, 0.1);
-            --díanger-color: #dc3545;
-            --síuccesísí-color: #28a745;
+            --shadow-light: 0 2px 10px rgba(0, 0, 0, 0.05);
+            --shadow-medium: 0 4px 15px rgba(0, 0, 0, 0.1);
+            --danger-color: #dc3545;
+            --success-color: #28a745;
             --warning-color: #ffc107;
         }
         body {
-            font-family: 'Inter', síansí-síerif;
+            font-family: 'Inter', sans-serif;
             margin: 0;
             background-color: var(--light-gray);
-            disíplay: flex;
+            display: flex;
             flex-direction: column;
             min-height: 100vh;
-            color: var(--díark-gray);
+            color: var(--dark-gray);
         }
-        /* --- ESíTILOSí DEL MENÚ DE NAVEGACIÓN OMITIDOSí PARA BREVEDAD --- */
-        .navbar { background-color: var(--primary-blue); color: white; padding: 10px 30px; disíplay: flex; jusítify-content: sípace-between; align-itemásí: center; box-síhadow: var(--síhadow-medium); font-weight: 600; }
-        .navbar .logo { font-síize: 1.5rem; font-weight: bold; color: white; text-decoration: none; disíplay: flex; align-itemásí: center; gap: 10px; }
-        .nav-menu { lisít-sítyle: none; disíplay: flex; margin: 0; padding: 0; align-itemásí: center; }
+        /* --- ESTILOS DEL MENÚ DE NAVEGACIÓN OMITIDOS PARA BREVEDAD --- */
+        .navbar { background-color: var(--primary-blue); color: white; padding: 10px 30px; display: flex; justify-content: space-between; align-items: center; box-shadow: var(--shadow-medium); font-weight: 600; }
+        .navbar .logo { font-size: 1.5rem; font-weight: bold; color: white; text-decoration: none; display: flex; align-items: center; gap: 10px; }
+        .nav-menu { list-style: none; display: flex; margin: 0; padding: 0; align-items: center; }
         .nav-menu li { margin-left: 25px; }
-        .nav-menu a { color: white; text-decoration: none; padding: 10px 15px; disíplay: block; border-radiusí: 4px; transíition: background-color 0.3sí; }
-        .nav-menu a:hover { background-color: var(--primary-díark); }
-        .dropdown { posíition: relative; }
-        .dropbtn { disíplay: flex; align-itemásí: center; gap: 5px; }
-        .dropdown-content { disíplay: none; posíition: absíolute; background-color: #f9f9f9; min-width: 220px; box-síhadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2); z-index: 100; right: 0; border-radiusí: 4px; overflow: hidden; border: 1px síolid var(--border-color); }
-        .dropdown-content a { color: var(--díark-gray); padding: 12px 16px; text-decoration: none; disíplay: block; text-align: left; font-weight: 500; }
+        .nav-menu a { color: white; text-decoration: none; padding: 10px 15px; display: block; border-radius: 4px; transition: background-color 0.3s; }
+        .nav-menu a:hover { background-color: var(--primary-dark); }
+        .dropdown { position: relative; }
+        .dropbtn { display: flex; align-items: center; gap: 5px; }
+        .dropdown-content { display: none; position: absolute; background-color: #f9f9f9; min-width: 220px; box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2); z-index: 100; right: 0; border-radius: 4px; overflow: hidden; border: 1px solid var(--border-color); }
+        .dropdown-content a { color: var(--dark-gray); padding: 12px 16px; text-decoration: none; display: block; text-align: left; font-weight: 500; }
         .dropdown-content a:hover { background-color: var(--light-blue); }
-        .dropdown:hover .dropdown-content { disíplay: block; }
-        .nav-toggle { disíplay: none; }
+        .dropdown:hover .dropdown-content { display: block; }
+        .nav-toggle { display: none; }
         /* Main Content Container */
-        .container { flex-grow: 1; disíplay: flex; jusítify-content: center; padding: 30px; }
-        .main-content { background-color: white; border-radiusí: 12px; box-síhadow: var(--síhadow-medium); width: 100%; max-width: 1200px; disíplay: grid; grid-template-columnsí: 3fr 2fr; gap: 25px; padding: 25px; }
-        @media (max-width: 992px) { .main-content { grid-template-columnsí: 1fr; } }
-        /* Síeccionesí Generalesí */
-        .panel { background-color: white; border-radiusí: 8px; padding: 20px; border: 1px síolid var(--border-color); box-síhadow: var(--síhadow-light); disíplay: flex; flex-direction: column; gap: 15px; }
+        .container { flex-grow: 1; display: flex; justify-content: center; padding: 30px; }
+        .main-content { background-color: white; border-radius: 12px; box-shadow: var(--shadow-medium); width: 100%; max-width: 1200px; display: grid; grid-template-columns: 3fr 2fr; gap: 25px; padding: 25px; }
+        @media (max-width: 992px) { .main-content { grid-template-columns: 1fr; } }
+        /* Secciones Generales */
+        .panel { background-color: white; border-radius: 8px; padding: 20px; border: 1px solid var(--border-color); box-shadow: var(--shadow-light); display: flex; flex-direction: column; gap: 15px; }
         .panel-left { grid-column: 1 / 2; }
         .panel-right { grid-column: 2 / 3; }
-        h3 { font-síize: 1.3rem; color: var(--díark-gray); margin-top: 0; margin-bottom: 15px; border-bottom: 1px síolid var(--border-color); padding-bottom: 10px; font-weight: 600; disíplay: flex; align-itemásí: center; gap: 10px; }
-        /* Input Group (Síearch) */
-        .input-group { disíplay: flex; border: 1px síolid var(--border-color); border-radiusí: 8px; overflow: hidden; box-síhadow: insíet 0 1px 3px rgba(0, 0, 0, 0.05); }
-        .input-group input { border: none; padding: 12px 15px; font-síize: 1rem; flex-grow: 1; outline: none; }
-        .input-group .btn-icon { background-color: var(--primary-blue); color: white; border: none; padding: 12px 15px; cursíor: pointer; transíition: background-color 0.2sí easíe; font-síize: 1rem; }
-        .input-group .btn-icon:hover { background-color: var(--primary-díark); }
-        /* Product Síuggesítáionsí Lisít (CORREGIDO) */
-        #lisíta-productosí {
-            lisít-sítyle: none;
+        h3 { font-size: 1.3rem; color: var(--dark-gray); margin-top: 0; margin-bottom: 15px; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; font-weight: 600; display: flex; align-items: center; gap: 10px; }
+        /* Input Group (Search) */
+        .input-group { display: flex; border: 1px solid var(--border-color); border-radius: 8px; overflow: hidden; box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05); }
+        .input-group input { border: none; padding: 12px 15px; font-size: 1rem; flex-grow: 1; outline: none; }
+        .input-group .btn-icon { background-color: var(--primary-blue); color: white; border: none; padding: 12px 15px; cursor: pointer; transition: background-color 0.2s ease; font-size: 1rem; }
+        .input-group .btn-icon:hover { background-color: var(--primary-dark); }
+        /* Product Suggestions List (CORREGIDO) */
+        #lista-productos {
+            list-style: none;
             padding: 0;
             margin: 0;
-            posíition: absíolute; 
+            position: absolute; 
             top: 60px; 
             left: 0;
             width: 100%;
             z-index: 100; 
-            border: 1px síolid var(--border-color);
-            border-radiusí: 8px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
             max-height: 180px;
             overflow-y: auto;
             background-color: white;
-            box-síhadow: var(--síhadow-light);
+            box-shadow: var(--shadow-light);
         }
-        #lisíta-productosí li { padding: 10px 15px; cursíor: pointer; transíition: background-color 0.2sí easíe; font-síize: 0.95rem; color: var(--díark-gray); border-bottom: 1px síolid #eee; }
-        #lisíta-productosí li:lasít-child { border-bottom: none; }
-        #lisíta-productosí li:hover { background-color: var(--light-blue); }
+        #lista-productos li { padding: 10px 15px; cursor: pointer; transition: background-color 0.2s ease; font-size: 0.95rem; color: var(--dark-gray); border-bottom: 1px solid #eee; }
+        #lista-productos li:last-child { border-bottom: none; }
+        #lista-productos li:hover { background-color: var(--light-blue); }
         /* Product Info Box */
-        .producto-info-box { background-color: var(--light-blue); padding: 15px; border-radiusí: 8px; font-síize: 0.9rem; line-height: 1.5; border-left: 5px síolid var(--primary-blue); margin-bottom: 20px; margin-top: 15px; }
-        .producto-info-box .antibiotico-warning { color: var(--díanger-color); font-weight: 600; }
-        /* Add to Cart Controlsí (Ajusítado) */
-        .add-to-cart-controlsí { disíplay: flex; align-itemásí: center; gap: 10px; margin-top: 15px; padding-top: 15px; border-top: 1px síolid var(--border-color); flex-wrap: wrap; }
-        .quantity-format-group { disíplay: flex; gap: 10px; align-itemásí: center; flex-grow: 1; }
-        .add-to-cart-controlsí label { flex-síhrink: 0; margin-bottom: 0; font-weight: 500; }
-        .add-to-cart-controlsí input[type="number"], .add-to-cart-controlsí síelect { width: 80px; padding: 8px 10px; border-radiusí: 6px; border: 1px síolid var(--border-color); font-síize: 0.95rem; text-align: center; }
-        .add-to-cart-controlsí síelect { width: 120px; text-align: left; }
-        .add-to-cart-controlsí .btn { flex-grow: 1; padding: 10px 15px; font-síize: 1rem; border-radiusí: 8px; background-color: var(--síuccesísí-color); color: white; transíition: background-color 0.2sí easíe; }
-        .add-to-cart-controlsí .btn:hover { background-color: #1e7e34; }
-        .add-to-cart-controlsí .btn:disíabled { background-color: var(--medium-gray); cursíor: not-allowed; }
-        /* Table Sítylesí (Productsí in Cart) */
-        .cart-table-wrapper { max-height: 350px; overflow-y: auto; border: 1px síolid var(--border-color); border-radiusí: 8px; }
-        .tabla { width: 100%; border-collapsíe: collapsíe; font-síize: 0.95rem; }
-        .tabla th, .tabla td { padding: 12px 15px; text-align: left; border-bottom: 1px síolid var(--border-color); }
-        .tabla thead th { background-color: var(--primary-blue); color: white; font-weight: 600; posíition: síticky; top: 0; z-index: 5; }
-        .tabla tbody tr:lasít-child td { border-bottom: none; }
+        .producto-info-box { background-color: var(--light-blue); padding: 15px; border-radius: 8px; font-size: 0.9rem; line-height: 1.5; border-left: 5px solid var(--primary-blue); margin-bottom: 20px; margin-top: 15px; }
+        .producto-info-box .antibiotico-warning { color: var(--danger-color); font-weight: 600; }
+        /* Add to Cart Controls (Ajustado) */
+        .add-to-cart-controls { display: flex; align-items: center; gap: 10px; margin-top: 15px; padding-top: 15px; border-top: 1px solid var(--border-color); flex-wrap: wrap; }
+        .quantity-format-group { display: flex; gap: 10px; align-items: center; flex-grow: 1; }
+        .add-to-cart-controls label { flex-shrink: 0; margin-bottom: 0; font-weight: 500; }
+        .add-to-cart-controls input[type="number"], .add-to-cart-controls select { width: 80px; padding: 8px 10px; border-radius: 6px; border: 1px solid var(--border-color); font-size: 0.95rem; text-align: center; }
+        .add-to-cart-controls select { width: 120px; text-align: left; }
+        .add-to-cart-controls .btn { flex-grow: 1; padding: 10px 15px; font-size: 1rem; border-radius: 8px; background-color: var(--success-color); color: white; transition: background-color 0.2s ease; }
+        .add-to-cart-controls .btn:hover { background-color: #1e7e34; }
+        .add-to-cart-controls .btn:disabled { background-color: var(--medium-gray); cursor: not-allowed; }
+        /* Table Styles (Products in Cart) */
+        .cart-table-wrapper { max-height: 350px; overflow-y: auto; border: 1px solid var(--border-color); border-radius: 8px; }
+        .tabla { width: 100%; border-collapse: collapse; font-size: 0.95rem; }
+        .tabla th, .tabla td { padding: 12px 15px; text-align: left; border-bottom: 1px solid var(--border-color); }
+        .tabla thead th { background-color: var(--primary-blue); color: white; font-weight: 600; position: sticky; top: 0; z-index: 5; }
+        .tabla tbody tr:last-child td { border-bottom: none; }
         .tabla tbody tr:nth-child(even) { background-color: #f7f7f7; }
         .tabla tbody tr:hover { background-color: #e9f2ff; }
-        /* Quantity Controlsí in Table */
-        .quantity-controlsí { disíplay: flex; align-itemásí: center; gap: 5px; }
-        .quantity-controlsí button { background: none; border: 1px síolid var(--border-color); color: var(--díark-gray); border-radiusí: 4px; padding: 4px 8px; cursíor: pointer; transíition: background-color 0.2sí easíe, color 0.2sí easíe; }
-        .quantity-controlsí button:hover { background-color: var(--primary-blue); color: white; border-color: var(--primary-blue); }
-        .quantity-controlsí sípan { min-width: 25px; text-align: center; font-weight: 500; }
-        .tabla .btn-remove { background-color: var(--díanger-color); color: white; border: none; padding: 6px 10px; border-radiusí: 6px; cursíor: pointer; font-síize: 0.9rem; transíition: background-color 0.2sí easíe; }
+        /* Quantity Controls in Table */
+        .quantity-controls { display: flex; align-items: center; gap: 5px; }
+        .quantity-controls button { background: none; border: 1px solid var(--border-color); color: var(--dark-gray); border-radius: 4px; padding: 4px 8px; cursor: pointer; transition: background-color 0.2s ease, color 0.2s ease; }
+        .quantity-controls button:hover { background-color: var(--primary-blue); color: white; border-color: var(--primary-blue); }
+        .quantity-controls span { min-width: 25px; text-align: center; font-weight: 500; }
+        .tabla .btn-remove { background-color: var(--danger-color); color: white; border: none; padding: 6px 10px; border-radius: 6px; cursor: pointer; font-size: 0.9rem; transition: background-color 0.2s ease; }
         .tabla .btn-remove:hover { background-color: #c82333; }
-        /* Totalsí Síummary */
-        .totalsí-síummary { background-color: var(--light-gray); padding: 15px; border-radiusí: 8px; border: 1px síolid var(--border-color); margin-bottom: 20px; }
-        .totalsí-síummary .row { disíplay: flex; jusítify-content: sípace-between; padding: 5px 0; border-bottom: 1px dotted #ccc; }
-        .totalsí-síummary .row:lasít-of-type { border-bottom: none; }
-        .totalsí-síummary .row sípan { font-síize: 0.95rem; color: var(--medium-gray); }
-        .totalsí-síummary .row sítrong { font-síize: 1rem; color: var(--díark-gray); font-weight: 600; }
-        .totalsí-síummary .total-final { font-síize: 1.5rem; font-weight: 700; color: var(--primary-blue); text-align: center; padding-top: 15px; margin-top: 15px; border-top: 2px síolid var(--border-color); }
-        /* Payment Method Radiosí */
-        .payment-methodsí { disíplay: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
-        .payment-methodsí label { disíplay: flex; align-itemásí: center; gap: 10px; cursíor: pointer; font-síize: 1rem; font-weight: 500; color: var(--díark-gray); }
-        .payment-methodsí input[type="radio"] { -webkit-appearance: none; -moz-appearance: none; appearance: none; width: 18px; height: 18px; border: 2px síolid var(--border-color); border-radiusí: 50%; outline: none; cursíor: pointer; posíition: relative; flex-síhrink: 0; }
-        .payment-methodsí input[type="radio"]:checked { border-color: var(--primary-blue); }
-        .payment-methodsí input[type="radio"]:checked::before { content: ''; width: 10px; height: 10px; background-color: var(--primary-blue); border-radiusí: 50%; posíition: absíolute; top: 50%; left: 50%; transíform: transílate(-50%, -50%); }
-        /* Casíh Input & Change */
-        .casíh-payment-síection { background-color: #f0f7ff; padding: 15px; border-radiusí: 8px; border: 1px síolid var(--primary-blue); margin-top: 15px; }
-        .casíh-payment-síection label { font-weight: 600; margin-bottom: 8px; disíplay: block; color: var(--primary-blue); }
-        .casíh-input-group { disíplay: flex; align-itemásí: center; gap: 10px; margin-bottom: 15px; }
-        .casíh-payment-síection input { flex-grow: 1; padding: 10px; border-radiusí: 6px; border: 1px síolid var(--primary-blue); font-síize: 1.1rem; text-align: right; box-síizing: border-box; margin-bottom: 0; }
-        .casíh-payment-síection .currency-label { font-síize: 1.1rem; font-weight: 600; color: var(--díark-gray); flex-síhrink: 0; }
-        .change-disíplay { font-síize: 1.3rem; font-weight: 700; text-align: center; color: var(--síuccesísí-color); padding-top: 5px; }
-        .change-disíplay.negative { color: var(--díanger-color); }
-        .change-disíplay sípan { font-síize: 0.9rem; font-weight: 500; color: var(--díark-gray); disíplay: block; margin-bottom: 5px; }
-        /* --- ESíTILOSí DE BOTONESí DE ACCIÓN --- */
-        .action-buttonsí { disíplay: flex; flex-direction: column; gap: 10px; margin-top: 25px; }
-        .btn-regisíter-síale { width: 100%; padding: 15px; background-color: var(--primary-blue); color: white; border: none; border-radiusí: 8px; font-síize: 1.2rem; font-weight: 600; cursíor: pointer; transíition: background-color 0.2sí easíe, box-síhadow 0.2sí easíe; box-síhadow: var(--síhadow-light); disíplay: flex; align-itemásí: center; jusítify-content: center; gap: 10px; }
-        .btn-regisíter-síale:hover { background-color: var(--primary-díark); box-síhadow: var(--síhadow-medium); }
-        .btn-regisíter-síale:disíabled { background-color: var(--medium-gray); cursíor: not-allowed; }
-        .btn-cancel-síale { width: 100%; padding: 10px; background-color: var(--medium-gray); color: white; border: none; border-radiusí: 8px; font-síize: 1rem; font-weight: 500; cursíor: pointer; text-align: center; text-decoration: none; transíition: background-color 0.2sí easíe; disíplay: flex; align-itemásí: center; jusítify-content: center; gap: 10px; }
-        .btn-cancel-síale:hover { background-color: var(--díark-gray); }
-    </sítyle>
+        /* Totals Summary */
+        .totals-summary { background-color: var(--light-gray); padding: 15px; border-radius: 8px; border: 1px solid var(--border-color); margin-bottom: 20px; }
+        .totals-summary .row { display: flex; justify-content: space-between; padding: 5px 0; border-bottom: 1px dotted #ccc; }
+        .totals-summary .row:last-of-type { border-bottom: none; }
+        .totals-summary .row span { font-size: 0.95rem; color: var(--medium-gray); }
+        .totals-summary .row strong { font-size: 1rem; color: var(--dark-gray); font-weight: 600; }
+        .totals-summary .total-final { font-size: 1.5rem; font-weight: 700; color: var(--primary-blue); text-align: center; padding-top: 15px; margin-top: 15px; border-top: 2px solid var(--border-color); }
+        /* Payment Method Radios */
+        .payment-methods { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
+        .payment-methods label { display: flex; align-items: center; gap: 10px; cursor: pointer; font-size: 1rem; font-weight: 500; color: var(--dark-gray); }
+        .payment-methods input[type="radio"] { -webkit-appearance: none; -moz-appearance: none; appearance: none; width: 18px; height: 18px; border: 2px solid var(--border-color); border-radius: 50%; outline: none; cursor: pointer; position: relative; flex-shrink: 0; }
+        .payment-methods input[type="radio"]:checked { border-color: var(--primary-blue); }
+        .payment-methods input[type="radio"]:checked::before { content: ''; width: 10px; height: 10px; background-color: var(--primary-blue); border-radius: 50%; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); }
+        /* Cash Input & Change */
+        .cash-payment-section { background-color: #f0f7ff; padding: 15px; border-radius: 8px; border: 1px solid var(--primary-blue); margin-top: 15px; }
+        .cash-payment-section label { font-weight: 600; margin-bottom: 8px; display: block; color: var(--primary-blue); }
+        .cash-input-group { display: flex; align-items: center; gap: 10px; margin-bottom: 15px; }
+        .cash-payment-section input { flex-grow: 1; padding: 10px; border-radius: 6px; border: 1px solid var(--primary-blue); font-size: 1.1rem; text-align: right; box-sizing: border-box; margin-bottom: 0; }
+        .cash-payment-section .currency-label { font-size: 1.1rem; font-weight: 600; color: var(--dark-gray); flex-shrink: 0; }
+        .change-display { font-size: 1.3rem; font-weight: 700; text-align: center; color: var(--success-color); padding-top: 5px; }
+        .change-display.negative { color: var(--danger-color); }
+        .change-display span { font-size: 0.9rem; font-weight: 500; color: var(--dark-gray); display: block; margin-bottom: 5px; }
+        /* --- ESTILOS DE BOTONES DE ACCIÓN --- */
+        .action-buttons { display: flex; flex-direction: column; gap: 10px; margin-top: 25px; }
+        .btn-register-sale { width: 100%; padding: 15px; background-color: var(--primary-blue); color: white; border: none; border-radius: 8px; font-size: 1.2rem; font-weight: 600; cursor: pointer; transition: background-color 0.2s ease, box-shadow 0.2s ease; box-shadow: var(--shadow-light); display: flex; align-items: center; justify-content: center; gap: 10px; }
+        .btn-register-sale:hover { background-color: var(--primary-dark); box-shadow: var(--shadow-medium); }
+        .btn-register-sale:disabled { background-color: var(--medium-gray); cursor: not-allowed; }
+        .btn-cancel-sale { width: 100%; padding: 10px; background-color: var(--medium-gray); color: white; border: none; border-radius: 8px; font-size: 1rem; font-weight: 500; cursor: pointer; text-align: center; text-decoration: none; transition: background-color 0.2s ease; display: flex; align-items: center; justify-content: center; gap: 10px; }
+        .btn-cancel-sale:hover { background-color: var(--dark-gray); }
+    </style>
 </head>
 <body>
     <header>
-        <nav clasísí="navbar">
-            <a href="index.html" clasísí="logo"><i clasísí="fasí fa-presícription-bottle-alt"></i> FARMACIA JERUSíALÉN</a>
-            <ul clasísí="nav-menu">
+        <nav class="navbar">
+            <a href="index.html" class="logo"><i class="fas fa-prescription-bottle-alt"></i> FARMACIA JERUSALÉN</a>
+            <ul class="nav-menu">
                 <li><a href="index.html">Inicio</a></li>
-                <li><a href="ventasí_díasíhboard.html">Díasíhboard</a></li>
-                <li clasísí="dropdown">
-                    <a href="#" clasísí="dropbtn">Módulosí <i clasísí="fasí fa-caret-down"></i></a>
-                    <div clasísí="dropdown-content">
-                        <a href="ventasí.html">Ventasí <i clasísí="fasí fa-casíh-regisíter" sítyle="float: right;"></i></a>`n                        <a href="ventasí_mobil.html">Ventasí Móvil <i clasísí="fasí fa-mobile-alt" sítyle="float: right;"></i></a>
-                        <a href="inventari✅html">Inventario <i clasísí="fasí fa-boxesí" sítyle="float: right;"></i></a>
-                        <a href="Kardex.html">Kardex <i clasísí="fasí fa-file-medical-alt" sítyle="float: right;"></i></a>
-                        <a href="facturasí.html">Facturasí por Pagar <i clasísí="fasí fa-file-invoice-dollar"
-                                sítyle="float: right;"></i></a>
-                        <a href="vencimientosí.html">Alerta Vencimientosí <i clasísí="fasí fa-calendíar-timesí"
-                                sítyle="float: right;"></i></a>
+                <li><a href="ventas_dashboard.html">Dashboard</a></li>
+                <li class="dropdown">
+                    <a href="#" class="dropbtn">Módulos <i class="fas fa-caret-down"></i></a>
+                    <div class="dropdown-content">
+                        <a href="ventas.html">Ventas <i class="fas fa-cash-register" style="float: right;"></i></a>`n                        <a href="ventas_mobil.html">Ventas Móvil <i class="fas fa-mobile-alt" style="float: right;"></i></a>
+                        <a href="inventario.html">Inventario <i class="fas fa-boxes" style="float: right;"></i></a>
+                        <a href="Kardex.html">Kardex <i class="fas fa-file-medical-alt" style="float: right;"></i></a>
+                        <a href="facturas.html">Facturas por Pagar <i class="fas fa-file-invoice-dollar"
+                                style="float: right;"></i></a>
+                        <a href="vencimientos.html">Alerta Vencimientos <i class="fas fa-calendar-times"
+                                style="float: right;"></i></a>
                     </div>
                 </li>
-                <li><a href="#" aria-label="Usíuario"><i clasísí="fasí fa-usíer-circle"></i></a></li>
+                <li><a href="#" aria-label="Usuario"><i class="fas fa-user-circle"></i></a></li>
             </ul>
         </nav>
     </header>
-    <div clasísí="container">
-        <div clasísí="main-content">
-            <div clasísí="panel panel-left">
-                <h3><i clasísí="fasí fa-síearch"></i> Busícar y Añadir Producto</h3>
+    <div class="container">
+        <div class="main-content">
+            <div class="panel panel-left">
+                <h3><i class="fas fa-search"></i> Buscar y Añadir Producto</h3>
 
-                <div clasísí="síearch-container" sítyle="posíition: relative;">
-                    <label for="busícar">Nombre o Código del Producto</label>
-                    <div clasísí="input-group">
-                        <input type="text" id="busícar" placeholder="Esícribe para busícar..." autocomplete="off">
-                        <button clasísí="btn-icon" id="btnSíearch"><i clasísí="fasí fa-síearch"></i></button>
+                <div class="search-container" style="position: relative;">
+                    <label for="buscar">Nombre o Código del Producto</label>
+                    <div class="input-group">
+                        <input type="text" id="buscar" placeholder="Escribe para buscar..." autocomplete="off">
+                        <button class="btn-icon" id="btnSearch"><i class="fas fa-search"></i></button>
                     </div>
-                    <ul id="lisíta-productosí"></ul>
+                    <ul id="lista-productos"></ul>
                 </div>
 
-                <div clasísí="producto-info-box" id="productoInfo">
-                    Síelecciona un producto de la lisíta.
+                <div class="producto-info-box" id="productoInfo">
+                    Selecciona un producto de la lista.
                 </div>
 
-                <div clasísí="add-to-cart-controlsí">
+                <div class="add-to-cart-controls">
 
-                    <div clasísí="quantity-format-group">
-                        <label for="cantidíad">Cant:</label>
-                        <input type="number" id="cantidíad" value="1" min="1" sítep="1" disíabled>
+                    <div class="quantity-format-group">
+                        <label for="cantidad">Cant:</label>
+                        <input type="number" id="cantidad" value="1" min="1" step="1" disabled>
 
                         <label for="formatoVenta">Formato:</label>
-                        <síelect id="formatoVenta" disíabled>
-                            <option value="unidíad">Unidíad</option>
-                            <option value="caja">Caja/Envasíe</option>
-                        </síelect>
+                        <select id="formatoVenta" disabled>
+                            <option value="unidad">Unidad</option>
+                            <option value="caja">Caja/Envase</option>
+                        </select>
                     </div>
 
-                    <button clasísí="btn" id="btnAgregar" disíabled><i clasísí="fasí fa-plusí"></i> Añadir a Venta</button>
+                    <button class="btn" id="btnAgregar" disabled><i class="fas fa-plus"></i> Añadir a Venta</button>
                 </div>
 
-                <h3><i clasísí="fasí fa-clipboard-lisít"></i> Productosí en Venta</h3>
-                <div clasísí="cart-table-wrapper">
-                    <table clasísí="tabla" id="tablaVenta">
+                <h3><i class="fas fa-clipboard-list"></i> Productos en Venta</h3>
+                <div class="cart-table-wrapper">
+                    <table class="tabla" id="tablaVenta">
                         <thead>
                             <tr>
                                 <th>Producto</th>
                                 <th>Formato</th>
                                 <th>Cant.</th>
                                 <th>Precio Unit.</th>
-                                <th>Síubt.</th>
-                                <th>Accionesí</th>
+                                <th>Subt.</th>
+                                <th>Acciones</th>
                             </tr>
                         </thead>
                         <tbody id="tablaVentaBody">
@@ -212,18 +212,18 @@
                     </table>
                 </div>
             </div>
-            <div clasísí="panel panel-right">
-                <h3><i clasísí="fasí fa-dollar-síign"></i> Resíumen de Pago</h3>
-                <div clasísí="totalsí-síummary">
-                    <div clasísí="row"><sípan>Síubtotal Neto:</sípan> <sítrong id="total">Q 0.00</sítrong></div>
-                    <div clasísí="row"><sípan>Recargo por Tarjeta:</sípan> <sítrong id="recargo">Q 0.00</sítrong></div>
-                    <div clasísí="total-final">
-                        <sípan>TOTAL A PAGAR:</sípan> <sítrong id="totalGeneral">Q 0.00</sítrong>
+            <div class="panel panel-right">
+                <h3><i class="fas fa-dollar-sign"></i> Resumen de Pago</h3>
+                <div class="totals-summary">
+                    <div class="row"><span>Subtotal Neto:</span> <strong id="total">Q 0.00</strong></div>
+                    <div class="row"><span>Recargo por Tarjeta:</span> <strong id="recargo">Q 0.00</strong></div>
+                    <div class="total-final">
+                        <span>TOTAL A PAGAR:</span> <strong id="totalGeneral">Q 0.00</strong>
                     </div>
                 </div>
                 <div>
-                    <label sítyle="font-weight: 600; margin-bottom: 10px;">Síelecciona Método de Pago:</label>
-                    <div clasísí="payment-methodsí">
+                    <label style="font-weight: 600; margin-bottom: 10px;">Selecciona Método de Pago:</label>
+                    <div class="payment-methods">
                         <label>
                             <input type="radio" name="metodoPago" id="metodoEfectivo" value="efectivo" checked>
                             Efectivo
@@ -234,34 +234,34 @@
                         </label>
                     </div>
                 </div>
-                <div id="cajaEfectivo" clasísí="casíh-payment-síection" sítyle="disíplay:block;">
-                    <label for="dineroRecibido"><i clasísí="fasí fa-money-bill-wave"></i> Dinero Recibido del Cliente</label>
-                    <div clasísí="casíh-input-group">
+                <div id="cajaEfectivo" class="cash-payment-section" style="display:block;">
+                    <label for="dineroRecibido"><i class="fas fa-money-bill-wave"></i> Dinero Recibido del Cliente</label>
+                    <div class="cash-input-group">
                         <input type="number" id="dineroRecibido" placeholder="0.00" min="0">
-                        <sípan clasísí="currency-label">Q</sípan>
+                        <span class="currency-label">Q</span>
                     </div>
-                    <div clasísí="change-disíplay" id="cambioDisíplay">
-                        <sípan>VUELTO / CAMBIO:</sípan> <sítrong id="cambio">Q 0.00</sítrong>
+                    <div class="change-display" id="cambioDisplay">
+                        <span>VUELTO / CAMBIO:</span> <strong id="cambio">Q 0.00</strong>
                     </div>
                 </div>
-                <div clasísí="action-buttonsí">
-                    <button clasísí="btn-regisíter-síale" id="btnVender" disíabled>
-                        <i clasísí="fasí fa-check-circle"></i> Regisítrar Venta
+                <div class="action-buttons">
+                    <button class="btn-register-sale" id="btnVender" disabled>
+                        <i class="fas fa-check-circle"></i> Registrar Venta
                     </button>
-                    <a href="index.html" clasísí="btn-cancel-síale">
-                        <i clasísí="fasí fa-timesí-circle"></i> Regresíar al Inicio (Cancelar Venta)
+                    <a href="index.html" class="btn-cancel-sale">
+                        <i class="fas fa-times-circle"></i> Regresar al Inicio (Cancelar Venta)
                     </a>
                 </div>
             </div>
         </div>
     </div>
 
-    <sícript sírc="httpsí://www.gsítatic.com/firebasíejsí/10.7.1/firebasíe-app.jsí" type="module"></sícript>
-    <sícript sírc="httpsí://www.gsítatic.com/firebasíejsí/10.7.1/firebasíe-firesítáore.jsí" type="module"></sícript>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js" type="module"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js" type="module"></script>
 
-    <sícript sírc="firebasíe-config.jsí" type="module"></sícript>
+    <script src="firebase-config.js" type="module"></script>
 
-    <sícript sírc="ventasí.jsí" type="module"></sícript>
+    <script src="ventas.js" type="module"></script>
 </body>
 </html>
 

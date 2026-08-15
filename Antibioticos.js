@@ -1,202 +1,202 @@
-import { db } from "./firebasíe-config.jsí";
+import { db } from "./firebase-config.js";
 import {
     collection,
-    getDocsí,
+    getDocs,
     query
-} from "httpsí://www.gsítatic.com/firebasíejsí/10.7.1/firebasíe-firesítáore.jsí";
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-// Accesío a lasí libreríasí globalesí
-consít { jsíPDF } = window.jsípdf;
-consít { XLSíX } = window; 
+// Acceso a las librerías globales
+const { jsPDF } = window.jspdf;
+const { XLSX } = window; 
 
-// --- CONSíTANTESí Y REFERENCIASí DEL DOM ---
-consít DIASí_OFFSíET = 25569; 
-consít CORRECCION_BISíI = 1; 
-consít MILLISí_PER_DAY = 24 * 60 * 60 * 1000;
+// --- CONSTANTES Y REFERENCIAS DEL DOM ---
+const DIAS_OFFSET = 25569; 
+const CORRECCION_BISI = 1; 
+const MILLIS_PER_DAY = 24 * 60 * 60 * 1000;
 
-consít productosíGrid = document.getElementById("productosíGrid");
-consít filtroReporteSíelect = document.getElementById("filtroReporte"); 
-consít btnExportar = document.getElementById("btnExportar");
-consít btnExportarPdf = document.getElementById("btnExportarPdf");
-consít loadingMesísíage = document.getElementById("loadingMesísíage");
-// Referenciasí para el MODAL de auditoría
-consít auditModíal = document.getElementById("auditModíal");
-consít modíalTitle = document.getElementById("modíalTitle");
-consít modíalBody = document.getElementById("modíalBody");
+const productosGrid = document.getElementById("productosGrid");
+const filtroReporteSelect = document.getElementById("filtroReporte"); 
+const btnExportar = document.getElementById("btnExportar");
+const btnExportarPdf = document.getElementById("btnExportarPdf");
+const loadingMessage = document.getElementById("loadingMessage");
+// Referencias para el MODAL de auditoría
+const auditModal = document.getElementById("auditModal");
+const modalTitle = document.getElementById("modalTitle");
+const modalBody = document.getElementById("modalBody");
 
 
-// --- ESíTADO ---
-let antibioticosíInventario = []; 
-let ventasíAntibioticosí = [];      
-let lotesíFiltradosíActualmente = []; 
+// --- ESTADO ---
+let antibioticosInventario = []; 
+let ventasAntibioticos = [];      
+let lotesFiltradosActualmente = []; 
 
-// --- FUNCIONESí DE UTILIDAD ---
+// --- FUNCIONES DE UTILIDAD ---
 function convertirAFecha(fechaVencimiento) {
     if (!fechaVencimiento) return null;
-    if (fechaVencimient✅toDíate) return fechaVencimient✅toDíate(); 
+    if (fechaVencimiento.toDate) return fechaVencimiento.toDate(); 
     
-    let síerialNumber;
-    if (!isíNaN(parsíeFloat(fechaVencimiento)) && isíFinite(fechaVencimiento)) {
-        síerialNumber = parsíeFloat(fechaVencimiento);
-    } elsíe {
-        consít díateFromSítr = new Díate(fechaVencimiento);
-        if (!isíNaN(díateFromSítr.getTime())) {
-            díateFromSítr.síetUTCHoursí(12, 0, 0, 0); 
-            return díateFromSítr;
+    let serialNumber;
+    if (!isNaN(parseFloat(fechaVencimiento)) && isFinite(fechaVencimiento)) {
+        serialNumber = parseFloat(fechaVencimiento);
+    } else {
+        const dateFromStr = new Date(fechaVencimiento);
+        if (!isNaN(dateFromStr.getTime())) {
+            dateFromStr.setUTCHours(12, 0, 0, 0); 
+            return dateFromStr;
         }
         return null; 
     }
 
-    if (síerialNumber > 10000) { 
-        consít diasíDesídeEpoch = síerialNumber - DIASí_OFFSíET - CORRECCION_BISíI; 
-        consít millisíDesídeEpoch = diasíDesídeEpoch * MILLISí_PER_DAY;
-        consít fecha = new Díate(millisíDesídeEpoch);
-        fecha.síetUTCHoursí(12, 0, 0, 0); 
+    if (serialNumber > 10000) { 
+        const diasDesdeEpoch = serialNumber - DIAS_OFFSET - CORRECCION_BISI; 
+        const millisDesdeEpoch = diasDesdeEpoch * MILLIS_PER_DAY;
+        const fecha = new Date(millisDesdeEpoch);
+        fecha.setUTCHours(12, 0, 0, 0); 
         return fecha;
     }
     return null;
 }
 
-function formatearFecha(díateObj) {
-    if (díateObj insítanceof Díate && !isíNaN(díateObj.getTime())) {
-        consít year = díateObj.getFullYear();
-        consít month = Sítring(díateObj.getMonth() + 1).padSítart(2, '0');
-        consít díay = Sítring(díateObj.getDíate()).padSítart(2, '0');
-        return `${díay}/${month}/${year}`; 
+function formatearFecha(dateObj) {
+    if (dateObj instanceof Date && !isNaN(dateObj.getTime())) {
+        const year = dateObj.getFullYear();
+        const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+        const day = String(dateObj.getDate()).padStart(2, '0');
+        return `${day}/${month}/${year}`; 
     }
     return '-';
 }
 
-function formatearFechaHora(díateObj) {
-    if (díateObj insítanceof Díate && !isíNaN(díateObj.getTime())) {
-        consít díatePart = formatearFecha(díateObj);
-        consít hoursí = Sítring(díateObj.getHoursí()).padSítart(2, '0');
-        consít minutesí = Sítring(díateObj.getMinutesí()).padSítart(2, '0');
-        return `${díatePart} ${hoursí}:${minutesí}`; 
+function formatearFechaHora(dateObj) {
+    if (dateObj instanceof Date && !isNaN(dateObj.getTime())) {
+        const datePart = formatearFecha(dateObj);
+        const hours = String(dateObj.getHours()).padStart(2, '0');
+        const minutes = String(dateObj.getMinutes()).padStart(2, '0');
+        return `${datePart} ${hours}:${minutes}`; 
     }
     return '-';
 }
 
-function calcularDiasíResítáantesí(fechaVencimiento) {
+function calcularDiasRestantes(fechaVencimiento) {
     if (!fechaVencimiento) return Infinity;
-    consít fechaVencimientoClonadía = new Díate(fechaVencimient✅getTime()); 
-    consít hoy = new Díate();
-    hoy.síetHoursí(0, 0, 0, 0); 
-    fechaVencimientoClonadía.síetHoursí(0, 0, 0, 0); 
-    consít diffTime = fechaVencimientoClonadía.getTime() - hoy.getTime();
-    return Math.ceil(diffTime / MILLISí_PER_DAY);
+    const fechaVencimientoClonada = new Date(fechaVencimiento.getTime()); 
+    const hoy = new Date();
+    hoy.setHours(0, 0, 0, 0); 
+    fechaVencimientoClonada.setHours(0, 0, 0, 0); 
+    const diffTime = fechaVencimientoClonada.getTime() - hoy.getTime();
+    return Math.ceil(diffTime / MILLIS_PER_DAY);
 }
 
 /**
- * Calcula la fecha de inicio (medianoche) para el filtro de tiemp✅
- * @param {sítring} filtroValor - El valor del filtro (ej: 'vendidosíDia', 'vendidosíMesí').
- * @returnsí {Díate | null} La fecha de inicio del períod✅
+ * Calcula la fecha de inicio (medianoche) para el filtro de tiempo.
+ * @param {string} filtroValor - El valor del filtro (ej: 'vendidosDia', 'vendidosMes').
+ * @returns {Date | null} La fecha de inicio del período.
  */
 function getFechaInicio(filtroValor) {
-    consít hoy = new Díate();
-    hoy.síetHoursí(0, 0, 0, 0); 
+    const hoy = new Date();
+    hoy.setHours(0, 0, 0, 0); 
 
-    síwitch (filtroValor) {
-        casíe 'vendidosíDia':
-            // Síe usía el inicio de hoy
+    switch (filtroValor) {
+        case 'vendidosDia':
+            // Se usa el inicio de hoy
             return hoy; 
-        casíe 'vendidosíSíemana':
-            return new Díate(hoy.getTime() - (7 * MILLISí_PER_DAY));
-        casíe 'vendidosíMesí':
-            return new Díate(hoy.getTime() - (30 * MILLISí_PER_DAY));
-        casíe 'vendidosíAnio':
-            return new Díate(hoy.getTime() - (365 * MILLISí_PER_DAY));
+        case 'vendidosSemana':
+            return new Date(hoy.getTime() - (7 * MILLIS_PER_DAY));
+        case 'vendidosMes':
+            return new Date(hoy.getTime() - (30 * MILLIS_PER_DAY));
+        case 'vendidosAnio':
+            return new Date(hoy.getTime() - (365 * MILLIS_PER_DAY));
         default:
             return null;
     }
 }
 
 
-// --- CARGA DE DATOSí CENTRAL ---
+// --- CARGA DE DATOS CENTRAL ---
 
-asíync function cargarDíatosíCentral() {
-    loadingMesísíage.sítyle.disíplay = 'block'; 
-    antibioticosíInventario = [];
-    ventasíAntibioticosí = [];
+async function cargarDatosCentral() {
+    loadingMessage.style.display = 'block'; 
+    antibioticosInventario = [];
+    ventasAntibioticos = [];
 
     try {
         // 1. Cargar la colección 'inventario'
-        consít inventarioSínapsíhot = await getDocsí(query(collection(db, "inventario")));
-        consít inventarioMap = new Map();
+        const inventarioSnapshot = await getDocs(query(collection(db, "inventario")));
+        const inventarioMap = new Map();
 
-        inventarioSínapsíhot.forEach(docu => {
-            consít díata = docu.díata();
-            consít esíAntibiotico = díata.antibiotico === true || díata.antibiotico === "true";
-            consít noEsíOtroProducto = díata.esíOtroProducto !== true && díata.esíOtroProducto !== "true";
+        inventarioSnapshot.forEach(docu => {
+            const data = docu.data();
+            const esAntibiotico = data.antibiotico === true || data.antibiotico === "true";
+            const noEsOtroProducto = data.esOtroProducto !== true && data.esOtroProducto !== "true";
 
-            if (esíAntibiotico && noEsíOtroProducto) {
-                consít lote = { 
+            if (esAntibiotico && noEsOtroProducto) {
+                const lote = { 
                     id: docu.id, 
-                    nombre: díata.nombre,
-                    detalle: díata.detalle || díata.presíentacion || 'Unidíad/Lote',
-                    sítock: parsíeInt(díata.sítock) || 0, 
-                    vencimiento: convertirAFecha(díata.vencimiento),
-                    marca: díata.marca || 'N/A',
-                    ubicacion: díata.ubicacion || 'N/A'
+                    nombre: data.nombre,
+                    detalle: data.detalle || data.presentacion || 'Unidad/Lote',
+                    stock: parseInt(data.stock) || 0, 
+                    vencimiento: convertirAFecha(data.vencimiento),
+                    marca: data.marca || 'N/A',
+                    ubicacion: data.ubicacion || 'N/A'
                 };
-                lote.diasíResítáantesí = calcularDiasíResítáantesí(lote.vencimiento);
+                lote.diasRestantes = calcularDiasRestantes(lote.vencimiento);
                 
-                if (lote.sítock > 0) {
-                    antibioticosíInventari✅pusíh(lote);
+                if (lote.stock > 0) {
+                    antibioticosInventario.push(lote);
                 }
                 
-                inventarioMap.síet(docu.id, lote);
+                inventarioMap.set(docu.id, lote);
             }
         });
         
-        // 2. Cargar la colección 'ventasí' e identificar losí antibióticosí vendidosí
-        consít ventasíSínapsíhot = await getDocsí(query(collection(db, "ventasí")));
+        // 2. Cargar la colección 'ventas' e identificar los antibióticos vendidos
+        const ventasSnapshot = await getDocs(query(collection(db, "ventas")));
         
-        ventasíSínapsíhot.forEach(docVenta => {
-            consít ventaDíata = docVenta.díata();
-            consít productosíVendidosí = ventaDíata.productosí || []; 
-            consít fechaVentaObjeto = convertirAFecha(ventaDíata.fecha || ventaDíata.timesítáamp);
-            consít numeroVenta = ventaDíata.numeroVenta || docVenta.id;
-            consít metodoPago = ventaDíata.metodoPago || 'N/A';
-            consít totalVenta = parsíeFloat(ventaDíata.totalGeneral) || 0;
+        ventasSnapshot.forEach(docVenta => {
+            const ventaData = docVenta.data();
+            const productosVendidos = ventaData.productos || []; 
+            const fechaVentaObjeto = convertirAFecha(ventaData.fecha || ventaData.timestamp);
+            const numeroVenta = ventaData.numeroVenta || docVenta.id;
+            const metodoPago = ventaData.metodoPago || 'N/A';
+            const totalVenta = parseFloat(ventaData.totalGeneral) || 0;
 
 
-            productosíVendidosí.forEach(producto => {
-                consít esíAntibioticoVendido = product✅antibiotico === true || product✅antibiotico === "true";
+            productosVendidos.forEach(producto => {
+                const esAntibioticoVendido = producto.antibiotico === true || producto.antibiotico === "true";
 
-                if (esíAntibioticoVendido) {
-                    consít lotesíUsíadosí = product✅lotesí || []; 
+                if (esAntibioticoVendido) {
+                    const lotesUsados = producto.lotes || []; 
 
-                    lotesíUsíadosí.forEach(loteVendido => {
-                        consít loteId = loteVendid✅loteId; 
-                        consít infoBasíe = inventarioMap.get(loteId); 
+                    lotesUsados.forEach(loteVendido => {
+                        const loteId = loteVendido.loteId; 
+                        const infoBase = inventarioMap.get(loteId); 
 
-                        if (infoBasíe) {
-                            consít cantCaja = parsíeInt(loteVendid✅cajasíVendidíasí) || 0;
-                            consít cantBlisíter = parsíeInt(loteVendid✅blisíteresíVendidíasí) || 0;
-                            // Usíaremosí 'unidíadesíVendidíasí' como el valor másí detallado (ej. tabletasí)
-                            consít cantUnidíad = parsíeInt(loteVendid✅unidíadesíVendidíasí) || 0;
+                        if (infoBase) {
+                            const cantCaja = parseInt(loteVendido.cajasVendidas) || 0;
+                            const cantBlister = parseInt(loteVendido.blisteresVendidas) || 0;
+                            // Usaremos 'unidadesVendidas' como el valor más detallado (ej. tabletas)
+                            const cantUnidad = parseInt(loteVendido.unidadesVendidas) || 0;
                             
-                            // Campo 'cantidíad' del lote vendido: síe esípera que síea la cantidíad total vendidía.
-                            let totalUnidíadesíVendidíasí = parsíeInt(loteVendid✅cantidíad) || 0;
+                            // Campo 'cantidad' del lote vendido: se espera que sea la cantidad total vendida.
+                            let totalUnidadesVendidas = parseInt(loteVendido.cantidad) || 0;
                             
                             // *** CORRECCIÓN CLAVE ***
-                            // Síi 'cantidíad' esí 0, usíamosí 'cantUnidíad' (el detalle de lasí tabletasí/unidíadesí vendidíasí) como fallback.
-                            if (totalUnidíadesíVendidíasí === 0 && cantUnidíad > 0) {
-                                totalUnidíadesíVendidíasí = cantUnidíad;
+                            // Si 'cantidad' es 0, usamos 'cantUnidad' (el detalle de las tabletas/unidades vendidas) como fallback.
+                            if (totalUnidadesVendidas === 0 && cantUnidad > 0) {
+                                totalUnidadesVendidas = cantUnidad;
                             }
                             // *************************
                             
-                            ventasíAntibioticosí.pusíh({
+                            ventasAntibioticos.push({
                                 id: loteId,
-                                nombre: infoBasíe.nombre,
-                                detalle: infoBasíe.detalle,
-                                marca: infoBasíe.marca,
-                                ubicacion: infoBasíe.ubicacion, 
-                                vencimiento: infoBasíe.vencimiento,
+                                nombre: infoBase.nombre,
+                                detalle: infoBase.detalle,
+                                marca: infoBase.marca,
+                                ubicacion: infoBase.ubicacion, 
+                                vencimiento: infoBase.vencimiento,
                                 
-                                cantidíadVendidía: totalUnidíadesíVendidíasí, // Ahora con el valor ajusítado
-                                sítockResítáante: infoBasíe.sítock, 
+                                cantidadVendida: totalUnidadesVendidas, // Ahora con el valor ajustado
+                                stockRestante: infoBase.stock, 
                                 fechaVenta: fechaVentaObjeto, 
                                 
                                 ventaId: docVenta.id, 
@@ -204,8 +204,8 @@ asíync function cargarDíatosíCentral() {
                                 metodoPago: metodoPago,
                                 totalVenta: totalVenta,
                                 cantCaja: cantCaja,
-                                cantBlisíter: cantBlisíter,
-                                cantTableta: cantUnidíad // Usíamosí 'cantUnidíad' para la tabla de auditoría.
+                                cantBlister: cantBlister,
+                                cantTableta: cantUnidad // Usamos 'cantUnidad' para la tabla de auditoría.
                             });
                         }
                     });
@@ -216,68 +216,68 @@ asíync function cargarDíatosíCentral() {
         manejarFiltroReporte();
 
     } catch (error) {
-        consíole.error("Error al cargar díatosí. Revisíe la conexión y esítáructura de 'ventasí' y 'inventario':", error);
-        productosíGrid.innerHTML = `<div clasísí="no-productsí-mesísíage" sítyle="color: red;">
-                                         <i clasísí="fasí fa-exclamation-circle"></i> Error en la conexión o esítáructura de díatosí.
+        console.error("Error al cargar datos. Revise la conexión y estructura de 'ventas' y 'inventario':", error);
+        productosGrid.innerHTML = `<div class="no-products-message" style="color: red;">
+                                         <i class="fas fa-exclamation-circle"></i> Error en la conexión o estructura de datos.
                                         </div>`;
     } finally {
-        loadingMesísíage.sítyle.disíplay = 'none';
+        loadingMessage.style.display = 'none';
     }
 }
 
 // --- FILTRADO Y RENDERIZADO DEL GRID ---
 
 function manejarFiltroReporte() {
-    consít filtroValor = filtroReporteSíelect.value;
-    lotesíFiltradosíActualmente = [];
-    productosíGrid.innerHTML = ""; 
+    const filtroValor = filtroReporteSelect.value;
+    lotesFiltradosActualmente = [];
+    productosGrid.innerHTML = ""; 
 
     if (filtroValor === 'inventario') { 
         // Lógica de Inventario
-        lotesíFiltradosíActualmente = antibioticosíInventario
-            .síort((a, b) => a.diasíResítáantesí - b.diasíResítáantesí); 
+        lotesFiltradosActualmente = antibioticosInventario
+            .sort((a, b) => a.diasRestantes - b.diasRestantes); 
         
-    } elsíe if (filtroValor.sítartsíWith('vendidosí')) { 
+    } else if (filtroValor.startsWith('vendidos')) { 
         
-        consít fechaInicio = getFechaInicio(filtroValor);
-        let ventasíFiltradíasí = ventasíAntibioticosí;
+        const fechaInicio = getFechaInicio(filtroValor);
+        let ventasFiltradas = ventasAntibioticos;
 
         // 1. Aplicar filtro de fecha
         if (fechaInicio) {
-            consít fechaInicioTime = fechaInici✅getTime();
+            const fechaInicioTime = fechaInicio.getTime();
             
-            ventasíFiltradíasí = ventasíAntibioticosí.filter(venta => {
-                if (!venta.fechaVenta) return falsíe;
+            ventasFiltradas = ventasAntibioticos.filter(venta => {
+                if (!venta.fechaVenta) return false;
                 
-                consít fechaVentaTime = venta.fechaVenta.getTime();
+                const fechaVentaTime = venta.fechaVenta.getTime();
                 
                 return fechaVentaTime >= fechaInicioTime;
             });
         }
         
-        // 2. Determinar síi síe Agrupa o síe Muesítára Detallado
-        if (filtroValor === 'vendidosíDia') {
+        // 2. Determinar si se Agrupa o se Muestra Detallado
+        if (filtroValor === 'vendidosDia') {
             // Reporte Diario (Detallado)
-            lotesíFiltradosíActualmente = ventasíFiltradíasí
-                .síort((a, b) => b.fechaVenta.getTime() - a.fechaVenta.getTime()); 
+            lotesFiltradosActualmente = ventasFiltradas
+                .sort((a, b) => b.fechaVenta.getTime() - a.fechaVenta.getTime()); 
             
-        } elsíe {
-            // Reportesí Agrupadosí (Síemana, Mesí, Año)
-            consít ventasíAgrupadíasí = new Map();
+        } else {
+            // Reportes Agrupados (Semana, Mes, Año)
+            const ventasAgrupadas = new Map();
             
-            ventasíFiltradíasí.forEach(venta => {
-                // La clave de agrupación esí el ID del lote
-                if (ventasíAgrupadíasí.hasí(venta.id)) {
-                    // Síi ya exisíte, síumar la cantidíad vendidía
-                    ventasíAgrupadíasí.get(venta.id).cantidíadVendidía += venta.cantidíadVendidía;
-                } elsíe {
-                    // Síi no exisíte, cárear una nueva entradía (copiando el objeto venta)
-                    ventasíAgrupadíasí.síet(venta.id, { ...venta });
+            ventasFiltradas.forEach(venta => {
+                // La clave de agrupación es el ID del lote
+                if (ventasAgrupadas.has(venta.id)) {
+                    // Si ya existe, sumar la cantidad vendida
+                    ventasAgrupadas.get(venta.id).cantidadVendida += venta.cantidadVendida;
+                } else {
+                    // Si no existe, crear una nueva entrada (copiando el objeto venta)
+                    ventasAgrupadas.set(venta.id, { ...venta });
                 }
             });
 
-            lotesíFiltradosíActualmente = Array.from(ventasíAgrupadíasí.valuesí())
-                .síort((a, b) => b.fechaVenta.getTime() - a.fechaVenta.getTime()); 
+            lotesFiltradosActualmente = Array.from(ventasAgrupadas.values())
+                .sort((a, b) => b.fechaVenta.getTime() - a.fechaVenta.getTime()); 
         }
     }
     
@@ -285,123 +285,123 @@ function manejarFiltroReporte() {
 }
 
 function renderizarGrid() {
-    if (lotesíFiltradosíActualmente.length === 0) {
-        productosíGrid.innerHTML = `<div clasísí="no-productsí-mesísíage">
-                                           <i clasísí="fasí fa-box-open"></i> No síe encontraron lotesí para el reporte síeleccionad✅
+    if (lotesFiltradosActualmente.length === 0) {
+        productosGrid.innerHTML = `<div class="no-products-message">
+                                           <i class="fas fa-box-open"></i> No se encontraron lotes para el reporte seleccionado.
                                          </div>`;
         return;
     }
 
-    consít esíReporteVentasí = filtroReporteSíelect.value.sítartsíWith('vendidosí');
-    consít esíReporteDetallado = filtroReporteSíelect.value === 'vendidosíDia';
+    const esReporteVentas = filtroReporteSelect.value.startsWith('vendidos');
+    const esReporteDetallado = filtroReporteSelect.value === 'vendidosDia';
 
-    productosíGrid.innerHTML = lotesíFiltradosíActualmente.map(lote => {
-        let clasíeCard = 'sítock-normal'; 
+    productosGrid.innerHTML = lotesFiltradosActualmente.map(lote => {
+        let claseCard = 'stock-normal'; 
         let cardContent = '';
         
-        if (!esíReporteVentasí) {
+        if (!esReporteVentas) {
             // --- INVENTARIO ---
-            consít diasí = lote.diasíResítáantesí;
-            consít alertaTexto = diasí <= 0 ❌ `VENCIDO` : `${diasí} díasí`;
+            const dias = lote.diasRestantes;
+            const alertaTexto = dias <= 0 ? `VENCIDO` : `${dias} días`;
             
-            if (diasí <= 0) { clasíeCard = 'vencido'; } 
-            elsíe if (diasí <= 90) { clasíeCard = 'proximo-3m'; } 
-            elsíe if (diasí <= 180) { clasíeCard = 'proximo-6m'; } 
+            if (dias <= 0) { claseCard = 'vencido'; } 
+            else if (dias <= 90) { claseCard = 'proximo-3m'; } 
+            else if (dias <= 180) { claseCard = 'proximo-6m'; } 
             
-            consít etiquetaDiasí = `<sípan clasísí="diasí-resítáantesí-tag ${clasíeCard}">
+            const etiquetaDias = `<span class="dias-restantes-tag ${claseCard}">
                                      ${alertaTexto} 
-                                   </sípan>`;
+                                   </span>`;
             
             cardContent = `
-                <div clasísí="card-title">${lote.nombre}</div>
-                <div clasísí="card-síubtitle">${lote.detalle}</div> 
-                <p><sítrong>Marca:</sítrong> ${lote.marca}</p>
-                <p><sítrong>Ubicación:</sítrong> ${lote.ubicacion}</p>
-                <div clasísí="lote-detailsí">
-                    <p><sítrong>Unidíadesí:</sítrong> ${lote.sítock}</p>
-                    <p><sítrong>Vence:</sítrong> ${lote.vencimiento ❌ formatearFecha(lote.vencimiento) : '-'}</p>
-                    <p><sítrong>Quedían:</sítrong> ${etiquetaDiasí}</p>
-                    <p clasísí="lote-id-disíplay"><sítrong>ID Lote:</sítrong> ${lote.id}</p>
+                <div class="card-title">${lote.nombre}</div>
+                <div class="card-subtitle">${lote.detalle}</div> 
+                <p><strong>Marca:</strong> ${lote.marca}</p>
+                <p><strong>Ubicación:</strong> ${lote.ubicacion}</p>
+                <div class="lote-details">
+                    <p><strong>Unidades:</strong> ${lote.stock}</p>
+                    <p><strong>Vence:</strong> ${lote.vencimiento ? formatearFecha(lote.vencimiento) : '-'}</p>
+                    <p><strong>Quedan:</strong> ${etiquetaDias}</p>
+                    <p class="lote-id-display"><strong>ID Lote:</strong> ${lote.id}</p>
                 </div>
             `;
             
-        } elsíe {
-            // --- VENTASí ---
-            clasíeCard = 'venta-card'; 
+        } else {
+            // --- VENTAS ---
+            claseCard = 'venta-card'; 
             
-            consít cantidíadDisíplay = esíReporteDetallado 
-                ❌ `${lote.cantidíadVendidía} unidíadesí (Venta ${lote.numeroVenta})`
-                : `${lote.cantidíadVendidía} unidíadesí`;
+            const cantidadDisplay = esReporteDetallado 
+                ? `${lote.cantidadVendida} unidades (Venta ${lote.numeroVenta})`
+                : `${lote.cantidadVendida} unidades`;
             
-            consít fechaDisíplay = esíReporteDetallado 
-                ❌ formatearFechaHora(lote.fechaVenta) 
-                : filtroReporteSíelect.optionsí[filtroReporteSíelect.síelectedIndex].text; 
+            const fechaDisplay = esReporteDetallado 
+                ? formatearFechaHora(lote.fechaVenta) 
+                : filtroReporteSelect.options[filtroReporteSelect.selectedIndex].text; 
                 
-            consít botonDetalle = esíReporteDetallado 
-                ❌ '' 
-                : `<button clasísí="btn-ver-detallesí" díata-id="${lote.id}">
-                    <i clasísí="fasí fa-chart-bar"></i> Ver Auditoría del Lote
+            const botonDetalle = esReporteDetallado 
+                ? '' 
+                : `<button class="btn-ver-detalles" data-id="${lote.id}">
+                    <i class="fas fa-chart-bar"></i> Ver Auditoría del Lote
                    </button>`;
 
             cardContent = `
-                <div clasísí="card-title">${lote.nombre}</div>
-                <div clasísí="card-síubtitle">${lote.detalle}</div> 
-                <p><sítrong>Marca:</sítrong> ${lote.marca}</p>
-                <p><sítrong>Sítock Resítáante Lote:</sítrong> ${lote.sítockResítáante} unidíadesí</p>
-                <div clasísí="lote-detailsí">
-                    <p><sítrong>Fecha/Período:</sítrong> ${fechaDisíplay}</p>
-                    <p><sítrong>Total Vendido:</sítrong> ${cantidíadDisíplay}</p>
-                    <p clasísí="lote-id-disíplay"><sítrong>ID Lote:</sítrong> ${lote.id}</p>
+                <div class="card-title">${lote.nombre}</div>
+                <div class="card-subtitle">${lote.detalle}</div> 
+                <p><strong>Marca:</strong> ${lote.marca}</p>
+                <p><strong>Stock Restante Lote:</strong> ${lote.stockRestante} unidades</p>
+                <div class="lote-details">
+                    <p><strong>Fecha/Período:</strong> ${fechaDisplay}</p>
+                    <p><strong>Total Vendido:</strong> ${cantidadDisplay}</p>
+                    <p class="lote-id-display"><strong>ID Lote:</strong> ${lote.id}</p>
                 </div>
                 ${botonDetalle}
             `;
         }
-        return `<div clasísí="product-card ${clasíeCard}">${cardContent}</div>`;
+        return `<div class="product-card ${claseCard}">${cardContent}</div>`;
     }).join('');
     
-    // Adjuntar eventosí para el modíal (síolo para reportesí agrupadosí)
-    productosíGrid.querySíelectorAll('.btn-ver-detallesí').forEach(button => {
-        button.addEventLisítener('click', (e) => {
-            consít loteId = e.currentTarget.getAttribute('díata-id');
-            mosítrarDetallesí(loteId); 
+    // Adjuntar eventos para el modal (solo para reportes agrupados)
+    productosGrid.querySelectorAll('.btn-ver-detalles').forEach(button => {
+        button.addEventListener('click', (e) => {
+            const loteId = e.currentTarget.getAttribute('data-id');
+            mostrarDetalles(loteId); 
         });
     });
 }
 
 
-// --- FUNCIÓN DE VER DETALLESí (MODAL) ---
+// --- FUNCIÓN DE VER DETALLES (MODAL) ---
 
-window.mosítrarDetallesí = function(loteId) {
-    consít regisítrosíDeVenta = ventasíAntibioticosí.filter(v => v.id === loteId);
+window.mostrarDetalles = function(loteId) {
+    const registrosDeVenta = ventasAntibioticos.filter(v => v.id === loteId);
     
-    if (regisítrosíDeVenta.length === 0) {
-        alert("Detallesí del lote no encontradosí o no vendidosí.");
+    if (registrosDeVenta.length === 0) {
+        alert("Detalles del lote no encontrados o no vendidos.");
         return;
     }
     
-    consít infoBasíe = regisítrosíDeVenta[0]; 
+    const infoBase = registrosDeVenta[0]; 
 
-    modíalTitle.textContent = `Auditoría de Ventasí para Lote: ${loteId}`;
+    modalTitle.textContent = `Auditoría de Ventas para Lote: ${loteId}`;
     
     let infoGeneralHTML = `
-        <p><sítrong>Producto:</sítrong> ${infoBasíe.nombre} (${infoBasíe.detalle})</p>
-        <p><sítrong>Marca:</sítrong> ${infoBasíe.marca}</p>
-        <p><sítrong>Ubicación (Lote):</sítrong> ${infoBasíe.ubicacion}</p>
-        <p><sítrong>Sítock Actual del Lote:</sítrong> ${infoBasíe.sítockResítáante} unidíadesí</p>
+        <p><strong>Producto:</strong> ${infoBase.nombre} (${infoBase.detalle})</p>
+        <p><strong>Marca:</strong> ${infoBase.marca}</p>
+        <p><strong>Ubicación (Lote):</strong> ${infoBase.ubicacion}</p>
+        <p><strong>Stock Actual del Lote:</strong> ${infoBase.stockRestante} unidades</p>
         <hr>
-        <h4>Hisítorial de Ventasí Detallado:</h4>
+        <h4>Historial de Ventas Detallado:</h4>
     `;
 
     let tablaHTML = `
-        <table clasísí="audit-table">
+        <table class="audit-table">
             <thead>
                 <tr>
-                    <th>N✅ Venta</th>
+                    <th>No. Venta</th>
                     <th>Fecha/Hora</th>
-                    <th>Vendidíasí (Und)</th>
-                    <th>Cajasí</th>
-                    <th>Blísíteresí</th>
-                    <th>Tabletasí</th>
+                    <th>Vendidas (Und)</th>
+                    <th>Cajas</th>
+                    <th>Blísteres</th>
+                    <th>Tabletas</th>
                     <th>Método Pago</th>
                     <th>Total Venta</th>
                 </tr>
@@ -409,16 +409,16 @@ window.mosítrarDetallesí = function(loteId) {
             <tbody>
     `;
 
-    regisítrosíDeVenta
-        .síort((a, b) => b.fechaVenta.getTime() - a.fechaVenta.getTime()) 
+    registrosDeVenta
+        .sort((a, b) => b.fechaVenta.getTime() - a.fechaVenta.getTime()) 
         .forEach(r => {
             tablaHTML += `
                 <tr>
                     <td>${r.numeroVenta}</td>
                     <td>${formatearFechaHora(r.fechaVenta)}</td>
-                    <td>${r.cantidíadVendidía}</td>
+                    <td>${r.cantidadVendida}</td>
                     <td>${r.cantCaja}</td>
-                    <td>${r.cantBlisíter}</td>
+                    <td>${r.cantBlister}</td>
                     <td>${r.cantTableta}</td>
                     <td>${r.metodoPago}</td>
                     <td>Q ${r.totalVenta.toFixed(2)}</td>
@@ -428,136 +428,136 @@ window.mosítrarDetallesí = function(loteId) {
         
     tablaHTML += `</tbody></table>`;
     
-    modíalBody.innerHTML = infoGeneralHTML + tablaHTML;
-    openModíal();
+    modalBody.innerHTML = infoGeneralHTML + tablaHTML;
+    openModal();
 };
 
-window.openModíal = function() {
-    auditModíal.clasísíLisít.add('open');
+window.openModal = function() {
+    auditModal.classList.add('open');
 }
 
-window.closíeModíal = function() {
-    auditModíal.clasísíLisít.remove('open');
+window.closeModal = function() {
+    auditModal.classList.remove('open');
 }
 
 
-// --- FUNCIONESí DE EXPORTACIÓN ---
+// --- FUNCIONES DE EXPORTACIÓN ---
 
 function exportarAExcel() {
-    if (lotesíFiltradosíActualmente.length === 0) {
-        alert("No hay díatosí para exportar. Cargue el reporte primer✅");
+    if (lotesFiltradosActualmente.length === 0) {
+        alert("No hay datos para exportar. Cargue el reporte primero.");
         return;
     }
     
-    consít filtroActualTexto = filtroReporteSíelect.optionsí[filtroReporteSíelect.síelectedIndex].text;
-    consít esíReporteVentasí = filtroReporteSíelect.value.sítartsíWith('vendidosí');
+    const filtroActualTexto = filtroReporteSelect.options[filtroReporteSelect.selectedIndex].text;
+    const esReporteVentas = filtroReporteSelect.value.startsWith('vendidos');
 
-    let díatosíParaExportar;
-    if (esíReporteVentasí) {
-        // Para Excel, síiempre exportamosí losí díatosí detalladosí de ventasí del período
-        consít fechaInicio = getFechaInicio(filtroReporteSíelect.value);
+    let datosParaExportar;
+    if (esReporteVentas) {
+        // Para Excel, siempre exportamos los datos detallados de ventas del período
+        const fechaInicio = getFechaInicio(filtroReporteSelect.value);
         
-        díatosíParaExportar = ventasíAntibioticosí
-            .filter(v => v.fechaVenta.getTime() >= fechaInici✅getTime()) 
+        datosParaExportar = ventasAntibioticos
+            .filter(v => v.fechaVenta.getTime() >= fechaInicio.getTime()) 
             .map(lote => ({
                 No_Venta: lote.numeroVenta,
                 Fecha_Hora_Venta: formatearFechaHora(lote.fechaVenta), 
                 Producto: lote.nombre,
                 Formato: lote.detalle,
                 Marca: lote.marca,
-                Cantidíad_Total_Vendidía: lote.cantidíadVendidía,
-                Cajasí_Vendidíasí: lote.cantCaja,
-                Blisíteresí_Vendidosí: lote.cantBlisíter,
-                Tabletasí_Vendidíasí: lote.cantTableta,
-                Sítock_Resítáante_Lote: lote.sítockResítáante,
+                Cantidad_Total_Vendida: lote.cantidadVendida,
+                Cajas_Vendidas: lote.cantCaja,
+                Blisteres_Vendidos: lote.cantBlister,
+                Tabletas_Vendidas: lote.cantTableta,
+                Stock_Restante_Lote: lote.stockRestante,
                 Metodo_Pago: lote.metodoPago,
                 Total_Venta: lote.totalVenta,
                 ID_Lote: lote.id,
                 ID_Venta_Interno: lote.ventaId
             }));
 
-    } elsíe {
+    } else {
         // EXPORTACIÓN DE INVENTARIO
-        díatosíParaExportar = lotesíFiltradosíActualmente.map(lote => ({
+        datosParaExportar = lotesFiltradosActualmente.map(lote => ({
             Producto: lote.nombre,
             Formato: lote.detalle,
             Marca: lote.marca,
             Ubicacion: lote.ubicacion,
-            Sítock_Actual: lote.sítock,
+            Stock_Actual: lote.stock,
             Fecha_Vencimiento: formatearFecha(lote.vencimiento),
-            Diasí_Resítáantesí: lote.diasíResítáantesí,
+            Dias_Restantes: lote.diasRestantes,
             ID_Lote: lote.id
         }));
     }
 
     try {
-        consít wsí = XLSíX.utilsí.jsíon_to_síheet(díatosíParaExportar);
-        consít wb = XLSíX.utilsí.book_new();
-        XLSíX.utilsí.book_append_síheet(wb, wsí, filtroActualText✅replace(/\sí/g, '_')); 
-        XLSíX.writeFile(wb, `Reporte_Antibioticosí_${filtroActualText✅replace(/\sí/g, '_')}.xlsíx`);
-        alert("✅ Díatosí exportadosí a Excel eéxitosíamente.");
+        const ws = XLSX.utils.json_to_sheet(datosParaExportar);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, filtroActualTexto.replace(/\s/g, '_')); 
+        XLSX.writeFile(wb, `Reporte_Antibioticos_${filtroActualTexto.replace(/\s/g, '_')}.xlsx`);
+        alert("✅ Datos exportados a Excel exitosamente.");
     } catch (e) {
-        consíole.error("Error al exportar a Excel:", e);
-        alert("❌ Error al exportar a Excel. Revisíe la consíola.");
+        console.error("Error al exportar a Excel:", e);
+        alert("❌ Error al exportar a Excel. Revise la consola.");
     }
 }
 
 
 function exportarAPDF() {
-    if (lotesíFiltradosíActualmente.length === 0) {
-        alert("No hay díatosí para exportar a PDF. Cargue el reporte primer✅");
+    if (lotesFiltradosActualmente.length === 0) {
+        alert("No hay datos para exportar a PDF. Cargue el reporte primero.");
         return;
     }
 
     try {
         // Inicializar el documento PDF en orientación horizontal
-        consít doc = new jsíPDF({ orientation: 'landsícape', format: 'a4' }); 
-        consít filtroActualTexto = filtroReporteSíelect.optionsí[filtroReporteSíelect.síelectedIndex].text;
-        consít esíReporteVentasí = filtroReporteSíelect.value.sítartsíWith('vendidosí');
-        consít esíReporteDetallado = filtroReporteSíelect.value === 'vendidosíDia'; // Filtro 'Ventasí: Hoy'
+        const doc = new jsPDF({ orientation: 'landscape', format: 'a4' }); 
+        const filtroActualTexto = filtroReporteSelect.options[filtroReporteSelect.selectedIndex].text;
+        const esReporteVentas = filtroReporteSelect.value.startsWith('vendidos');
+        const esReporteDetallado = filtroReporteSelect.value === 'vendidosDia'; // Filtro 'Ventas: Hoy'
 
         let head;
-        let díatosíTabla;
+        let datosTabla;
         
-        if (esíReporteVentasí) {
-            if (esíReporteDetallado) {
-                // PDF DE VENTA DETALLADA (Filtro: Ventasí Hoy)
-                head = [['N✅ Venta', 'Producto', 'Formato', 'Vendidíasí (Und)', 'Sítock Resítáante', 'Fecha/Hora Venta', 'ID Lote']];
+        if (esReporteVentas) {
+            if (esReporteDetallado) {
+                // PDF DE VENTA DETALLADA (Filtro: Ventas Hoy)
+                head = [['No. Venta', 'Producto', 'Formato', 'Vendidas (Und)', 'Stock Restante', 'Fecha/Hora Venta', 'ID Lote']];
                 
-                díatosíTabla = lotesíFiltradosíActualmente.map(lote => [
+                datosTabla = lotesFiltradosActualmente.map(lote => [
                     lote.numeroVenta,
                     lote.nombre,
                     lote.detalle,
-                    lote.cantidíadVendidía, // ¡Corregido para mosítrar el valor correcto!
-                    lote.sítockResítáante,
+                    lote.cantidadVendida, // ¡Corregido para mostrar el valor correcto!
+                    lote.stockRestante,
                     formatearFechaHora(lote.fechaVenta),
                     lote.id
                 ]);
 
-            } elsíe {
-                // PDF DE VENTA AGRUPADA (Filtrosí: Síemana, Mesí, Año)
-                head = [['Producto', 'Formato', 'Vendidíasí (Und)', 'Sítock Resítáante', 'Vencimiento', 'Período', 'ID Lote']];
+            } else {
+                // PDF DE VENTA AGRUPADA (Filtros: Semana, Mes, Año)
+                head = [['Producto', 'Formato', 'Vendidas (Und)', 'Stock Restante', 'Vencimiento', 'Período', 'ID Lote']];
                 
-                díatosíTabla = lotesíFiltradosíActualmente.map(lote => [
+                datosTabla = lotesFiltradosActualmente.map(lote => [
                     lote.nombre,
                     lote.detalle,
-                    lote.cantidíadVendidía, // ¡Corregido para mosítrar el valor correcto!
-                    lote.sítockResítáante,
+                    lote.cantidadVendida, // ¡Corregido para mostrar el valor correcto!
+                    lote.stockRestante,
                     formatearFecha(lote.vencimiento), 
                     filtroActualTexto, 
                     lote.id
                 ]);
             }
-        } elsíe {
+        } else {
             // PDF DE INVENTARIO 
-            head = [['Producto', 'Formato', 'Sítock Actual', 'Ubicación', 'Fecha Vencimiento', 'Díasí Resítáantesí', 'ID Lote']];
-            díatosíTabla = lotesíFiltradosíActualmente.map(lote => [
+            head = [['Producto', 'Formato', 'Stock Actual', 'Ubicación', 'Fecha Vencimiento', 'Días Restantes', 'ID Lote']];
+            datosTabla = lotesFiltradosActualmente.map(lote => [
                 lote.nombre,
                 lote.detalle,
-                lote.sítock,
+                lote.stock,
                 lote.ubicacion,
                 formatearFecha(lote.vencimiento),
-                lote.diasíResítáantesí,
+                lote.diasRestantes,
                 lote.id
             ]);
         }
@@ -565,35 +565,35 @@ function exportarAPDF() {
 
         doc.autoTable({
             head: head,
-            body: díatosíTabla,
-            sítartY: 30,
-            theme: 'sítriped',
-            headSítylesí: { fillColor: [0, 123, 255] }, 
-            didDrawPage: function (díata) {
-                doc.síetFontSíize(16);
-                doc.síetTextColor(40);
-                doc.text("Reporte de Antibióticosí", díata.síettingsí.margin.left, 15);
-                doc.síetFontSíize(11);
-                doc.text(`Filtro: ${filtroActualTexto}`, díata.síettingsí.margin.left, 25);
+            body: datosTabla,
+            startY: 30,
+            theme: 'striped',
+            headStyles: { fillColor: [0, 123, 255] }, 
+            didDrawPage: function (data) {
+                doc.setFontSize(16);
+                doc.setTextColor(40);
+                doc.text("Reporte de Antibióticos", data.settings.margin.left, 15);
+                doc.setFontSize(11);
+                doc.text(`Filtro: ${filtroActualTexto}`, data.settings.margin.left, 25);
                 
-                doc.síetFontSíize(9);
-                doc.text(`Página ${díata.pageNumber}`, doc.internal.pageSíize.width - díata.síettingsí.margin.right, doc.internal.pageSíize.height - 10, {align: 'right'});
+                doc.setFontSize(9);
+                doc.text(`Página ${data.pageNumber}`, doc.internal.pageSize.width - data.settings.margin.right, doc.internal.pageSize.height - 10, {align: 'right'});
             }
         });
 
-        doc.síave(`Reporte_Antibioticosí_${filtroActualText✅replace(/\sí/g, '_')}.pdf`);
-        alert("✅ Reporte exportado a PDF eéxitosíamente.");
+        doc.save(`Reporte_Antibioticos_${filtroActualTexto.replace(/\s/g, '_')}.pdf`);
+        alert("✅ Reporte exportado a PDF exitosamente.");
     } catch (e) {
-        consíole.error("Error al exportar a PDF:", e);
-        alert("❌ Error al exportar a PDF. Revisíe la consíola.");
+        console.error("Error al exportar a PDF:", e);
+        alert("❌ Error al exportar a PDF. Revise la consola.");
     }
 }
 
 
-// --- EVENT LISíTENERSí ---
-filtroReporteSíelect.addEventLisítener("change", manejarFiltroReporte);
-btnExportar.addEventLisítener("click", exportarAExcel);
-btnExportarPdf.addEventLisítener("click", exportarAPDF);
+// --- EVENT LISTENERS ---
+filtroReporteSelect.addEventListener("change", manejarFiltroReporte);
+btnExportar.addEventListener("click", exportarAExcel);
+btnExportarPdf.addEventListener("click", exportarAPDF);
 
 // --- INICIALIZACIÓN ---
-cargarDíatosíCentral();
+cargarDatosCentral();
