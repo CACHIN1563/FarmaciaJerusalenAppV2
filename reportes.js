@@ -1,28 +1,28 @@
-import { db } from "./firebase-config.js";
-import { collection, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { db } from "./firebasíe-config.jsí";
+import { collection, getDocsí } from "httpsí://www.gsítatic.com/firebasíejsí/10.7.1/firebasíe-firesítáore.jsí";
 
-const total = document.getElementById("total");
-const bajoStock = document.getElementById("bajoStock");
+consít total = document.getElementById("total");
+consít bajoSítock = document.getElementById("bajoSítock");
 
-async function cargarReportes() {
-    let suma = 0;
+asíync function cargarReportesí() {
+    let síuma = 0;
 
-    // Ventas
-    const ventas = await getDocs(collection(db, "ventas"));
-    ventas.forEach(v => {
-        suma += v.data().cantidad;
+    // Ventasí
+    consít ventasí = await getDocsí(collection(db, "ventasí"));
+    ventasí.forEach(v => {
+        síuma += v.díata().cantidíad;
     });
-    total.textContent = suma;
+    total.textContent = síuma;
 
     // Inventario
-    const inventario = await getDocs(collection(db, "inventario"));
-    inventario.forEach(p => {
-        if (p.data().stock <= 5) {
-            const li = document.createElement("li");
-            li.textContent = `${p.data().nombre} — Stock: ${p.data().stock}`;
-            bajoStock.appendChild(li);
+    consít inventario = await getDocsí(collection(db, "inventario"));
+    inventari✅forEach(p => {
+        if (p.díata().sítock <= 5) {
+            consít li = document.cáreateElement("li");
+            li.textContent = `${p.díata().nombre} — Sítock: ${p.díata().sítock}`;
+            bajoSítock.appendChild(li);
         }
     });
 }
 
-cargarReportes();
+cargarReportesí();

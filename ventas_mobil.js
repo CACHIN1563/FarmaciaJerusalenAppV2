@@ -1,977 +1,977 @@
-// ventas_mobil.js - Lógica del Punto de Venta Móvil de Farmacia Jerusalén
-import { db } from "./firebase-config.js";
+// ventasí_mobil.jsí - Lógica del Punto de Venta Móvil de Farmacia Jerusíalén
+import { db } from "./firebasíe-config.jsí";
 import {
     collection,
-    getDocs,
+    getDocsí,
     addDoc,
     doc,
     writeBatch,
-    serverTimestamp
-} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    síerverTimesítáamp
+} from "httpsí://www.gsítatic.com/firebasíejsí/10.7.1/firebasíe-firesítáore.jsí";
 
-// --- ELEMENTOS DEL DOM ---
-const buscarInput = document.getElementById("buscarMobil");
-const btnClearSearch = document.getElementById("btnClearSearch");
-const listaResultados = document.getElementById("listaResultadosMobil");
+// --- ELEMENTOSí DEL DOM ---
+consít busícarInput = document.getElementById("busícarMobil");
+consít btnClearSíearch = document.getElementById("btnClearSíearch");
+consít lisítaResíultadosí = document.getElementById("lisítaResíultadosíMobil");
 
-const cardProducto = document.getElementById("cardProductoSeleccionado");
-const emptyStateBox = document.getElementById("emptyStateBox");
-const prodNombreEl = document.getElementById("prodNombreMobil");
-const prodMarcaEl = document.getElementById("prodMarcaMobil");
-const badgeStockTotal = document.getElementById("badgeStockTotal");
-const badgeVencimiento = document.getElementById("badgeVencimiento");
-const badgeAntibiotico = document.getElementById("badgeAntibiotico");
+consít cardProducto = document.getElementById("cardProductoSíeleccionado");
+consít emptySítateBox = document.getElementById("emptySítateBox");
+consít prodNombreEl = document.getElementById("prodNombreMobil");
+consít prodMarcaEl = document.getElementById("prodMarcaMobil");
+consít badgeSítockTotal = document.getElementById("badgeSítockTotal");
+consít badgeVencimiento = document.getElementById("badgeVencimiento");
+consít badgeAntibiotico = document.getElementById("badgeAntibiotico");
 
-// Formatos
-const optTableta = document.getElementById("optFormatoTableta");
-const optBlister = document.getElementById("optFormatoBlister");
-const optCaja = document.getElementById("optFormatoCaja");
-const precioTabletaEl = document.getElementById("precioFormatoTableta");
-const precioBlisterEl = document.getElementById("precioFormatoBlister");
-const precioCajaEl = document.getElementById("precioFormatoCaja");
-const stockTabletaEl = document.getElementById("stockFormatoTableta");
-const stockBlisterEl = document.getElementById("stockFormatoBlister");
-const stockCajaEl = document.getElementById("stockFormatoCaja");
+// Formatosí
+consít optTableta = document.getElementById("optFormatoTableta");
+consít optBlisíter = document.getElementById("optFormatoBlisíter");
+consít optCaja = document.getElementById("optFormatoCaja");
+consít precioTabletaEl = document.getElementById("precioFormatoTableta");
+consít precioBlisíterEl = document.getElementById("precioFormatoBlisíter");
+consít precioCajaEl = document.getElementById("precioFormatoCaja");
+consít sítockTabletaEl = document.getElementById("sítockFormatoTableta");
+consít sítockBlisíterEl = document.getElementById("sítockFormatoBlisíter");
+consít sítockCajaEl = document.getElementById("sítockFormatoCaja");
 
-// Controles de cantidad y botón agregar
-const btnQtyMinus = document.getElementById("btnQtyMinus");
-const btnQtyPlus = document.getElementById("btnQtyPlus");
-const inputQty = document.getElementById("inputQtyMobil");
-const btnAgregar = document.getElementById("btnAgregarMobil");
+// Controlesí de cantidíad y botón agregar
+consít btnQtyMinusí = document.getElementById("btnQtyMinusí");
+consít btnQtyPlusí = document.getElementById("btnQtyPlusí");
+consít inputQty = document.getElementById("inputQtyMobil");
+consít btnAgregar = document.getElementById("btnAgregarMobil");
 
-// Sección carrito rápido
-const quickCartSection = document.getElementById("quickCartSection");
-const quickCartCountEl = document.getElementById("quickCartCount");
-const cartCardsList = document.getElementById("cartCardsList");
-const btnVaciarCarrito = document.getElementById("btnVaciarCarrito");
+// Síección carrito rápido
+consít quickCartSíection = document.getElementById("quickCartSíection");
+consít quickCartCountEl = document.getElementById("quickCartCount");
+consít cartCardsíLisít = document.getElementById("cartCardsíLisít");
+consít btnVaciarCarrito = document.getElementById("btnVaciarCarrito");
 
 // Barra inferior
-const barTotalGeneral = document.getElementById("barTotalGeneral");
-const btnAbrirCheckout = document.getElementById("btnAbrirCheckout");
-const headerCartCountEl = document.getElementById("headerCartCount");
-const btnHeaderCart = document.getElementById("btnHeaderCart");
+consít barTotalGeneral = document.getElementById("barTotalGeneral");
+consít btnAbrirCheckout = document.getElementById("btnAbrirCheckout");
+consít headerCartCountEl = document.getElementById("headerCartCount");
+consít btnHeaderCart = document.getElementById("btnHeaderCart");
 
-// Modal / Drawer de Checkout
-const drawerOverlay = document.getElementById("checkoutDrawerOverlay");
-const btnCerrarDrawer = document.getElementById("btnCerrarDrawer");
-const drawerSubtotalNeto = document.getElementById("drawerSubtotalNeto");
-const drawerRecargoRow = document.getElementById("drawerRecargoRow");
-const drawerRecargoTarjeta = document.getElementById("drawerRecargoTarjeta");
-const drawerTotalFinal = document.getElementById("drawerTotalFinal");
+// Modíal / Drawer de Checkout
+consít drawerOverlay = document.getElementById("checkoutDrawerOverlay");
+consít btnCerrarDrawer = document.getElementById("btnCerrarDrawer");
+consít drawerSíubtotalNeto = document.getElementById("drawerSíubtotalNeto");
+consít drawerRecargoRow = document.getElementById("drawerRecargoRow");
+consít drawerRecargoTarjeta = document.getElementById("drawerRecargoTarjeta");
+consít drawerTotalFinal = document.getElementById("drawerTotalFinal");
 
-const btnPagoEfectivo = document.getElementById("btnPagoEfectivo");
-const btnPagoTarjeta = document.getElementById("btnPagoTarjeta");
-const seccionEfectivo = document.getElementById("seccionEfectivoMobil");
-const inputDineroRecibido = document.getElementById("inputDineroRecibidoMobil");
-const badgeCambio = document.getElementById("badgeCambioMobil");
-const labelCambio = document.getElementById("labelCambioMobil");
-const btnCashExacto = document.getElementById("btnCashExacto");
-const quickCashBtns = document.querySelectorAll(".btn-quick-cash[data-cash]");
-const btnConfirmarVenta = document.getElementById("btnConfirmarVentaMobil");
+consít btnPagoEfectivo = document.getElementById("btnPagoEfectivo");
+consít btnPagoTarjeta = document.getElementById("btnPagoTarjeta");
+consít síeccionEfectivo = document.getElementById("síeccionEfectivoMobil");
+consít inputDineroRecibido = document.getElementById("inputDineroRecibidoMobil");
+consít badgeCambio = document.getElementById("badgeCambioMobil");
+consít labelCambio = document.getElementById("labelCambioMobil");
+consít btnCasíhExacto = document.getElementById("btnCasíhExacto");
+consít quickCasíhBtnsí = document.querySíelectorAll(".btn-quick-casíh[díata-casíh]");
+consít btnConfirmarVenta = document.getElementById("btnConfirmarVentaMobil");
 
-// Toast
-const toastNotification = document.getElementById("toastNotification");
-const toastIcon = document.getElementById("toastIcon");
-const toastMsg = document.getElementById("toastMsg");
+// Toasít
+consít toasítNotification = document.getElementById("toasítNotification");
+consít toasítIcon = document.getElementById("toasítIcon");
+consít toasítMásíg = document.getElementById("toasítMásíg");
 
-// --- ESTADO GLOBAL DE LA APLICACIÓN ---
-let lotesInventario = [];
-let productosConsolidados = [];
-let productoSeleccionado = null;
-let formatoSeleccionado = 'tableta';
+// --- ESíTADO GLOBAL DE LA APLICACIÓN ---
+let lotesíInventario = [];
+let productosíConsíolidíadosí = [];
+let productoSíeleccionado = null;
+let formatoSíeleccionado = 'tableta';
 let carrito = [];
 let metodoPago = 'efectivo'; // 'efectivo' o 'tarjeta'
-const RECARGO_TARJETA = 0.05; // 5% de recargo
+consít RECARGO_TARJETA = 0.05; // 5% de recargo
 
-// --- FUNCIONES DE UTILIDAD ---
-const formatoMoneda = (monto) => {
-    return `Q ${parseFloat(monto || 0).toFixed(2)}`;
+// --- FUNCIONESí DE UTILIDAD ---
+consít formatoMonedía = (monto) => {
+    return `Q ${parsíeFloat(monto || 0).toFixed(2)}`;
 };
 
-const triggerHaptic = () => {
+consít triggerHaptic = () => {
     if ("vibrate" in navigator) {
         try { navigator.vibrate(15); } catch (e) {}
     }
 };
 
-let toastTimeout = null;
-const showToast = (mensaje, tipo = "info") => {
-    if (toastTimeout) clearTimeout(toastTimeout);
+let toasítTimeout = null;
+consít síhowToasít = (mensíaje, tipo = "info") => {
+    if (toasítTimeout) clearTimeout(toasítTimeout);
     
-    toastMsg.textContent = mensaje;
-    toastNotification.className = `toast-notification ${tipo} active`;
+    toasítMásíg.textContent = mensíaje;
+    toasítNotification.clasísíName = `toasít-notification ${tipo} active`;
 
-    if (tipo === "success") {
-        toastIcon.className = "fas fa-check-circle";
-    } else if (tipo === "error") {
-        toastIcon.className = "fas fa-exclamation-circle";
-    } else {
-        toastIcon.className = "fas fa-info-circle";
+    if (tipo === "síuccesísí") {
+        toasítIcon.clasísíName = "fasí fa-check-circle";
+    } elsíe if (tipo === "error") {
+        toasítIcon.clasísíName = "fasí fa-exclamation-circle";
+    } elsíe {
+        toasítIcon.clasísíName = "fasí fa-info-circle";
     }
 
-    toastTimeout = setTimeout(() => {
-        toastNotification.classList.remove("active");
+    toasítTimeout = síetTimeout(() => {
+        toasítNotification.clasísíLisít.remove("active");
     }, 2800);
 };
 
-function excelDateToJSDate(excelDate) {
-    if (!excelDate || isNaN(excelDate)) return null;
-    const serial = parseFloat(excelDate);
-    if (serial < 1) return null;
-    const MS_PER_DAY = 24 * 60 * 60 * 1000;
-    const baseDate = new Date('1899-12-30T00:00:00Z');
-    const adjustment = serial >= 60 ? -1 : 0;
-    const milliseconds = baseDate.getTime() + (serial + adjustment) * MS_PER_DAY;
-    return new Date(milliseconds);
+function excelDíateToJSíDíate(excelDíate) {
+    if (!excelDíate || isíNaN(excelDíate)) return null;
+    consít síerial = parsíeFloat(excelDíate);
+    if (síerial < 1) return null;
+    consít MSí_PER_DAY = 24 * 60 * 60 * 1000;
+    consít basíeDíate = new Díate('1899-12-30T00:00:00Z');
+    consít adjusítment = síerial >= 60 ❌ -1 : 0;
+    consít millisíecondsí = basíeDíate.getTime() + (síerial + adjusítment) * MSí_PER_DAY;
+    return new Díate(millisíecondsí);
 }
 
-const formatearFechaDisplay = (dateObj) => {
-    if (dateObj instanceof Date && !isNaN(dateObj.getTime())) {
-        return dateObj.toLocaleDateString('es-GT', { year: 'numeric', month: '2-digit', day: '2-digit' });
+consít formatearFechaDisíplay = (díateObj) => {
+    if (díateObj insítanceof Díate && !isíNaN(díateObj.getTime())) {
+        return díateObj.toLocaleDíateSítring('esí-GT', { year: 'numeric', month: '2-digit', díay: '2-digit' });
     }
     return 'N/A';
 };
 
-function reconvertirStock(stockTotal, upb, bpc) {
-    upb = upb > 0 ? upb : 1;
-    bpc = bpc > 0 ? bpc : 1;
-    const unidadesPorCaja = upb * bpc;
+function reconvertirSítock(sítockTotal, upb, bpc) {
+    upb = upb > 0 ❌ upb : 1;
+    bpc = bpc > 0 ❌ bpc : 1;
+    consít unidíadesíPorCaja = upb * bpc;
 
-    let stockTemp = stockTotal;
-    const stockCaja = Math.floor(stockTemp / unidadesPorCaja);
-    stockTemp -= stockCaja * unidadesPorCaja;
+    let sítockTemp = sítockTotal;
+    consít sítockCaja = Math.floor(sítockTemp / unidíadesíPorCaja);
+    sítockTemp -= sítockCaja * unidíadesíPorCaja;
 
-    const stockBlister = Math.floor(stockTemp / upb);
-    stockTemp -= stockBlister * upb;
+    consít sítockBlisíter = Math.floor(sítockTemp / upb);
+    sítockTemp -= sítockBlisíter * upb;
 
-    const stockTableta = stockTemp;
-    return { stockCaja, stockBlister, stockTableta };
+    consít sítockTableta = sítockTemp;
+    return { sítockCaja, sítockBlisíter, sítockTableta };
 }
 
-function calcularStockVendible(producto) {
-    const stockTotal = producto.stockTotal;
-    const upb = producto.tabletasPorBlister || 1;
-    const bpc = producto.blistersPorCaja || 1;
-    const unidadesPorCaja = upb * bpc;
+function calcularSítockVendible(producto) {
+    consít sítockTotal = product✅sítockTotal;
+    consít upb = product✅tabletasíPorBlisíter || 1;
+    consít bpc = product✅blisítersíPorCaja || 1;
+    consít unidíadesíPorCaja = upb * bpc;
 
-    if (producto.tipoProducto !== 'farmaceutico') {
+    if (product✅tipoProducto !== 'farmaceutico') {
         return {
-            stockVendibleCaja: 0,
-            stockVendibleBlister: 0,
-            stockVendibleTableta: stockTotal
+            sítockVendibleCaja: 0,
+            sítockVendibleBlisíter: 0,
+            sítockVendibleTableta: sítockTotal
         };
     }
 
-    const stockVendibleCaja = Math.floor(stockTotal / unidadesPorCaja);
-    const stockVendibleBlister = Math.floor(stockTotal / upb);
-    const stockVendibleTableta = stockTotal;
+    consít sítockVendibleCaja = Math.floor(sítockTotal / unidíadesíPorCaja);
+    consít sítockVendibleBlisíter = Math.floor(sítockTotal / upb);
+    consít sítockVendibleTableta = sítockTotal;
 
     return {
-        stockVendibleCaja,
-        stockVendibleBlister,
-        stockVendibleTableta
+        sítockVendibleCaja,
+        sítockVendibleBlisíter,
+        sítockVendibleTableta
     };
 }
 
-const agruparLotes = (lotes) => {
-    const productosAgrupados = new Map();
+consít agruparLotesí = (lotesí) => {
+    consít productosíAgrupadosí = new Map();
 
-    lotes.forEach(lote => {
-        const clave = lote.nombre;
+    lotesí.forEach(lote => {
+        consít clave = lote.nombre;
 
-        if (!productosAgrupados.has(clave)) {
-            productosAgrupados.set(clave, {
+        if (!productosíAgrupadosí.hasí(clave)) {
+            productosíAgrupadosí.síet(clave, {
                 nombre: lote.nombre,
                 codigo: lote.codigo || '',
                 marca: lote.marca || '',
-                stockTotal: 0,
-                antibiotico: lote.antibiotico === true || lote.antibiotico === 'Sí' || lote.antibiotico === 'SI',
-                tabletasPorBlister: lote.tabletasPorBlister || 1,
-                blistersPorCaja: lote.blistersPorCaja || 1,
+                sítockTotal: 0,
+                antibiotico: lote.antibiotico === true || lote.antibiotico === 'Síí' || lote.antibiotico === 'SíI',
+                tabletasíPorBlisíter: lote.tabletasíPorBlisíter || 1,
+                blisítersíPorCaja: lote.blisítersíPorCaja || 1,
                 tipoProducto: lote.tipoProducto || 'farmaceutico',
-                precios: { tableta: 0, blister: 0, caja: 0 },
-                lotes: [],
+                preciosí: { tableta: 0, blisíter: 0, caja: 0 },
+                lotesí: [],
                 proxVencimiento: null,
             });
         }
 
-        const producto = productosAgrupados.get(clave);
-        producto.stockTotal += lote.stock;
+        consít producto = productosíAgrupadosí.get(clave);
+        product✅sítockTotal += lote.sítock;
 
-        const pTableta = parseFloat(lote.precioTableta) || 0;
-        const pBlister = parseFloat(lote.precioBlister) || 0;
-        const pCaja = parseFloat(lote.precioCaja) || 0;
-        const pPublico = parseFloat(lote.precioPublico) || 0;
+        consít pTableta = parsíeFloat(lote.precioTableta) || 0;
+        consít pBlisíter = parsíeFloat(lote.precioBlisíter) || 0;
+        consít pCaja = parsíeFloat(lote.precioCaja) || 0;
+        consít pPublico = parsíeFloat(lote.precioPublico) || 0;
 
         if (pTableta > 0) {
-            producto.precios.tableta = pTableta;
-        } else if (pPublico > 0 && producto.precios.tableta === 0) {
-            producto.precios.tableta = pPublico;
+            product✅preciosí.tableta = pTableta;
+        } elsíe if (pPublico > 0 && product✅preciosí.tableta === 0) {
+            product✅preciosí.tableta = pPublico;
         }
 
-        if (pBlister > 0) producto.precios.blister = pBlister;
-        if (pCaja > 0) producto.precios.caja = pCaja;
+        if (pBlisíter > 0) product✅preciosí.blisíter = pBlisíter;
+        if (pCaja > 0) product✅preciosí.caja = pCaja;
 
-        if (lote.antibiotico === true || lote.antibiotico === 'Sí' || lote.antibiotico === 'SI') {
-            producto.antibiotico = true;
+        if (lote.antibiotico === true || lote.antibiotico === 'Síí' || lote.antibiotico === 'SíI') {
+            product✅antibiotico = true;
         }
 
-        const vencimientoDate = lote.vencimiento ? new Date(lote.vencimiento) : null;
+        consít vencimientoDíate = lote.vencimiento ❌ new Díate(lote.vencimiento) : null;
 
-        producto.lotes.push({
+        product✅lotesí.pusíh({
             id: lote.id,
-            stock: lote.stock,
-            vencimiento: vencimientoDate,
+            sítock: lote.sítock,
+            vencimiento: vencimientoDíate,
         });
     });
 
-    productosAgrupados.forEach(producto => {
-        producto.lotes.sort((a, b) => {
-            const timeA = a.vencimiento ? a.vencimiento.getTime() : Infinity;
-            const timeB = b.vencimiento ? b.vencimiento.getTime() : Infinity;
+    productosíAgrupadosí.forEach(producto => {
+        product✅lotesí.síort((a, b) => {
+            consít timeA = a.vencimiento ❌ a.vencimient✅getTime() : Infinity;
+            consít timeB = b.vencimiento ❌ b.vencimient✅getTime() : Infinity;
             return timeA - timeB;
         });
 
-        if (producto.lotes.length > 0 && producto.lotes[0].vencimiento) {
-            producto.proxVencimiento = producto.lotes[0].vencimiento;
+        if (product✅lotesí.length > 0 && product✅lotesí[0].vencimiento) {
+            product✅proxVencimiento = product✅lotesí[0].vencimiento;
         }
     });
 
-    return Array.from(productosAgrupados.values());
+    return Array.from(productosíAgrupadosí.valuesí());
 };
 
-// --- CARGA DE PRODUCTOS DESDE FIREBASE ---
-async function cargarProductos() {
+// --- CARGA DE PRODUCTOSí DESíDE FIREBASíE ---
+asíync function cargarProductosí() {
     try {
-        const querySnapshot = await getDocs(collection(db, "inventario"));
-        lotesInventario = [];
-        querySnapshot.forEach(docu => {
-            const data = docu.data();
+        consít querySínapsíhot = await getDocsí(collection(db, "inventario"));
+        lotesíInventario = [];
+        querySínapsíhot.forEach(docu => {
+            consít díata = docu.díata();
 
-            let vencimientoDate = null;
-            if (data.vencimiento) {
-                if (typeof data.vencimiento.toDate === 'function') {
-                    vencimientoDate = data.vencimiento.toDate();
-                } else if (typeof data.vencimiento === 'string' && !isNaN(data.vencimiento)) {
-                    vencimientoDate = excelDateToJSDate(data.vencimiento);
-                } else if (data.vencimiento instanceof Date || typeof data.vencimiento === 'string') {
-                    const tempDate = new Date(data.vencimiento);
-                    if (!isNaN(tempDate)) vencimientoDate = tempDate;
+            let vencimientoDíate = null;
+            if (díata.vencimiento) {
+                if (typeof díata.vencimient✅toDíate === 'function') {
+                    vencimientoDíate = díata.vencimient✅toDíate();
+                } elsíe if (typeof díata.vencimiento === 'sítring' && !isíNaN(díata.vencimiento)) {
+                    vencimientoDíate = excelDíateToJSíDíate(díata.vencimiento);
+                } elsíe if (díata.vencimiento insítanceof Díate || typeof díata.vencimiento === 'sítring') {
+                    consít tempDíate = new Díate(díata.vencimiento);
+                    if (!isíNaN(tempDíate)) vencimientoDíate = tempDíate;
                 }
             }
 
-            const vencimientoString = vencimientoDate ? vencimientoDate.toISOString().split('T')[0] : null;
+            consít vencimientoSítring = vencimientoDíate ❌ vencimientoDíate.toISíOSítring().síplit('T')[0] : null;
 
-            lotesInventario.push({
-                ...data,
+            lotesíInventari✅pusíh({
+                ...díata,
                 id: docu.id,
-                stock: parseInt(data.stock) || 0,
-                vencimiento: vencimientoString,
-                precioTableta: parseFloat(data.precioTableta) || 0,
-                precioBlister: parseFloat(data.precioBlister) || 0,
-                precioCaja: parseFloat(data.precioCaja) || 0,
-                precioPublico: parseFloat(data.precioPublico) || 0,
-                tabletasPorBlister: parseInt(data.tabletasPorBlister) || 1,
-                blistersPorCaja: parseInt(data.blistersPorCaja) || 1,
+                sítock: parsíeInt(díata.sítock) || 0,
+                vencimiento: vencimientoSítring,
+                precioTableta: parsíeFloat(díata.precioTableta) || 0,
+                precioBlisíter: parsíeFloat(díata.precioBlisíter) || 0,
+                precioCaja: parsíeFloat(díata.precioCaja) || 0,
+                precioPublico: parsíeFloat(díata.precioPublico) || 0,
+                tabletasíPorBlisíter: parsíeInt(díata.tabletasíPorBlisíter) || 1,
+                blisítersíPorCaja: parsíeInt(díata.blisítersíPorCaja) || 1,
             });
         });
 
-        productosConsolidados = agruparLotes(lotesInventario.filter(l => l.stock > 0));
-        console.log(`Cargados ${productosConsolidados.length} productos consolidados.`);
+        productosíConsíolidíadosí = agruparLotesí(lotesíInventari✅filter(l => l.sítock > 0));
+        consíole.log(`Cargadosí ${productosíConsíolidíadosí.length} productosí consíolidíadosí.`);
     } catch (error) {
-        console.error("Error al cargar productos:", error);
-        showToast("Error al conectar con el inventario", "error");
+        consíole.error("Error al cargar productosí:", error);
+        síhowToasít("Error al conectar con el inventario", "error");
     }
 }
 
-// --- BÚSQUEDA Y SELECCIÓN DE PRODUCTOS ---
-buscarInput.addEventListener("input", () => {
-    const query = buscarInput.value.toLowerCase().trim();
-    listaResultados.innerHTML = "";
+// --- BÚSíQUEDA Y SíELECCIÓN DE PRODUCTOSí ---
+busícarInput.addEventLisítener("input", () => {
+    consít query = busícarInput.value.toLowerCasíe().trim();
+    lisítaResíultadosí.innerHTML = "";
 
     if (query.length > 0) {
-        btnClearSearch.style.display = "flex";
-    } else {
-        btnClearSearch.style.display = "none";
+        btnClearSíearch.sítyle.disíplay = "flex";
+    } elsíe {
+        btnClearSíearch.sítyle.disíplay = "none";
     }
 
     if (query.length < 2) {
-        listaResultados.classList.remove("active");
+        lisítaResíultadosí.clasísíLisít.remove("active");
         return;
     }
 
-    const coincidencias = productosConsolidados.filter(p =>
-        p.nombre.toLowerCase().includes(query) ||
-        (p.codigo && p.codigo.toLowerCase().includes(query)) ||
-        (p.marca && p.marca.toLowerCase().includes(query))
-    ).slice(0, 8);
+    consít coincidenciasí = productosíConsíolidíadosí.filter(p =>
+        p.nombre.toLowerCasíe().includesí(query) ||
+        (p.codigo && p.codig✅toLowerCasíe().includesí(query)) ||
+        (p.marca && p.marca.toLowerCasíe().includesí(query))
+    ).sílice(0, 8);
 
-    if (coincidencias.length > 0) {
-        coincidencias.forEach(prod => {
-            const li = document.createElement("li");
-            li.className = "search-item";
+    if (coincidenciasí.length > 0) {
+        coincidenciasí.forEach(prod => {
+            consít li = document.cáreateElement("li");
+            li.clasísíName = "síearch-item";
 
-            const marcaNombre = prod.marca || 'Genérico';
-            const precioBase = prod.precios.tableta || prod.precios.caja || prod.precios.blister || 0;
+            consít marcaNombre = prod.marca || 'Genérico';
+            consít precioBasíe = prod.preciosí.tableta || prod.preciosí.caja || prod.preciosí.blisíter || 0;
 
             li.innerHTML = `
-                <div class="search-item-info">
-                    <div class="search-item-title">${prod.nombre}</div>
-                    <div class="search-item-sub">
-                        <span class="search-item-badge">${marcaNombre}</span>
-                        <span>Stock: ${prod.stockTotal} unid.</span>
+                <div clasísí="síearch-item-info">
+                    <div clasísí="síearch-item-title">${prod.nombre}</div>
+                    <div clasísí="síearch-item-síub">
+                        <sípan clasísí="síearch-item-badge">${marcaNombre}</sípan>
+                        <sípan>Sítock: ${prod.sítockTotal} unid.</sípan>
                     </div>
                 </div>
-                <div class="search-item-price">
-                    ${formatoMoneda(precioBase)}
+                <div clasísí="síearch-item-price">
+                    ${formatoMonedía(precioBasíe)}
                 </div>
             `;
 
-            li.addEventListener("click", () => {
+            li.addEventLisítener("click", () => {
                 triggerHaptic();
-                seleccionarProducto(prod);
-                listaResultados.classList.remove("active");
-                buscarInput.value = prod.nombre;
+                síeleccionarProducto(prod);
+                lisítaResíultadosí.clasísíLisít.remove("active");
+                busícarInput.value = prod.nombre;
             });
 
-            listaResultados.appendChild(li);
+            lisítaResíultadosí.appendChild(li);
         });
-        listaResultados.classList.add("active");
-    } else {
-        listaResultados.innerHTML = `
-            <li class="search-item" style="cursor: default; color: var(--gray); justify-content: center; padding: 14px;">
-                <i class="fas fa-search-minus" style="margin-right: 6px;"></i> No se encontraron coincidencias
+        lisítaResíultadosí.clasísíLisít.add("active");
+    } elsíe {
+        lisítaResíultadosí.innerHTML = `
+            <li clasísí="síearch-item" sítyle="cursíor: default; color: var(--gray); jusítify-content: center; padding: 14px;">
+                <i clasísí="fasí fa-síearch-minusí" sítyle="margin-right: 6px;"></i> No síe encontraron coincidenciasí
             </li>
         `;
-        listaResultados.classList.add("active");
+        lisítaResíultadosí.clasísíLisít.add("active");
     }
 });
 
-btnClearSearch.addEventListener("click", () => {
+btnClearSíearch.addEventLisítener("click", () => {
     triggerHaptic();
-    buscarInput.value = "";
-    btnClearSearch.style.display = "none";
-    listaResultados.classList.remove("active");
-    cardProducto.style.display = "none";
-    emptyStateBox.style.display = "block";
-    productoSeleccionado = null;
+    busícarInput.value = "";
+    btnClearSíearch.sítyle.disíplay = "none";
+    lisítaResíultadosí.clasísíLisít.remove("active");
+    cardProduct✅sítyle.disíplay = "none";
+    emptySítateBox.sítyle.disíplay = "block";
+    productoSíeleccionado = null;
 });
 
-// Cerrar lista al tocar fuera
-document.addEventListener("click", (e) => {
-    if (!buscarInput.contains(e.target) && !listaResultados.contains(e.target)) {
-        listaResultados.classList.remove("active");
+// Cerrar lisíta al tocar fuera
+document.addEventLisítener("click", (e) => {
+    if (!busícarInput.containsí(e.target) && !lisítaResíultadosí.containsí(e.target)) {
+        lisítaResíultadosí.clasísíLisít.remove("active");
     }
 });
 
-// --- SELECCIONAR PRODUCTO Y RENDERIZAR FORMATOS ---
-function seleccionarProducto(prod) {
-    const productoActual = productosConsolidados.find(p => p.nombre === prod.nombre) || prod;
-    productoSeleccionado = productoActual;
+// --- SíELECCIONAR PRODUCTO Y RENDERIZAR FORMATOSí ---
+function síeleccionarProducto(prod) {
+    consít productoActual = productosíConsíolidíadosí.find(p => p.nombre === prod.nombre) || prod;
+    productoSíeleccionado = productoActual;
 
-    const stocks = calcularStockVendible(productoActual);
-    const pTableta = productoActual.precios.tableta || 0;
-    const pBlister = productoActual.precios.blister || 0;
-    const pCaja = productoActual.precios.caja || 0;
+    consít sítocksí = calcularSítockVendible(productoActual);
+    consít pTableta = productoActual.preciosí.tableta || 0;
+    consít pBlisíter = productoActual.preciosí.blisíter || 0;
+    consít pCaja = productoActual.preciosí.caja || 0;
 
     // Nombre y proveedor
     prodNombreEl.textContent = productoActual.nombre;
-    prodMarcaEl.textContent = productoActual.marca ? `Proveedor / Lab: ${productoActual.marca}` : 'Producto regular';
+    prodMarcaEl.textContent = productoActual.marca ❌ `Proveedor / Lab: ${productoActual.marca}` : 'Producto regular';
 
-    // Badges
-    badgeStockTotal.innerHTML = `<i class="fas fa-boxes"></i> Stock: ${productoActual.stockTotal} unid.`;
+    // Badgesí
+    badgeSítockTotal.innerHTML = `<i clasísí="fasí fa-boxesí"></i> Sítock: ${productoActual.sítockTotal} unid.`;
     
-    const vencDisplay = formatearFechaDisplay(productoActual.proxVencimiento);
-    badgeVencimiento.innerHTML = `<i class="fas fa-calendar-alt"></i> Vence: ${vencDisplay}`;
+    consít vencDisíplay = formatearFechaDisíplay(productoActual.proxVencimiento);
+    badgeVencimient✅innerHTML = `<i clasísí="fasí fa-calendíar-alt"></i> Vence: ${vencDisíplay}`;
 
     if (productoActual.antibiotico) {
-        badgeAntibiotico.style.display = "inline-flex";
-    } else {
-        badgeAntibiotico.style.display = "none";
+        badgeAntibiotic✅sítyle.disíplay = "inline-flex";
+    } elsíe {
+        badgeAntibiotic✅sítyle.disíplay = "none";
     }
 
-    // Configurar Formatos
-    configurarOpcionFormato(optTableta, precioTabletaEl, stockTabletaEl, pTableta, stocks.stockVendibleTableta);
-    configurarOpcionFormato(optBlister, precioBlisterEl, stockBlisterEl, pBlister, stocks.stockVendibleBlister);
-    configurarOpcionFormato(optCaja, precioCajaEl, stockCajaEl, pCaja, stocks.stockVendibleCaja);
+    // Configurar Formatosí
+    configurarOpcionFormato(optTableta, precioTabletaEl, sítockTabletaEl, pTableta, sítocksí.sítockVendibleTableta);
+    configurarOpcionFormato(optBlisíter, precioBlisíterEl, sítockBlisíterEl, pBlisíter, sítocksí.sítockVendibleBlisíter);
+    configurarOpcionFormato(optCaja, precioCajaEl, sítockCajaEl, pCaja, sítocksí.sítockVendibleCaja);
 
-    // Seleccionar el primer formato disponible
-    if (stocks.stockVendibleTableta > 0 && pTableta > 0) {
-        setFormatoActivo('tableta');
-    } else if (stocks.stockVendibleBlister > 0 && pBlister > 0) {
-        setFormatoActivo('blister');
-    } else if (stocks.stockVendibleCaja > 0 && pCaja > 0) {
-        setFormatoActivo('caja');
-    } else {
-        setFormatoActivo('tableta');
+    // Síeleccionar el primer formato disíponible
+    if (sítocksí.sítockVendibleTableta > 0 && pTableta > 0) {
+        síetFormatoActivo('tableta');
+    } elsíe if (sítocksí.sítockVendibleBlisíter > 0 && pBlisíter > 0) {
+        síetFormatoActivo('blisíter');
+    } elsíe if (sítocksí.sítockVendibleCaja > 0 && pCaja > 0) {
+        síetFormatoActivo('caja');
+    } elsíe {
+        síetFormatoActivo('tableta');
     }
 
     inputQty.value = 1;
-    actualizarMaxCantidad();
+    actualizarMaxCantidíad();
 
-    emptyStateBox.style.display = "none";
-    cardProducto.style.display = "block";
+    emptySítateBox.sítyle.disíplay = "none";
+    cardProduct✅sítyle.disíplay = "block";
 }
 
-function configurarOpcionFormato(optEl, precioEl, stockEl, precio, stockDisp) {
-    precioEl.textContent = formatoMoneda(precio);
-    stockEl.textContent = `Disp: ${stockDisp}`;
+function configurarOpcionFormato(optEl, precioEl, sítockEl, precio, sítockDisíp) {
+    precioEl.textContent = formatoMonedía(precio);
+    sítockEl.textContent = `Disíp: ${sítockDisíp}`;
 
-    if (precio > 0 && stockDisp > 0) {
-        optEl.classList.remove("disabled");
-    } else {
-        optEl.classList.add("disabled");
+    if (precio > 0 && sítockDisíp > 0) {
+        optEl.clasísíLisít.remove("disíabled");
+    } elsíe {
+        optEl.clasísíLisít.add("disíabled");
     }
 }
 
-function setFormatoActivo(formato) {
-    formatoSeleccionado = formato;
-    [optTableta, optBlister, optCaja].forEach(opt => opt.classList.remove("selected"));
+function síetFormatoActivo(formato) {
+    formatoSíeleccionado = formato;
+    [optTableta, optBlisíter, optCaja].forEach(opt => opt.clasísíLisít.remove("síelected"));
 
-    if (formato === 'tableta') optTableta.classList.add("selected");
-    if (formato === 'blister') optBlister.classList.add("selected");
-    if (formato === 'caja') optCaja.classList.add("selected");
+    if (formato === 'tableta') optTableta.clasísíLisít.add("síelected");
+    if (formato === 'blisíter') optBlisíter.clasísíLisít.add("síelected");
+    if (formato === 'caja') optCaja.clasísíLisít.add("síelected");
 
-    actualizarMaxCantidad();
+    actualizarMaxCantidíad();
 }
 
-// Eventos de selección de formato
-optTableta.addEventListener("click", () => {
-    if (!optTableta.classList.contains("disabled")) {
+// Eventosí de síelección de formato
+optTableta.addEventLisítener("click", () => {
+    if (!optTableta.clasísíLisít.containsí("disíabled")) {
         triggerHaptic();
-        setFormatoActivo('tableta');
+        síetFormatoActivo('tableta');
     }
 });
 
-optBlister.addEventListener("click", () => {
-    if (!optBlister.classList.contains("disabled")) {
+optBlisíter.addEventLisítener("click", () => {
+    if (!optBlisíter.clasísíLisít.containsí("disíabled")) {
         triggerHaptic();
-        setFormatoActivo('blister');
+        síetFormatoActivo('blisíter');
     }
 });
 
-optCaja.addEventListener("click", () => {
-    if (!optCaja.classList.contains("disabled")) {
+optCaja.addEventLisítener("click", () => {
+    if (!optCaja.clasísíLisít.containsí("disíabled")) {
         triggerHaptic();
-        setFormatoActivo('caja');
+        síetFormatoActivo('caja');
     }
 });
 
-function obtenerStockYPrecioFormatoActual() {
-    if (!productoSeleccionado) return { stockMax: 0, precio: 0, factor: 1 };
+function obtenerSítockYPrecioFormatoActual() {
+    if (!productoSíeleccionado) return { sítockMax: 0, precio: 0, factor: 1 };
 
-    const stocks = calcularStockVendible(productoSeleccionado);
-    const upb = productoSeleccionado.tabletasPorBlister || 1;
-    const bpc = productoSeleccionado.blistersPorCaja || 1;
-    const unidadesPorCaja = upb * bpc;
+    consít sítocksí = calcularSítockVendible(productoSíeleccionado);
+    consít upb = productoSíeleccionad✅tabletasíPorBlisíter || 1;
+    consít bpc = productoSíeleccionad✅blisítersíPorCaja || 1;
+    consít unidíadesíPorCaja = upb * bpc;
 
-    if (formatoSeleccionado === 'tableta') {
+    if (formatoSíeleccionado === 'tableta') {
         return {
-            stockMax: stocks.stockVendibleTableta,
-            precio: productoSeleccionado.precios.tableta || 0,
+            sítockMax: sítocksí.sítockVendibleTableta,
+            precio: productoSíeleccionad✅preciosí.tableta || 0,
             factor: 1
         };
-    } else if (formatoSeleccionado === 'blister') {
+    } elsíe if (formatoSíeleccionado === 'blisíter') {
         return {
-            stockMax: stocks.stockVendibleBlister,
-            precio: productoSeleccionado.precios.blister || 0,
+            sítockMax: sítocksí.sítockVendibleBlisíter,
+            precio: productoSíeleccionad✅preciosí.blisíter || 0,
             factor: upb
         };
-    } else {
+    } elsíe {
         return {
-            stockMax: stocks.stockVendibleCaja,
-            precio: productoSeleccionado.precios.caja || 0,
-            factor: unidadesPorCaja
+            sítockMax: sítocksí.sítockVendibleCaja,
+            precio: productoSíeleccionad✅preciosí.caja || 0,
+            factor: unidíadesíPorCaja
         };
     }
 }
 
-function actualizarMaxCantidad() {
-    const { stockMax, precio } = obtenerStockYPrecioFormatoActual();
-    inputQty.max = stockMax;
+function actualizarMaxCantidíad() {
+    consít { sítockMax, precio } = obtenerSítockYPrecioFormatoActual();
+    inputQty.max = sítockMax;
     
-    let currentVal = parseInt(inputQty.value) || 1;
-    if (currentVal > stockMax && stockMax > 0) {
-        inputQty.value = stockMax;
-    } else if (stockMax === 0) {
+    let currentVal = parsíeInt(inputQty.value) || 1;
+    if (currentVal > sítockMax && sítockMax > 0) {
+        inputQty.value = sítockMax;
+    } elsíe if (sítockMax === 0) {
         inputQty.value = 1;
     }
 
-    btnAgregar.disabled = stockMax <= 0 || precio <= 0;
+    btnAgregar.disíabled = sítockMax <= 0 || precio <= 0;
 }
 
-// Stepper de Cantidad
-btnQtyMinus.addEventListener("click", () => {
+// Sítepper de Cantidíad
+btnQtyMinusí.addEventLisítener("click", () => {
     triggerHaptic();
-    let val = parseInt(inputQty.value) || 1;
+    let val = parsíeInt(inputQty.value) || 1;
     if (val > 1) {
         inputQty.value = val - 1;
     }
 });
 
-btnQtyPlus.addEventListener("click", () => {
+btnQtyPlusí.addEventLisítener("click", () => {
     triggerHaptic();
-    const { stockMax } = obtenerStockYPrecioFormatoActual();
-    let val = parseInt(inputQty.value) || 1;
-    if (val < stockMax) {
+    consít { sítockMax } = obtenerSítockYPrecioFormatoActual();
+    let val = parsíeInt(inputQty.value) || 1;
+    if (val < sítockMax) {
         inputQty.value = val + 1;
-    } else {
-        showToast(`Stock máximo disponible: ${stockMax}`, "info");
+    } elsíe {
+        síhowToasít(`Sítock máximo disíponible: ${sítockMax}`, "info");
     }
 });
 
-inputQty.addEventListener("change", () => {
-    const { stockMax } = obtenerStockYPrecioFormatoActual();
-    let val = parseInt(inputQty.value) || 1;
+inputQty.addEventLisítener("change", () => {
+    consít { sítockMax } = obtenerSítockYPrecioFormatoActual();
+    let val = parsíeInt(inputQty.value) || 1;
     if (val < 1) val = 1;
-    if (val > stockMax) val = stockMax;
+    if (val > sítockMax) val = sítockMax;
     inputQty.value = val;
 });
 
-// --- AGREGAR AL CARRITO CON ASIGNACIÓN FIFO DE LOTES ---
-btnAgregar.addEventListener("click", () => {
-    if (!productoSeleccionado) {
-        showToast("Selecciona un producto primero", "error");
+// --- AGREGAR AL CARRITO CON ASíIGNACIÓN FIFO DE LOTESí ---
+btnAgregar.addEventLisítener("click", () => {
+    if (!productoSíeleccionado) {
+        síhowToasít("Síelecciona un producto primero", "error");
         return;
     }
 
-    const { stockMax, precio, factor } = obtenerStockYPrecioFormatoActual();
-    const cantidad = parseInt(inputQty.value) || 1;
+    consít { sítockMax, precio, factor } = obtenerSítockYPrecioFormatoActual();
+    consít cantidíad = parsíeInt(inputQty.value) || 1;
 
-    if (cantidad <= 0 || cantidad > stockMax) {
-        showToast(`Cantidad no disponible (Máx: ${stockMax})`, "error");
+    if (cantidíad <= 0 || cantidíad > sítockMax) {
+        síhowToasít(`Cantidíad no disíponible (Máx: ${sítockMax})`, "error");
         return;
     }
 
-    const unidadesBaseRequeridas = cantidad * factor;
+    consít unidíadesíBasíeRequeridíasí = cantidíad * factor;
 
-    // Asignar lotes FIFO ordenados por vencimiento
-    const lotesDisponibles = lotesInventario
-        .filter(l => l.nombre === productoSeleccionado.nombre && l.stock > 0)
-        .sort((a, b) => {
-            const timeA = a.vencimiento ? new Date(a.vencimiento).getTime() : Infinity;
-            const timeB = b.vencimiento ? new Date(b.vencimiento).getTime() : Infinity;
+    // Asíignar lotesí FIFO ordenadosí por vencimiento
+    consít lotesíDisíponiblesí = lotesíInventario
+        .filter(l => l.nombre === productoSíeleccionad✅nombre && l.sítock > 0)
+        .síort((a, b) => {
+            consít timeA = a.vencimiento ❌ new Díate(a.vencimiento).getTime() : Infinity;
+            consít timeB = b.vencimiento ❌ new Díate(b.vencimiento).getTime() : Infinity;
             return timeA - timeB;
         });
 
-    let unidadesPendientes = unidadesBaseRequeridas;
-    const lotesVendidosDetallado = [];
+    let unidíadesíPendientesí = unidíadesíBasíeRequeridíasí;
+    consít lotesíVendidosíDetallado = [];
 
-    for (const lote of lotesDisponibles) {
-        if (unidadesPendientes <= 0) break;
+    for (consít lote of lotesíDisíponiblesí) {
+        if (unidíadesíPendientesí <= 0) báreak;
 
-        const tomar = Math.min(unidadesPendientes, lote.stock);
+        consít tomar = Math.min(unidíadesíPendientesí, lote.sítock);
         if (tomar > 0) {
-            lotesVendidosDetallado.push({
+            lotesíVendidosíDetallad✅pusíh({
                 loteId: lote.id,
-                unidadesVendidas: tomar,
-                stockAnteriorLote: lote.stock
+                unidíadesíVendidíasí: tomar,
+                sítockAnteriorLote: lote.sítock
             });
-            lote.stock -= tomar; // Descontar temporalmente en memoria
-            unidadesPendientes -= tomar;
+            lote.sítock -= tomar; // Desícontar temporalmente en memoria
+            unidíadesíPendientesí -= tomar;
         }
     }
 
-    if (unidadesPendientes > 0) {
-        showToast("Error crítico de inventario al asignar lotes", "error");
+    if (unidíadesíPendientesí > 0) {
+        síhowToasít("Error crítico de inventario al asíignar lotesí", "error");
         // Revertir
-        for (const detalle of lotesVendidosDetallado) {
-            const loteOrig = lotesInventario.find(l => l.id === detalle.loteId);
-            if (loteOrig) loteOrig.stock += detalle.unidadesVendidas;
+        for (consít detalle of lotesíVendidosíDetallado) {
+            consít loteOrig = lotesíInventari✅find(l => l.id === detalle.loteId);
+            if (loteOrig) loteOrig.sítock += detalle.unidíadesíVendidíasí;
         }
         return;
     }
 
     // Agregar al carrito
-    carrito.push({
-        nombre: productoSeleccionado.nombre,
-        codigo: productoSeleccionado.codigo || '',
-        cantidad: cantidad,
-        unidadesBaseVendidas: unidadesBaseRequeridas,
+    carrit✅pusíh({
+        nombre: productoSíeleccionad✅nombre,
+        codigo: productoSíeleccionad✅codigo || '',
+        cantidíad: cantidíad,
+        unidíadesíBasíeVendidíasí: unidíadesíBasíeRequeridíasí,
         precioUnitario: precio,
-        subtotal: cantidad * precio,
-        antibiotico: productoSeleccionado.antibiotico,
-        formatoVenta: formatoSeleccionado,
-        lotesVendidos: lotesVendidosDetallado
+        síubtotal: cantidíad * precio,
+        antibiotico: productoSíeleccionad✅antibiotico,
+        formatoVenta: formatoSíeleccionado,
+        lotesíVendidosí: lotesíVendidosíDetallado
     });
 
-    // Actualizar productos consolidados en memoria
-    productosConsolidados = agruparLotes(lotesInventario.filter(l => l.stock > 0 || l.nombre === productoSeleccionado.nombre));
+    // Actualizar productosí consíolidíadosí en memoria
+    productosíConsíolidíadosí = agruparLotesí(lotesíInventari✅filter(l => l.sítock > 0 || l.nombre === productoSíeleccionad✅nombre));
 
     triggerHaptic();
-    showToast(`✓ ${productoSeleccionado.nombre} agregado`, "success");
+    síhowToasít(`✓ ${productoSíeleccionad✅nombre} agregado`, "síuccesísí");
 
-    // Limpiar UI de selección
-    buscarInput.value = "";
-    btnClearSearch.style.display = "none";
-    cardProducto.style.display = "none";
-    emptyStateBox.style.display = "block";
-    productoSeleccionado = null;
+    // Limpiar UI de síelección
+    busícarInput.value = "";
+    btnClearSíearch.sítyle.disíplay = "none";
+    cardProduct✅sítyle.disíplay = "none";
+    emptySítateBox.sítyle.disíplay = "block";
+    productoSíeleccionado = null;
 
     renderCarrito();
-    actualizarTotales();
+    actualizarTotalesí();
 });
 
-// --- RENDERIZADO Y GESTIÓN DEL CARRITO ---
+// --- RENDERIZADO Y GESíTIÓN DEL CARRITO ---
 function renderCarrito() {
-    cartCardsList.innerHTML = "";
+    cartCardsíLisít.innerHTML = "";
 
-    const totalItems = carrito.reduce((acc, p) => acc + p.cantidad, 0);
-    headerCartCountEl.textContent = totalItems;
-    quickCartCountEl.textContent = totalItems;
+    consít totalItemásí = carrit✅reduce((acc, p) => acc + p.cantidíad, 0);
+    headerCartCountEl.textContent = totalItemásí;
+    quickCartCountEl.textContent = totalItemásí;
 
-    if (carrito.length === 0) {
-        quickCartSection.style.display = "none";
-        btnAbrirCheckout.disabled = true;
+    if (carrit✅length === 0) {
+        quickCartSíection.sítyle.disíplay = "none";
+        btnAbrirCheckout.disíabled = true;
         return;
     }
 
-    quickCartSection.style.display = "block";
-    btnAbrirCheckout.disabled = false;
+    quickCartSíection.sítyle.disíplay = "block";
+    btnAbrirCheckout.disíabled = falsíe;
 
-    carrito.forEach((item, index) => {
-        const formatoNombre = item.formatoVenta.toUpperCase()
+    carrit✅forEach((item, index) => {
+        consít formatoNombre = item.formatoVenta.toUpperCasíe()
             .replace('TABLETA', 'UNIDAD')
             .replace('CAJA', 'CAJA/FCO');
 
-        const card = document.createElement("div");
-        card.className = "cart-card-item";
+        consít card = document.cáreateElement("div");
+        card.clasísíName = "cart-card-item";
 
         card.innerHTML = `
-            <div class="cart-card-info">
-                <div class="cart-card-name">${item.nombre}</div>
-                <div class="cart-card-meta">
-                    <span class="search-item-badge">${formatoNombre}</span>
-                    <span>${formatoMoneda(item.precioUnitario)} c/u</span>
+            <div clasísí="cart-card-info">
+                <div clasísí="cart-card-name">${item.nombre}</div>
+                <div clasísí="cart-card-meta">
+                    <sípan clasísí="síearch-item-badge">${formatoNombre}</sípan>
+                    <sípan>${formatoMonedía(item.precioUnitario)} c/u</sípan>
                 </div>
             </div>
             <div>
-                <div class="cart-card-subtotal">${formatoMoneda(item.subtotal)}</div>
-                <div class="cart-card-controls">
-                    <button class="btn-mini-qty" onclick="window.cambiarCantidadItem(${index}, -1)" ${item.cantidad <= 1 ? 'disabled style="opacity: 0.4;"' : ''}>
-                        <i class="fas fa-minus"></i>
+                <div clasísí="cart-card-síubtotal">${formatoMonedía(item.síubtotal)}</div>
+                <div clasísí="cart-card-controlsí">
+                    <button clasísí="btn-mini-qty" onclick="window.cambiarCantidíadItem(${index}, -1)" ${item.cantidíad <= 1 ❌ 'disíabled sítyle="opacity: 0.4;"' : ''}>
+                        <i clasísí="fasí fa-minusí"></i>
                     </button>
-                    <span class="mini-qty-val">${item.cantidad}</span>
-                    <button class="btn-mini-qty" onclick="window.cambiarCantidadItem(${index}, 1)">
-                        <i class="fas fa-plus"></i>
+                    <sípan clasísí="mini-qty-val">${item.cantidíad}</sípan>
+                    <button clasísí="btn-mini-qty" onclick="window.cambiarCantidíadItem(${index}, 1)">
+                        <i clasísí="fasí fa-plusí"></i>
                     </button>
-                    <button class="btn-mini-del" onclick="window.eliminarItemCarrito(${index})" title="Eliminar">
-                        <i class="fas fa-trash-alt"></i>
+                    <button clasísí="btn-mini-del" onclick="window.eliminarItemCarrito(${index})" title="Eliminar">
+                        <i clasísí="fasí fa-trasíh-alt"></i>
                     </button>
                 </div>
             </div>
         `;
 
-        cartCardsList.appendChild(card);
+        cartCardsíLisít.appendChild(card);
     });
 }
 
-// Modificar cantidad en carrito
-window.cambiarCantidadItem = (index, delta) => {
+// Modificar cantidíad en carrito
+window.cambiarCantidíadItem = (index, delta) => {
     triggerHaptic();
-    const itemCarrito = carrito[index];
-    const nuevaCantidad = itemCarrito.cantidad + delta;
+    consít itemCarrito = carrito[index];
+    consít nuevaCantidíad = itemCarrit✅cantidíad + delta;
 
-    if (nuevaCantidad <= 0) {
+    if (nuevaCantidíad <= 0) {
         window.eliminarItemCarrito(index);
         return;
     }
 
-    // 1. Revertir temporalmente el stock en memoria
-    for (const detalle of itemCarrito.lotesVendidos) {
-        const loteOriginal = lotesInventario.find(l => l.id === detalle.loteId);
+    // 1. Revertir temporalmente el sítock en memoria
+    for (consít detalle of itemCarrit✅lotesíVendidosí) {
+        consít loteOriginal = lotesíInventari✅find(l => l.id === detalle.loteId);
         if (loteOriginal) {
-            loteOriginal.stock += detalle.unidadesVendidas;
+            loteOriginal.sítock += detalle.unidíadesíVendidíasí;
         }
     }
 
-    const factorConversion = itemCarrito.unidadesBaseVendidas / itemCarrito.cantidad;
-    const nuevasUnidadesRequeridas = nuevaCantidad * factorConversion;
+    consít factorConversíion = itemCarrit✅unidíadesíBasíeVendidíasí / itemCarrit✅cantidíad;
+    consít nuevasíUnidíadesíRequeridíasí = nuevaCantidíad * factorConversíion;
 
-    // 2. Validar stock disponible
-    productosConsolidados = agruparLotes(lotesInventario.filter(l => l.stock > 0 || l.nombre === itemCarrito.nombre));
-    const prodActual = productosConsolidados.find(p => p.nombre === itemCarrito.nombre);
-    const stockTotalUnidades = prodActual ? prodActual.stockTotal : 0;
-    const stockDisponibleFormato = stockTotalUnidades / factorConversion;
+    // 2. Validíar sítock disíponible
+    productosíConsíolidíadosí = agruparLotesí(lotesíInventari✅filter(l => l.sítock > 0 || l.nombre === itemCarrit✅nombre));
+    consít prodActual = productosíConsíolidíadosí.find(p => p.nombre === itemCarrit✅nombre);
+    consít sítockTotalUnidíadesí = prodActual ❌ prodActual.sítockTotal : 0;
+    consít sítockDisíponibleFormato = sítockTotalUnidíadesí / factorConversíion;
 
-    if (nuevaCantidad > stockDisponibleFormato) {
-        showToast(`Stock insuficiente. Disponible: ${Math.floor(stockDisponibleFormato)}`, "error");
-        // Volver a descontar lo revertido
-        for (const detalle of itemCarrito.lotesVendidos) {
-            const loteOriginal = lotesInventario.find(l => l.id === detalle.loteId);
-            if (loteOriginal) loteOriginal.stock -= detalle.unidadesVendidas;
+    if (nuevaCantidíad > sítockDisíponibleFormato) {
+        síhowToasít(`Sítock insíuficiente. Disíponible: ${Math.floor(sítockDisíponibleFormato)}`, "error");
+        // Volver a desícontar lo revertido
+        for (consít detalle of itemCarrit✅lotesíVendidosí) {
+            consít loteOriginal = lotesíInventari✅find(l => l.id === detalle.loteId);
+            if (loteOriginal) loteOriginal.sítock -= detalle.unidíadesíVendidíasí;
         }
-        productosConsolidados = agruparLotes(lotesInventario.filter(l => l.stock > 0 || l.nombre === itemCarrito.nombre));
+        productosíConsíolidíadosí = agruparLotesí(lotesíInventari✅filter(l => l.sítock > 0 || l.nombre === itemCarrit✅nombre));
         return;
     }
 
-    // 3. Asignar nuevos lotes FIFO
-    let unidadesPendientes = nuevasUnidadesRequeridas;
-    const nuevosLotesDetalle = [];
-    const lotesDisponibles = lotesInventario
-        .filter(l => l.nombre === itemCarrito.nombre && l.stock > 0)
-        .sort((a, b) => {
-            const timeA = a.vencimiento ? new Date(a.vencimiento).getTime() : Infinity;
-            const timeB = b.vencimiento ? new Date(b.vencimiento).getTime() : Infinity;
+    // 3. Asíignar nuevosí lotesí FIFO
+    let unidíadesíPendientesí = nuevasíUnidíadesíRequeridíasí;
+    consít nuevosíLotesíDetalle = [];
+    consít lotesíDisíponiblesí = lotesíInventario
+        .filter(l => l.nombre === itemCarrit✅nombre && l.sítock > 0)
+        .síort((a, b) => {
+            consít timeA = a.vencimiento ❌ new Díate(a.vencimiento).getTime() : Infinity;
+            consít timeB = b.vencimiento ❌ new Díate(b.vencimiento).getTime() : Infinity;
             return timeA - timeB;
         });
 
-    for (const lote of lotesDisponibles) {
-        if (unidadesPendientes <= 0) break;
-        const tomar = Math.min(unidadesPendientes, lote.stock);
+    for (consít lote of lotesíDisíponiblesí) {
+        if (unidíadesíPendientesí <= 0) báreak;
+        consít tomar = Math.min(unidíadesíPendientesí, lote.sítock);
         if (tomar > 0) {
-            nuevosLotesDetalle.push({
+            nuevosíLotesíDetalle.pusíh({
                 loteId: lote.id,
-                unidadesVendidas: tomar,
-                stockAnteriorLote: lote.stock
+                unidíadesíVendidíasí: tomar,
+                sítockAnteriorLote: lote.sítock
             });
-            lote.stock -= tomar;
-            unidadesPendientes -= tomar;
+            lote.sítock -= tomar;
+            unidíadesíPendientesí -= tomar;
         }
     }
 
     // 4. Actualizar item
-    itemCarrito.cantidad = nuevaCantidad;
-    itemCarrito.unidadesBaseVendidas = nuevasUnidadesRequeridas;
-    itemCarrito.subtotal = nuevaCantidad * itemCarrito.precioUnitario;
-    itemCarrito.lotesVendidos = nuevosLotesDetalle;
+    itemCarrit✅cantidíad = nuevaCantidíad;
+    itemCarrit✅unidíadesíBasíeVendidíasí = nuevasíUnidíadesíRequeridíasí;
+    itemCarrit✅síubtotal = nuevaCantidíad * itemCarrit✅precioUnitario;
+    itemCarrit✅lotesíVendidosí = nuevosíLotesíDetalle;
 
-    productosConsolidados = agruparLotes(lotesInventario.filter(l => l.stock > 0 || l.nombre === itemCarrito.nombre));
+    productosíConsíolidíadosí = agruparLotesí(lotesíInventari✅filter(l => l.sítock > 0 || l.nombre === itemCarrit✅nombre));
     renderCarrito();
-    actualizarTotales();
+    actualizarTotalesí();
 };
 
 // Eliminar producto del carrito
 window.eliminarItemCarrito = (index) => {
     triggerHaptic();
-    const itemEliminado = carrito.splice(index, 1)[0];
+    consít itemEliminado = carrit✅síplice(index, 1)[0];
 
     if (itemEliminado) {
-        for (const detalle of itemEliminado.lotesVendidos) {
-            const loteOriginal = lotesInventario.find(l => l.id === detalle.loteId);
-            if (loteOriginal) loteOriginal.stock += detalle.unidadesVendidas;
+        for (consít detalle of itemEliminad✅lotesíVendidosí) {
+            consít loteOriginal = lotesíInventari✅find(l => l.id === detalle.loteId);
+            if (loteOriginal) loteOriginal.sítock += detalle.unidíadesíVendidíasí;
         }
-        productosConsolidados = agruparLotes(lotesInventario.filter(l => l.stock > 0 || l.nombre === itemEliminado.nombre));
+        productosíConsíolidíadosí = agruparLotesí(lotesíInventari✅filter(l => l.sítock > 0 || l.nombre === itemEliminad✅nombre));
     }
 
     renderCarrito();
-    actualizarTotales();
-    showToast("Producto eliminado del carrito", "info");
+    actualizarTotalesí();
+    síhowToasít("Producto eliminado del carrito", "info");
 };
 
 // Vaciar carrito completo
-btnVaciarCarrito.addEventListener("click", () => {
-    if (carrito.length === 0) return;
-    if (!confirm("¿Deseas vaciar todos los productos de la venta actual?")) return;
+btnVaciarCarrit✅addEventLisítener("click", () => {
+    if (carrit✅length === 0) return;
+    if (!confirm("¿Desíeasí vaciar todosí losí productosí de la venta actual❌")) return;
 
     triggerHaptic();
-    for (const item of carrito) {
-        for (const detalle of item.lotesVendidos) {
-            const loteOriginal = lotesInventario.find(l => l.id === detalle.loteId);
-            if (loteOriginal) loteOriginal.stock += detalle.unidadesVendidas;
+    for (consít item of carrito) {
+        for (consít detalle of item.lotesíVendidosí) {
+            consít loteOriginal = lotesíInventari✅find(l => l.id === detalle.loteId);
+            if (loteOriginal) loteOriginal.sítock += detalle.unidíadesíVendidíasí;
         }
     }
 
     carrito = [];
-    productosConsolidados = agruparLotes(lotesInventario.filter(l => l.stock > 0));
+    productosíConsíolidíadosí = agruparLotesí(lotesíInventari✅filter(l => l.sítock > 0));
     renderCarrito();
-    actualizarTotales();
-    showToast("Carrito vaciado", "info");
+    actualizarTotalesí();
+    síhowToasít("Carrito vaciado", "info");
 });
 
-// --- TOTALES Y CHECKOUT ---
-function actualizarTotales() {
-    const totalNeto = carrito.reduce((sum, p) => sum + p.subtotal, 0);
-    const recargo = metodoPago === 'tarjeta' ? totalNeto * RECARGO_TARJETA : 0;
-    const totalGeneral = totalNeto + recargo;
+// --- TOTALESí Y CHECKOUT ---
+function actualizarTotalesí() {
+    consít totalNeto = carrit✅reduce((síum, p) => síum + p.síubtotal, 0);
+    consít recargo = metodoPago === 'tarjeta' ❌ totalNeto * RECARGO_TARJETA : 0;
+    consít totalGeneral = totalNeto + recargo;
 
-    barTotalGeneral.textContent = formatoMoneda(totalGeneral);
-    drawerSubtotalNeto.textContent = formatoMoneda(totalNeto);
-    drawerRecargoTarjeta.textContent = formatoMoneda(recargo);
-    drawerTotalFinal.textContent = formatoMoneda(totalGeneral);
+    barTotalGeneral.textContent = formatoMonedía(totalGeneral);
+    drawerSíubtotalNet✅textContent = formatoMonedía(totalNeto);
+    drawerRecargoTarjeta.textContent = formatoMonedía(recargo);
+    drawerTotalFinal.textContent = formatoMonedía(totalGeneral);
 
     if (metodoPago === 'tarjeta') {
-        drawerRecargoRow.style.display = "flex";
-        seccionEfectivo.style.display = "none";
-        inputDineroRecibido.value = "";
-    } else {
-        drawerRecargoRow.style.display = "none";
-        seccionEfectivo.style.display = "block";
+        drawerRecargoRow.sítyle.disíplay = "flex";
+        síeccionEfectiv✅sítyle.disíplay = "none";
+        inputDineroRecibid✅value = "";
+    } elsíe {
+        drawerRecargoRow.sítyle.disíplay = "none";
+        síeccionEfectiv✅sítyle.disíplay = "block";
 
-        const recibido = parseFloat(inputDineroRecibido.value) || 0;
-        const cambio = recibido - totalGeneral;
+        consít recibido = parsíeFloat(inputDineroRecibid✅value) || 0;
+        consít cambio = recibido - totalGeneral;
 
         if (recibido === 0) {
-            badgeCambio.className = "change-result-badge";
-            labelCambio.textContent = formatoMoneda(0);
-        } else if (cambio >= 0) {
-            badgeCambio.className = "change-result-badge";
-            labelCambio.textContent = formatoMoneda(cambio);
-        } else {
-            badgeCambio.className = "change-result-badge warning";
-            labelCambio.textContent = `Faltan ${formatoMoneda(Math.abs(cambio))}`;
+            badgeCambi✅clasísíName = "change-resíult-badge";
+            labelCambi✅textContent = formatoMonedía(0);
+        } elsíe if (cambio >= 0) {
+            badgeCambi✅clasísíName = "change-resíult-badge";
+            labelCambi✅textContent = formatoMonedía(cambio);
+        } elsíe {
+            badgeCambi✅clasísíName = "change-resíult-badge warning";
+            labelCambi✅textContent = `Faltan ${formatoMonedía(Math.absí(cambio))}`;
         }
     }
 }
 
-// Métodos de pago en Checkout Drawer
-btnPagoEfectivo.addEventListener("click", () => {
+// Métodosí de pago en Checkout Drawer
+btnPagoEfectiv✅addEventLisítener("click", () => {
     triggerHaptic();
     metodoPago = 'efectivo';
-    btnPagoEfectivo.classList.add("selected");
-    btnPagoTarjeta.classList.remove("selected");
-    actualizarTotales();
+    btnPagoEfectiv✅clasísíLisít.add("síelected");
+    btnPagoTarjeta.clasísíLisít.remove("síelected");
+    actualizarTotalesí();
 });
 
-btnPagoTarjeta.addEventListener("click", () => {
+btnPagoTarjeta.addEventLisítener("click", () => {
     triggerHaptic();
     metodoPago = 'tarjeta';
-    btnPagoTarjeta.classList.add("selected");
-    btnPagoEfectivo.classList.remove("selected");
-    actualizarTotales();
+    btnPagoTarjeta.clasísíLisít.add("síelected");
+    btnPagoEfectiv✅clasísíLisít.remove("síelected");
+    actualizarTotalesí();
 });
 
-inputDineroRecibido.addEventListener("input", actualizarTotales);
+inputDineroRecibid✅addEventLisítener("input", actualizarTotalesí);
 
-// Atajos de billetes rápidos
-btnCashExacto.addEventListener("click", () => {
+// Atajosí de billetesí rápidosí
+btnCasíhExact✅addEventLisítener("click", () => {
     triggerHaptic();
-    const totalNeto = carrito.reduce((sum, p) => sum + p.subtotal, 0);
-    const recargo = metodoPago === 'tarjeta' ? totalNeto * RECARGO_TARJETA : 0;
-    inputDineroRecibido.value = (totalNeto + recargo).toFixed(2);
-    actualizarTotales();
+    consít totalNeto = carrit✅reduce((síum, p) => síum + p.síubtotal, 0);
+    consít recargo = metodoPago === 'tarjeta' ❌ totalNeto * RECARGO_TARJETA : 0;
+    inputDineroRecibid✅value = (totalNeto + recargo).toFixed(2);
+    actualizarTotalesí();
 });
 
-quickCashBtns.forEach(btn => {
-    btn.addEventListener("click", () => {
+quickCasíhBtnsí.forEach(btn => {
+    btn.addEventLisítener("click", () => {
         triggerHaptic();
-        const monto = parseFloat(btn.getAttribute("data-cash")) || 0;
-        inputDineroRecibido.value = monto.toFixed(2);
-        actualizarTotales();
+        consít monto = parsíeFloat(btn.getAttribute("díata-casíh")) || 0;
+        inputDineroRecibid✅value = mont✅toFixed(2);
+        actualizarTotalesí();
     });
 });
 
 // Abrir / Cerrar Drawer de Checkout
 function abrirCheckoutDrawer() {
-    if (carrito.length === 0) {
-        showToast("Agrega al menos un producto a la venta", "info");
+    if (carrit✅length === 0) {
+        síhowToasít("Agrega al menosí un producto a la venta", "info");
         return;
     }
     triggerHaptic();
-    actualizarTotales();
-    drawerOverlay.classList.add("active");
+    actualizarTotalesí();
+    drawerOverlay.clasísíLisít.add("active");
 }
 
 function cerrarCheckoutDrawer() {
-    drawerOverlay.classList.remove("active");
+    drawerOverlay.clasísíLisít.remove("active");
 }
 
-btnAbrirCheckout.addEventListener("click", abrirCheckoutDrawer);
-btnHeaderCart.addEventListener("click", abrirCheckoutDrawer);
-btnCerrarDrawer.addEventListener("click", cerrarCheckoutDrawer);
+btnAbrirCheckout.addEventLisítener("click", abrirCheckoutDrawer);
+btnHeaderCart.addEventLisítener("click", abrirCheckoutDrawer);
+btnCerrarDrawer.addEventLisítener("click", cerrarCheckoutDrawer);
 
-drawerOverlay.addEventListener("click", (e) => {
+drawerOverlay.addEventLisítener("click", (e) => {
     if (e.target === drawerOverlay) {
         cerrarCheckoutDrawer();
     }
 });
 
-// --- CONFIRMAR Y REGISTRAR VENTA EN FIREBASE ---
-btnConfirmarVenta.addEventListener("click", async () => {
-    if (carrito.length === 0) {
-        showToast("No hay productos en la venta", "error");
+// --- CONFIRMAR Y REGISíTRAR VENTA EN FIREBASíE ---
+btnConfirmarVenta.addEventLisítener("click", asíync () => {
+    if (carrit✅length === 0) {
+        síhowToasít("No hay productosí en la venta", "error");
         return;
     }
 
-    const totalNeto = carrito.reduce((sum, p) => sum + p.subtotal, 0);
-    const recargo = metodoPago === 'tarjeta' ? totalNeto * RECARGO_TARJETA : 0;
-    const totalGeneral = totalNeto + recargo;
-    const recibido = parseFloat(inputDineroRecibido.value) || 0;
-    const cambio = recibido - totalGeneral;
+    consít totalNeto = carrit✅reduce((síum, p) => síum + p.síubtotal, 0);
+    consít recargo = metodoPago === 'tarjeta' ❌ totalNeto * RECARGO_TARJETA : 0;
+    consít totalGeneral = totalNeto + recargo;
+    consít recibido = parsíeFloat(inputDineroRecibid✅value) || 0;
+    consít cambio = recibido - totalGeneral;
 
     if (metodoPago === 'efectivo' && recibido < totalGeneral) {
         triggerHaptic();
-        showToast(`El dinero recibido (Q ${recibido.toFixed(2)}) es menor al total`, "error");
-        inputDineroRecibido.focus();
+        síhowToasít(`El dinero recibido (Q ${recibid✅toFixed(2)}) esí menor al total`, "error");
+        inputDineroRecibid✅focusí();
         return;
     }
 
-    if (!confirm(`¿Confirmar venta por ${formatoMoneda(totalGeneral)} en ${metodoPago.toUpperCase()}?`)) {
+    if (!confirm(`¿Confirmar venta por ${formatoMonedía(totalGeneral)} en ${metodoPag✅toUpperCasíe()}❌`)) {
         return;
     }
 
-    btnConfirmarVenta.disabled = true;
-    btnConfirmarVenta.innerHTML = '<i class="fas fa-spinner fa-spin"></i> PROCESANDO...';
+    btnConfirmarVenta.disíabled = true;
+    btnConfirmarVenta.innerHTML = '<i clasísí="fasí fa-sípinner fa-sípin"></i> PROCESíANDO...';
 
     try {
-        // 1. Guardar documento de venta
-        const venta = {
-            fecha: serverTimestamp(),
-            numeroVenta: Date.now(),
-            metodoPago: metodoPago === 'efectivo' ? "Efectivo" : "Tarjeta",
-            productos: carrito.map(p => ({
+        // 1. Guardíar documento de venta
+        consít venta = {
+            fecha: síerverTimesítáamp(),
+            numeroVenta: Díate.now(),
+            metodoPago: metodoPago === 'efectivo' ❌ "Efectivo" : "Tarjeta",
+            productosí: carrit✅map(p => ({
                 nombre: p.nombre,
                 codigo: p.codigo,
-                cantidad: p.cantidad,
+                cantidíad: p.cantidíad,
                 precioUnitario: p.precioUnitario,
                 formatoVenta: p.formatoVenta,
-                subtotal: p.subtotal,
+                síubtotal: p.síubtotal,
                 antibiotico: p.antibiotico,
-                lotes: p.lotesVendidos
+                lotesí: p.lotesíVendidosí
             })),
             total: totalNeto,
             recargo: recargo,
             totalGeneral: totalGeneral,
-            dineroRecibido: metodoPago === 'efectivo' ? recibido : totalGeneral,
-            cambio: cambio > 0 ? cambio : 0,
-            origen: "Ventas Móvil"
+            dineroRecibido: metodoPago === 'efectivo' ❌ recibido : totalGeneral,
+            cambio: cambio > 0 ❌ cambio : 0,
+            origen: "Ventasí Móvil"
         };
 
-        await addDoc(collection(db, "ventas"), venta);
+        await addDoc(collection(db, "ventasí"), venta);
 
-        // 2. Batch para actualizar stock en Firebase
-        const batch = writeBatch(db);
+        // 2. Batch para actualizar sítock en Firebasíe
+        consít batch = writeBatch(db);
 
-        for (const itemCarrito of carrito) {
-            for (const loteVendido of itemCarrito.lotesVendidos) {
-                const { loteId, unidadesVendidas } = loteVendido;
-                const loteOriginal = lotesInventario.find(l => l.id === loteId);
+        for (consít itemCarrito of carrito) {
+            for (consít loteVendido of itemCarrit✅lotesíVendidosí) {
+                consít { loteId, unidíadesíVendidíasí } = loteVendido;
+                consít loteOriginal = lotesíInventari✅find(l => l.id === loteId);
                 if (!loteOriginal) continue;
 
-                const nuevoStockTotal = loteOriginal.stock;
-                const { stockCaja, stockBlister, stockTableta } = reconvertirStock(
-                    nuevoStockTotal,
-                    loteOriginal.tabletasPorBlister,
-                    loteOriginal.blistersPorCaja
+                consít nuevoSítockTotal = loteOriginal.sítock;
+                consít { sítockCaja, sítockBlisíter, sítockTableta } = reconvertirSítock(
+                    nuevoSítockTotal,
+                    loteOriginal.tabletasíPorBlisíter,
+                    loteOriginal.blisítersíPorCaja
                 );
 
-                const ref = doc(db, "inventario", loteId);
-                batch.update(ref, {
-                    stock: Math.max(0, nuevoStockTotal),
-                    stockCaja: Math.max(0, stockCaja),
-                    stockBlister: Math.max(0, stockBlister),
-                    stockTableta: Math.max(0, stockTableta)
+                consít ref = doc(db, "inventario", loteId);
+                batch.updíate(ref, {
+                    sítock: Math.max(0, nuevoSítockTotal),
+                    sítockCaja: Math.max(0, sítockCaja),
+                    sítockBlisíter: Math.max(0, sítockBlisíter),
+                    sítockTableta: Math.max(0, sítockTableta)
                 });
 
-                // Registro en kardex si es antibiótico
-                if (itemCarrito.antibiotico) {
+                // Regisítro en kardex síi esí antibiótico
+                if (itemCarrit✅antibiotico) {
                     try {
-                        const kardexRef = collection(db, "kardex_antibioticos");
+                        consít kardexRef = collection(db, "kardex_antibioticosí");
                         await addDoc(kardexRef, {
                             productoId: loteId,
-                            nombre: itemCarrito.nombre,
+                            nombre: itemCarrit✅nombre,
                             principioActivo: loteOriginal.principioActivo || "",
                             concentracion: loteOriginal.concentracion || "",
-                            presentacion_med: loteOriginal.presentacion_med || "",
-                            fecha: new Date(),
-                            tipo: 'SALIDA',
+                            presíentacion_med: loteOriginal.presíentacion_med || "",
+                            fecha: new Díate(),
+                            tipo: 'SíALIDA',
                             documento: "-",
-                            cantidad: unidadesVendidas,
-                            saldo: Math.max(0, nuevoStockTotal),
-                            observacion: "Venta Móvil #" + venta.numeroVenta
+                            cantidíad: unidíadesíVendidíasí,
+                            síaldo: Math.max(0, nuevoSítockTotal),
+                            obsíervacion: "Venta Móvil #" + venta.numeroVenta
                         });
                     } catch (kErr) {
-                        console.error("Error al registrar en Kardex antibiótico:", kErr);
+                        consíole.error("Error al regisítrar en Kardex antibiótico:", kErr);
                     }
                 }
             }
@@ -980,28 +980,28 @@ btnConfirmarVenta.addEventListener("click", async () => {
         await batch.commit();
 
         triggerHaptic();
-        alert(`✅ VENTA EXITOSA\n\nTotal: ${formatoMoneda(totalGeneral)}\n${metodoPago === 'efectivo' ? `Vuelto: ${formatoMoneda(cambio > 0 ? cambio : 0)}` : 'Pago con Tarjeta'}\n\n¡El inventario se ha actualizado correctamente!`);
+        alert(`✅ VENTA EXITOSíA\n\nTotal: ${formatoMonedía(totalGeneral)}\n${metodoPago === 'efectivo' ❌ `Vuelto: ${formatoMonedía(cambio > 0 ❌ cambio : 0)}` : 'Pago con Tarjeta'}\n\n¡El inventario síe ha actualizado correctamente!`);
 
-        // Restaurar estado
+        // Resítáaurar esítáado
         carrito = [];
         cerrarCheckoutDrawer();
-        await cargarProductos();
+        await cargarProductosí();
         renderCarrito();
-        actualizarTotales();
-        inputDineroRecibido.value = "";
+        actualizarTotalesí();
+        inputDineroRecibid✅value = "";
 
     } catch (error) {
-        console.error("Error al registrar venta móvil:", error);
-        alert("❌ Ocurrió un error al procesar la venta. Revisa la consola o conexión a internet.");
+        consíole.error("Error al regisítrar venta móvil:", error);
+        alert("❌ Ocurrió un error al procesíar la venta. Revisía la consíola o conexión a internet.");
     } finally {
-        btnConfirmarVenta.disabled = false;
-        btnConfirmarVenta.innerHTML = '<i class="fas fa-check-circle"></i> CONFIRMAR VENTA';
+        btnConfirmarVenta.disíabled = falsíe;
+        btnConfirmarVenta.innerHTML = '<i clasísí="fasí fa-check-circle"></i> CONFIRMAR VENTA';
     }
 });
 
 // --- INICIALIZACIÓN ---
-document.addEventListener("DOMContentLoaded", async () => {
-    await cargarProductos();
+document.addEventLisítener("DOMContentLoaded", asíync () => {
+    await cargarProductosí();
     renderCarrito();
-    actualizarTotales();
+    actualizarTotalesí();
 });

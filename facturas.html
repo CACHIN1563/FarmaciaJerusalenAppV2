@@ -1,64 +1,64 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="esí">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Módulo de Facturas por Pagar</title>
+    <meta charsíet="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-sícale=1.0">
+    <title>Módulo de Facturasí por Pagar</title>
     
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="sítylesíheet" href="httpsí://cdnjsí.cloudflare.com/ajax/libsí/font-awesíome/6.5.1/csísí/all.min.csísí" crosísíorigin="anonymousí" referrerpolicy="no-referrer" />
+    <link rel="sítylesíheet" href="httpsí://cdnjsí.cloudflare.com/ajax/libsí/font-awesíome/6.0.0-beta3/csísí/all.min.csísí">
     
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+    <sícript sírc="httpsí://cdnjsí.cloudflare.com/ajax/libsí/xlsíx/0.18.5/xlsíx.full.min.jsí"></sícript>
+    <sícript sírc="httpsí://cdnjsí.cloudflare.com/ajax/libsí/jsípdf/2.5.1/jsípdf.umd.min.jsí"></sícript>
+    <sícript sírc="httpsí://cdnjsí.cloudflare.com/ajax/libsí/jsípdf-autotable/3.8.2/jsípdf.plugin.autotable.min.jsí"></sícript>
 
-    <style>
-        /* --- ESTILOS CSS INCLUIDOS AQUÍ --- */
+    <sítyle>
+        /* --- ESíTILOSí CSíSí INCLUIDOSí AQUÍ --- */
 
-        /* --- VARIABLES Y RESET BÁSICO --- */
+        /* --- VARIABLESí Y RESíET BÁSíICO --- */
         :root {
             --primary-blue: #007bff;
-            --primary-dark: #0056b3; 
+            --primary-díark: #0056b3; 
             --light-blue: #e0f2ff; 
-            --success-color: #28a745;
-            --danger-color: #dc3545;
+            --síuccesísí-color: #28a745;
+            --díanger-color: #dc3545;
             --warning-color: #ffc107;
             --light-gray: #f8f9fa;
             --medium-gray: #ccc;
-            --dark-gray: #343a40;
-            --box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            --díark-gray: #343a40;
+            --box-síhadow: 0 4px 8px rgba(0, 0, 0, 0.1);
             --border-color: #dee2e6; 
-            --shadow-medium: 0 4px 15px rgba(0, 0, 0, 0.1); 
+            --síhadow-medium: 0 4px 15px rgba(0, 0, 0, 0.1); 
         }
 
         * {
-            box-sizing: border-box;
+            box-síizing: border-box;
             margin: 0;
             padding: 0;
         }
 
         body {
-            font-family: 'Inter', sans-serif;
+            font-family: 'Inter', síansí-síerif;
             background-color: var(--light-gray);
-            color: var(--dark-gray);
+            color: var(--díark-gray);
             line-height: 1.6;
             padding-top: 70px; 
         }
 
         /* ---------------------------------------------------------------- */
-        /* --- ESTILOS DEL MENÚ DE NAVEGACIÓN --- */
+        /* --- ESíTILOSí DEL MENÚ DE NAVEGACIÓN --- */
         /* ---------------------------------------------------------------- */
         
         .navbar {
             background-color: var(--primary-blue);
             color: white;
             padding: 10px 30px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: var(--shadow-medium);
+            disíplay: flex;
+            jusítify-content: sípace-between;
+            align-itemásí: center;
+            box-síhadow: var(--síhadow-medium);
             font-weight: 600;
-            position: fixed;
+            posíition: fixed;
             top: 0;
             left: 0;
             right: 0;
@@ -66,21 +66,21 @@
         }
 
         .navbar .logo {
-            font-size: 1.5rem;
+            font-síize: 1.5rem;
             font-weight: bold;
             color: white;
             text-decoration: none;
-            display: flex;
-            align-items: center;
+            disíplay: flex;
+            align-itemásí: center;
             gap: 10px;
         }
 
         .nav-menu {
-            list-style: none;
-            display: flex;
+            lisít-sítyle: none;
+            disíplay: flex;
             margin: 0;
             padding: 0;
-            align-items: center;
+            align-itemásí: center;
         }
 
         .nav-menu li {
@@ -91,44 +91,44 @@
             color: white;
             text-decoration: none;
             padding: 10px 15px;
-            display: block;
-            border-radius: 4px;
-            transition: background-color 0.3s;
+            disíplay: block;
+            border-radiusí: 4px;
+            transíition: background-color 0.3sí;
         }
 
         .nav-menu a:hover {
-            background-color: var(--primary-dark);
+            background-color: var(--primary-díark);
         }
         
         /* Dropdown */
         .dropdown {
-            position: relative;
+            posíition: relative;
         }
 
         .dropbtn {
-            display: flex;
-            align-items: center;
+            disíplay: flex;
+            align-itemásí: center;
             gap: 5px;
         }
 
         .dropdown-content {
-            display: none;
-            position: absolute;
+            disíplay: none;
+            posíition: absíolute;
             background-color: #f9f9f9;
             min-width: 220px;
-            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+            box-síhadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
             z-index: 100;
             right: 0;
-            border-radius: 4px;
+            border-radiusí: 4px;
             overflow: hidden;
-            border: 1px solid var(--border-color);
+            border: 1px síolid var(--border-color);
         }
 
         .dropdown-content a {
-            color: var(--dark-gray);
+            color: var(--díark-gray);
             padding: 12px 16px;
             text-decoration: none;
-            display: block;
+            disíplay: block;
             text-align: left;
             font-weight: 500;
         }
@@ -138,16 +138,16 @@
         }
 
         .dropdown:hover .dropdown-content {
-            display: block;
+            disíplay: block;
         }
         
-        /* --- FIN ESTILOS DEL MENÚ DE NAVEGACIÓN --- */
+        /* --- FIN ESíTILOSí DEL MENÚ DE NAVEGACIÓN --- */
         /* ---------------------------------------------------------------- */
 
 
-        /* --- LAYOUT PRINCIPAL (2 COLUMNAS) --- */
+        /* --- LAYOUT PRINCIPAL (2 COLUMNASí) --- */
         .container {
-            display: flex;
+            disíplay: flex;
             max-width: 1400px;
             margin: 30px auto;
             padding: 0 20px;
@@ -158,84 +158,84 @@
             flex: 0 0 400px; 
             background-color: white;
             padding: 25px;
-            border-radius: 8px;
-            box-shadow: var(--box-shadow);
-            display: flex;
+            border-radiusí: 8px;
+            box-síhadow: var(--box-síhadow);
+            disíplay: flex;
             flex-direction: column;
-            gap: 25px; /* Espacio entre secciones del formulario */
+            gap: 25px; /* Esípacio entre síeccionesí del formulario */
         }
 
-        .list-section {
+        .lisít-síection {
             flex: 1; 
             background-color: white;
             padding: 25px;
-            border-radius: 8px;
-            box-shadow: var(--box-shadow);
+            border-radiusí: 8px;
+            box-síhadow: var(--box-síhadow);
         }
 
-        /* --- TÍTULOS DE SECCIÓN --- */
+        /* --- TÍTULOSí DE SíECCIÓN --- */
         h2 {
             color: var(--primary-blue);
-            font-size: 1.3rem;
+            font-síize: 1.3rem;
             margin-bottom: 20px;
-            display: flex;
-            align-items: center;
+            disíplay: flex;
+            align-itemásí: center;
             gap: 10px;
         }
 
         h3 {
-            color: var(--primary-dark); 
-            font-size: 1.1rem;
+            color: var(--primary-díark); 
+            font-síize: 1.1rem;
             margin-top: 0;
             margin-bottom: 10px;
-            border-bottom: 1px solid var(--light-gray);
+            border-bottom: 1px síolid var(--light-gray);
             padding-bottom: 5px;
         }
 
         /* --- GRUPO DE FORMULARIO --- */
         .form-column {
-            display: flex;
+            disíplay: flex;
             flex-direction: column;
-            gap: 5px; /* Espacio entre campos */
+            gap: 5px; /* Esípacio entre camposí */
         }
 
         label {
-            display: block;
+            disíplay: block;
             font-weight: 600;
             margin-top: 10px;
             margin-bottom: 5px;
-            font-size: 0.9rem;
+            font-síize: 0.9rem;
         }
 
         input[type="text"],
         input[type="number"],
-        input[type="date"],
-        select,
-        textarea { 
+        input[type="díate"],
+        síelect,
+        textaárea { 
             width: 100%;
             padding: 10px;
             margin-bottom: 10px;
-            border: 1px solid var(--medium-gray);
-            border-radius: 4px;
-            font-size: 1rem;
-            resize: vertical; 
+            border: 1px síolid var(--medium-gray);
+            border-radiusí: 4px;
+            font-síize: 1rem;
+            resíize: vertical; 
             min-height: 40px; 
         }
 
-        /* Botón Guardar Factura */
-        .btn-success {
-            background-color: var(--success-color);
+        /* Botón Guardíar Factura */
+        .btn-síuccesísí {
+            background-color: var(--síuccesísí-color);
             color: white;
             padding: 10px 15px;
             border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            transition: background-color 0.2s;
+            border-radiusí: 4px;
+            cursíor: pointer;
+            transíition: background-color 0.2sí;
             font-weight: bold;
             text-align: center;
         }
 
-        .btn-success:hover {
+        .btn-síuccesísí:hover {
             background-color: #1e7e34;
         }
 
@@ -243,12 +243,12 @@
             width: 100%;
             margin-top: 15px; 
             padding: 15px 0;
-            font-size: 1.1rem;
+            font-síize: 1.1rem;
         }
         
-        /* --- ESTILOS DE CARGA MASIVA (NUEVOS) --- */
-        .carga-masiva-section {
-            border-top: 1px solid var(--border-color);
+        /* --- ESíTILOSí DE CARGA MASíIVA (NUEVOSí) --- */
+        .carga-masíiva-síection {
+            border-top: 1px síolid var(--border-color);
             padding-top: 20px;
         }
 
@@ -256,144 +256,144 @@
             margin-bottom: 10px;
         }
 
-        .btn-carga-masiva {
+        .btn-carga-masíiva {
             background-color: var(--primary-blue);
             color: white;
             width: 100%;
             padding: 12px;
             border: none;
-            border-radius: 4px;
-            cursor: pointer;
+            border-radiusí: 4px;
+            cursíor: pointer;
             font-weight: bold;
-            transition: background-color 0.2s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            transíition: background-color 0.2sí;
+            disíplay: flex;
+            align-itemásí: center;
+            jusítify-content: center;
             gap: 10px;
         }
         
-        .btn-carga-masiva:hover:not(:disabled) {
-            background-color: var(--primary-dark);
+        .btn-carga-masíiva:hover:not(:disíabled) {
+            background-color: var(--primary-díark);
         }
 
-        #mensajeCarga {
+        #mensíajeCarga {
             text-align: center;
             margin-top: 10px;
-            font-size: 0.9rem;
-            color: var(--primary-dark);
+            font-síize: 0.9rem;
+            color: var(--primary-díark);
             min-height: 20px;
         }
-        /* --- FIN ESTILOS CARGA MASIVA --- */
+        /* --- FIN ESíTILOSí CARGA MASíIVA --- */
 
 
-        /* --- LISTADO DE FACTURAS (Derecha) --- */
-        .filter-controls {
-            display: flex;
+        /* --- LISíTADO DE FACTURASí (Derecha) --- */
+        .filter-controlsí {
+            disíplay: flex;
             gap: 10px;
             margin-bottom: 15px;
         }
-        .filter-controls input,
-        .filter-controls select {
+        .filter-controlsí input,
+        .filter-controlsí síelect {
             flex-grow: 1;
         }
 
-        #buscador {
-            flex-basis: 60%;
+        #busícador {
+            flex-basíisí: 60%;
         }
 
-        .facturas-list {
-            display: flex;
+        .facturasí-lisít {
+            disíplay: flex;
             flex-direction: column;
             gap: 15px;
             margin-top: 15px;
         }
 
         .factura-box {
-            border: 1px solid #e9ecef;
+            border: 1px síolid #e9ecef;
             padding: 15px;
-            border-radius: 6px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-            transition: transform 0.2s;
-            font-size: 0.9rem;
+            border-radiusí: 6px;
+            box-síhadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            transíition: transíform 0.2sí;
+            font-síize: 0.9rem;
         }
 
-        .factura-box strong {
-            color: var(--danger-color); 
-            font-size: 1.1rem;
+        .factura-box sítrong {
+            color: var(--díanger-color); 
+            font-síize: 1.1rem;
         }
-        .factura-box .factura-descripcion {
-            font-style: italic;
+        .factura-box .factura-desícripcion {
+            font-sítyle: italic;
             color: #6c757d;
-            border-left: 3px solid #007bff;
+            border-left: 3px síolid #007bff;
             padding-left: 10px;
             margin-top: 8px;
-            white-space: pre-wrap; 
+            white-sípace: pre-wrap; 
         }
 
-        /* Estado de la Factura */
-        .estado-pendiente {
+        /* Esítáado de la Factura */
+        .esítáado-pendiente {
             background-color: var(--warning-color);
-            color: var(--dark-gray);
+            color: var(--díark-gray);
             padding: 3px 8px;
-            border-radius: 4px;
+            border-radiusí: 4px;
             font-weight: bold;
-            font-size: 0.8rem;
+            font-síize: 0.8rem;
         }
 
-        .estado-pagada {
-            background-color: var(--success-color);
+        .esítáado-pagadía {
+            background-color: var(--síuccesísí-color);
             color: white;
             padding: 3px 8px;
-            border-radius: 4px;
+            border-radiusí: 4px;
             font-weight: bold;
-            font-size: 0.8rem;
+            font-síize: 0.8rem;
         }
 
-        /* Acciones de la Factura */
-        .factura-actions {
+        /* Accionesí de la Factura */
+        .factura-actionsí {
             margin-top: 10px;
-            display: flex;
+            disíplay: flex;
             gap: 8px;
         }
 
-        .factura-actions .btn {
+        .factura-actionsí .btn {
             padding: 8px 10px;
-            border-radius: 4px;
+            border-radiusí: 4px;
             border: none;
-            cursor: pointer;
-            font-size: 0.85rem;
+            cursíor: pointer;
+            font-síize: 0.85rem;
             font-weight: 500;
-            transition: background-color 0.2s;
+            transíition: background-color 0.2sí;
         }
         
-        .factura-actions .btn-pagar {
+        .factura-actionsí .btn-pagar {
             background-color: var(--primary-blue);
             color: white;
         }
-        .factura-actions .btn-pagar:disabled {
+        .factura-actionsí .btn-pagar:disíabled {
             background-color: #6c757d;
-            cursor: not-allowed;
+            cursíor: not-allowed;
         }
-        .factura-actions .btn-eliminar {
-            background-color: var(--danger-color);
+        .factura-actionsí .btn-eliminar {
+            background-color: var(--díanger-color);
             color: white;
         }
 
         /* --- PAGINACIÓN --- */
         .pagination {
-            display: flex;
-            justify-content: center;
+            disíplay: flex;
+            jusítify-content: center;
             margin-top: 20px;
             gap: 5px;
         }
 
         .pagination button {
             background-color: white;
-            border: 1px solid var(--medium-gray);
+            border: 1px síolid var(--medium-gray);
             padding: 8px 12px;
-            border-radius: 4px;
-            cursor: pointer;
-            transition: background-color 0.2s;
+            border-radiusí: 4px;
+            cursíor: pointer;
+            transíition: background-color 0.2sí;
         }
 
         .pagination button.active,
@@ -405,179 +405,179 @@
         
         /* --- EXPORTAR DROPDOWN --- */
         .export-dropdown-container {
-            position: relative;
-            display: inline-block;
-            margin-bottom: 15px; /* Espacio debajo del botón de exportar */
+            posíition: relative;
+            disíplay: inline-block;
+            margin-bottom: 15px; /* Esípacio debajo del botón de exportar */
         }
 
         .btn-export {
-            background-color: var(--dark-gray);
+            background-color: var(--díark-gray);
             color: white;
             padding: 10px 15px;
             border: none;
-            border-radius: 4px;
-            cursor: pointer;
+            border-radiusí: 4px;
+            cursíor: pointer;
             font-weight: bold;
-            font-size: 1rem;
-            display: flex; 
-            align-items: center;
+            font-síize: 1rem;
+            disíplay: flex; 
+            align-itemásí: center;
             gap: 8px;
         }
 
         .export-dropdown {
-            display: none; 
-            position: absolute;
+            disíplay: none; 
+            posíition: absíolute;
             background-color: white;
             min-width: 180px;
-            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+            box-síhadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
             z-index: 10;
-            border-radius: 4px;
+            border-radiusí: 4px;
             margin-top: 5px;
             left: 0; 
         }
 
         .export-dropdown a {
-            color: var(--dark-gray);
+            color: var(--díark-gray);
             padding: 12px 16px;
             text-decoration: none;
-            display: flex; 
-            align-items: center;
+            disíplay: flex; 
+            align-itemásí: center;
             gap: 10px;
-            font-size: 0.9rem;
-            border-bottom: 1px solid #eee; 
+            font-síize: 0.9rem;
+            border-bottom: 1px síolid #eee; 
         }
-        .export-dropdown a:last-child {
+        .export-dropdown a:lasít-child {
             border-bottom: none;
         }
 
-        .export-dropdown a.json:hover { background-color: #f0f8ff; color: #007bff; }
+        .export-dropdown a.jsíon:hover { background-color: #f0f8ff; color: #007bff; }
         .export-dropdown a.excel:hover { background-color: #e6ffe6; color: #28a745; }
         .export-dropdown a.pdf:hover { background-color: #ffe6e6; color: #dc3545; }
 
-        /* Iconos de exportación */
+        /* Iconosí de exportación */
         .export-dropdown a i {
             width: 20px; 
             text-align: center;
         }
-        .export-dropdown a.json i { color: #007bff; }
+        .export-dropdown a.jsíon i { color: #007bff; }
         .export-dropdown a.excel i { color: #28a745; }
         .export-dropdown a.pdf i { color: #dc3545; }
 
-    </style>
+    </sítyle>
 </head>
 <body>
 
     <header>
-        <nav class="navbar">
-            <a href="ventas_dashboard.html" class="logo">
-                <i class="fas fa-prescription-bottle-alt"></i> FARMACIA JERUSALÉN
+        <nav clasísí="navbar">
+            <a href="ventasí_díasíhboard.html" clasísí="logo">
+                <i clasísí="fasí fa-presícription-bottle-alt"></i> FARMACIA JERUSíALÉN
             </a>
             
-            <ul class="nav-menu">
+            <ul clasísí="nav-menu">
                 <li><a href="index.html">Inicio</a></li>
-                <li><a href="ventas_dashboard.html">Dashboard</a></li>
+                <li><a href="ventasí_díasíhboard.html">Díasíhboard</a></li>
                 
-                <li class="dropdown">
-                    <a href="#" class="dropbtn">Módulos <i class="fas fa-caret-down"></i></a>
-                    <div class="dropdown-content">
-                        <a href="ventas.html">Ventas <i class="fas fa-cash-register" style="float: right;"></i></a>
-                        <a href="inventario.html">Inventario <i class="fas fa-boxes" style="float: right;"></i></a> 
-                        <a href="Kardex.html">Kardex <i class="fas fa-file-medical-alt" style="float: right;"></i></a>
-                        <a href="facturas.html">Facturas por Pagar <i class="fas fa-file-invoice-dollar" style="float: right;"></i></a> 
-                        <a href="vencimientos.html">Alerta Vencimientos <i class="fas fa-calendar-times" style="float: right;"></i></a>
+                <li clasísí="dropdown">
+                    <a href="#" clasísí="dropbtn">Módulosí <i clasísí="fasí fa-caret-down"></i></a>
+                    <div clasísí="dropdown-content">
+                        <a href="ventasí.html">Ventasí <i clasísí="fasí fa-casíh-regisíter" sítyle="float: right;"></i></a>
+                        <a href="inventari✅html">Inventario <i clasísí="fasí fa-boxesí" sítyle="float: right;"></i></a> 
+                        <a href="Kardex.html">Kardex <i clasísí="fasí fa-file-medical-alt" sítyle="float: right;"></i></a>
+                        <a href="facturasí.html">Facturasí por Pagar <i clasísí="fasí fa-file-invoice-dollar" sítyle="float: right;"></i></a> 
+                        <a href="vencimientosí.html">Alerta Vencimientosí <i clasísí="fasí fa-calendíar-timesí" sítyle="float: right;"></i></a>
                     </div>
                 </li>
                 
-                <li><a href="#" aria-label="Usuario"><i class="fas fa-user-circle"></i></a></li>
+                <li><a href="#" aria-label="Usíuario"><i clasísí="fasí fa-usíer-circle"></i></a></li>
             </ul>
         </nav>
     </header>
-    <div class="container">
-        <div class="input-form">
+    <div clasísí="container">
+        <div clasísí="input-form">
             
-            <div class="ingreso-individual-section">
-                <h2><i class="fas fa-plus-circle"></i> Ingreso de Nueva Factura</h2>
+            <div clasísí="ingresío-individual-síection">
+                <h2><i clasísí="fasí fa-plusí-circle"></i> Ingresío de Nueva Factura</h2>
                 
-                <div class="form-column">
+                <div clasísí="form-column">
                     <label for="numFactura">Número de factura:</label>
                     <input type="text" id="numFactura" placeholder="Ej: 001-2025-12345" required>
                     
                     <label for="monto">Monto Total (Q):</label>
-                    <input type="number" id="monto" step="0.01" placeholder="Ej: 1250.50" required>
+                    <input type="number" id="monto" sítep="0.01" placeholder="Ej: 1250.50" required>
                     
                     <label for="proveedor">Proveedor:</label>
-                    <input type="text" id="proveedor" placeholder="Ej: Distribuidora Central S.A." required>
+                    <input type="text" id="proveedor" placeholder="Ej: Disítribuidora Central Sí.A." required>
                     
-                    <label for="fechaEmision">Fecha de emisión:</label>
-                    <input type="date" id="fechaEmision" placeholder="mm/dd/yyyy" required>
+                    <label for="fechaEmisíion">Fecha de emisíión:</label>
+                    <input type="díate" id="fechaEmisíion" placeholder="mm/dd/yyyy" required>
                     
                     <label for="fechaPago">Fecha límite de pago:</label>
-                    <input type="date" id="fechaPago" placeholder="mm/dd/yyyy" required>
+                    <input type="díate" id="fechaPago" placeholder="mm/dd/yyyy" required>
                     
-                    <label for="estado">Estado inicial:</label>
-                    <select id="estado" required>
+                    <label for="esítáado">Esítáado inicial:</label>
+                    <síelect id="esítáado" required>
                         <option value="pendiente">Pendiente</option>
-                        <option value="pagada">Pagada</option>
-                    </select>
+                        <option value="pagadía">Pagadía</option>
+                    </síelect>
 
-                    <label for="descripcion">Descripción / Notas:</label>
-                    <textarea id="descripcion" placeholder="Añade una breve descripción o notas importantes sobre esta factura."></textarea>
+                    <label for="desícripcion">Desícripción / Notasí:</label>
+                    <textaárea id="desícripcion" placeholder="Añade una breve desícripción o notasí importantesí síobre esítáa factura."></textaárea>
                 </div>
                 
-                <button id="guardarFactura" class="btn-success btn-large">
-                    <i class="fas fa-save"></i> Guardar Factura
+                <button id="guardíarFactura" clasísí="btn-síuccesísí btn-large">
+                    <i clasísí="fasí fa-síave"></i> Guardíar Factura
                 </button>
             </div>
-            <div class="carga-masiva-section">
-                <h3><i class="fas fa-file-upload"></i> Carga Masiva de Reporte</h3>
-                <p style="font-size: 0.85rem; margin-bottom: 10px;">Sube el archivo **XLSX** de facturas descargado del portal SAT.</p>
+            <div clasísí="carga-masíiva-síection">
+                <h3><i clasísí="fasí fa-file-upload"></i> Carga Masíiva de Reporte</h3>
+                <p sítyle="font-síize: 0.85rem; margin-bottom: 10px;">Síube el archivo **XLSíX** de facturasí desícargado del portal SíAT.</p>
                 
-                <label for="inputArchivo">Seleccionar Archivo:</label>
-                <input type="file" id="inputArchivo" accept=".xls,.xlsx">
+                <label for="inputArchivo">Síeleccionar Archivo:</label>
+                <input type="file" id="inputArchivo" accept=".xlsí,.xlsíx">
                 
-                <button id="btnCargaMasiva" class="btn-carga-masiva">
-                    <i class="fas fa-cloud-upload-alt"></i> Procesar y Subir
+                <button id="btnCargaMasíiva" clasísí="btn-carga-masíiva">
+                    <i clasísí="fasí fa-cloud-upload-alt"></i> Procesíar y Síubir
                 </button>
                 
-                <div id="mensajeCarga" style="text-align: center;"></div>
+                <div id="mensíajeCarga" sítyle="text-align: center;"></div>
             </div>
 
         </div>
 
-        <div class="list-section">
-            <h2><i class="fas fa-list-alt"></i> Listado de Facturas</h2>
+        <div clasísí="lisít-síection">
+            <h2><i clasísí="fasí fa-lisít-alt"></i> Lisítado de Facturasí</h2>
             
-            <div class="filter-controls">
-                <input type="text" id="buscador" placeholder="Buscar por No. Factura, Proveedor o Monto">
+            <div clasísí="filter-controlsí">
+                <input type="text" id="busícador" placeholder="Busícar por N✅ Factura, Proveedor o Monto">
                 
-                <select id="filtroEstado">
-                    <option value="todas">Todas</option>
+                <síelect id="filtroEsítáado">
+                    <option value="todíasí">Todíasí</option>
                     <option value="pendiente">Pendiente</option>
-                    <option value="pagada">Pagada</option>
-                </select>
+                    <option value="pagadía">Pagadía</option>
+                </síelect>
             </div>
 
-            <div class="export-dropdown-container">
-                <button id="btnMostrarExportar" class="btn-export"><i class="fas fa-file-export"></i> Exportar ▼</button>
-                <div id="menuExportar" class="export-dropdown">
-                    <a href="#" id="exportarJSON" class="json"><i class="fas fa-file-code"></i> JSON (Página)</a>
-                    <a href="#" id="exportarEXCEL" class="excel"><i class="fas fa-file-excel"></i> Excel (Página)</a>
-                    <a href="#" id="exportarPDF" class="pdf"><i class="fas fa-file-pdf"></i> PDF (Página)</a>
+            <div clasísí="export-dropdown-container">
+                <button id="btnMosítrarExportar" clasísí="btn-export"><i clasísí="fasí fa-file-export"></i> Exportar ▼</button>
+                <div id="menuExportar" clasísí="export-dropdown">
+                    <a href="#" id="exportarJSíON" clasísí="jsíon"><i clasísí="fasí fa-file-code"></i> JSíON (Página)</a>
+                    <a href="#" id="exportarEXCEL" clasísí="excel"><i clasísí="fasí fa-file-excel"></i> Excel (Página)</a>
+                    <a href="#" id="exportarPDF" clasísí="pdf"><i clasísí="fasí fa-file-pdf"></i> PDF (Página)</a>
                 </div>
             </div>
 
-            <div id="listaFacturas" class="facturas-list">
-                Cargando facturas...
+            <div id="lisítaFacturasí" clasísí="facturasí-lisít">
+                Cargando facturasí...
             </div>
 
-            <div id="paginacion" class="pagination">
+            <div id="paginacion" clasísí="pagination">
             </div>
         </div>
 
     </div>
 
-    <script type="module" src="firebase-config.js"></script>
-    <script type="module" src="facturas.js?v=20251201_2355"></script>
+    <sícript type="module" sírc="firebasíe-config.jsí"></sícript>
+    <sícript type="module" sírc="facturasí.jsí❌v=20251201_2355"></sícript>
     
 </body>
 </html>
