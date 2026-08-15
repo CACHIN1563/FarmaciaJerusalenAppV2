@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Farmacia Jerusalén App - Mantenimiento V2</title>
+    <title>Farmacia Jerusalén App</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
         crossorigin="anonymous" referrerpolicy="no-referrer" />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
@@ -27,13 +27,11 @@
             padding: 0;
             background-color: var(--light-gray);
             min-height: 100vh;
-            /* Usamos display: block; para que el overlay fijo no tenga conflictos de centrado con el body */
             display: block;
             color: var(--dark-gray);
             position: relative;
         }
 
-        /* Contenedor principal para centrar el contenido, pero solo visible cuando NO hay mantenimiento */
         .page-wrapper {
             min-height: 100vh;
             display: flex;
@@ -42,16 +40,9 @@
             justify-content: center;
         }
 
-        /* Ajuste para dejar espacio al footer fijo */
         .desktop-monitor {
             margin-top: 30px;
-            /* Separación superior */
             margin-bottom: 50px;
-            /* Espacio para el footer */
-        }
-
-        /* Contenedor principal */
-        .desktop-monitor {
             background-color: var(--white);
             border-radius: 12px;
             box-shadow: var(--shadow-medium);
@@ -60,7 +51,6 @@
             overflow: hidden;
         }
 
-        /* Encabezado */
         .header-bar {
             background-color: var(--primary-blue);
             color: var(--white);
@@ -71,12 +61,10 @@
             font-weight: 700;
         }
 
-        /* Contenido del Dashboard */
         .dashboard-content {
             padding: 30px;
         }
 
-        /* Estilo para Versículo Diario */
         .daily-verse {
             background-color: #f0f7ff;
             color: var(--dark-blue);
@@ -97,7 +85,6 @@
             font-size: 0.95rem;
         }
 
-        /* Estilo para los títulos de sección */
         .section-title {
             font-size: 1.3rem;
             font-weight: 600;
@@ -109,27 +96,24 @@
             text-align: center;
         }
 
-        /* Contenedor para centrar el grid horizontalmente */
         .grid-container-centered {
             display: flex;
             justify-content: center;
             margin-bottom: 30px;
         }
 
-        /* Contenedor de las tarjetas de módulos (Grid Layout) */
         .module-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-            max-width: 600px;
+            max-width: 750px;
+            width: 100%;
             gap: 20px;
         }
 
-        /* Ajuste para la sección de Reportes */
         .module-grid.reporteria-grid {
             max-width: 600px;
         }
 
-        /* Estilo de cada tarjeta de módulo */
         .module-card {
             display: flex;
             flex-direction: column;
@@ -152,28 +136,24 @@
             background-color: #e9f5ff;
         }
 
-        /* Icono dentro de la tarjeta */
         .module-icon {
             font-size: 2.5rem;
             color: var(--primary-blue);
             margin-bottom: 10px;
         }
 
-        /* Texto del módulo */
         .module-text {
             font-weight: 700;
             font-size: 1.0rem;
             margin-bottom: 5px;
         }
 
-        /* Texto de descripción más pequeño */
         .module-description {
             font-size: 0.8rem;
             color: var(--medium-gray);
             line-height: 1.2;
         }
 
-        /* Estilo específico para el botón de Dashboard */
         .module-card.dashboard-highlight {
             background-color: var(--primary-blue);
             color: var(--white);
@@ -192,14 +172,25 @@
             color: #c8e0ff;
         }
 
-        /* --- ESTILOS DEL FOOTER DE AVISO --- */
+        .module-card.mobile-highlight {
+            border: 2px solid #0284c7;
+            background: #f0f9ff;
+        }
+
+        .module-card.mobile-highlight .module-icon {
+            color: #0284c7;
+        }
+
+        .module-card.mobile-highlight .module-text {
+            color: #0369a1;
+        }
+
         .update-footer {
             position: fixed;
             bottom: 0;
             left: 0;
             width: 100%;
             background-color: var(--dark-gray);
-            /* Fondo oscuro para contraste */
             color: var(--light-gray);
             padding: 5px 0;
             text-align: center;
@@ -207,7 +198,6 @@
             z-index: 1000;
             box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.2);
             overflow: hidden;
-            /* Necesario para el efecto marquee */
             white-space: nowrap;
         }
 
@@ -219,70 +209,9 @@
 
         .update-footer strong {
             color: #ffc107;
-            /* Amarillo para resaltar la combinación de teclas */
             font-weight: 700;
             margin: 0 5px;
         }
-
-        /* --- FIN ESTILOS DEL FOOTER DE AVISO --- */
-
-        /* --- NUEVOS ESTILOS DE MANTENIMIENTO --- */
-        .maintenance-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(255, 255, 255, 0.98);
-            /* Fondo blanco casi opaco */
-            z-index: 9999;
-            /* Asegura que esté por encima de todo */
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-            padding: 20px;
-        }
-
-        .maintenance-content {
-            padding: 40px;
-            border-radius: 12px;
-            background-color: var(--white);
-            box-shadow: var(--shadow-medium);
-            max-width: 90%;
-        }
-
-        .maintenance-content h1 {
-            color: #dc3545;
-            /* Rojo para alerta */
-            font-size: 2rem;
-            margin-bottom: 10px;
-        }
-
-        .maintenance-content h1 i {
-            margin-right: 10px;
-        }
-
-        .maintenance-content p {
-            color: var(--medium-gray);
-            font-size: 1.1rem;
-            max-width: 500px;
-            margin-bottom: 30px;
-            line-height: 1.5;
-        }
-
-        .maintenance-gif {
-            max-width: 100%;
-            width: 200px;
-            /* Tamaño del GIF */
-            height: auto;
-            border-radius: 12px;
-            margin-bottom: 20px;
-        }
-
-        /* --- FIN NUEVOS ESTILOS DE MANTENIMIENTO --- */
-
 
         @media (max-width: 600px) {
             .module-grid {
@@ -293,41 +222,11 @@
             .module-grid.reporteria-grid {
                 max-width: 100%;
             }
-
-            .maintenance-content h1 {
-                font-size: 1.5rem;
-            }
-
-            .maintenance-content p {
-                font-size: 0.9rem;
-            }
         }
     </style>
 </head>
 
 <body>
-
-
-    <!-- 
-    PANTALLA DE MANTENIMIENTO - ESTA CAPA CUBRE TODO EL CONTENIDO.
-
-
-<div class="maintenance-overlay">
-    <div class="maintenance-content">
-        <img src="MANTENIMIENTO.gif" alt="Sistema en Mantenimiento" class="maintenance-gif">
-        <h1><i class="fas fa-tools"></i> ¡Sistema en Mantenimiento!</h1>
-        <p>
-            Estamos realizando mejoras importantes y actualizaciones de seguridad en la aplicación. 
-            Volveremos a estar en línea pronto.
-        </p>
-        <p>
-            Agradecemos su paciencia y comprensión.
-        </p>
-    </div>
-</div>
- -->
-
-
 
     <div class="page-wrapper">
         <div class="desktop-monitor">
@@ -354,8 +253,14 @@
 
                         <a href="ventas.html" class="module-card">
                             <i class="fas fa-shopping-cart module-icon"></i>
-                            <div class="module-text">Ventas</div>
-                            <div class="module-description">Registro de transacciones diarias</div>
+                            <div class="module-text">Ventas (PC)</div>
+                            <div class="module-description">Punto de venta para mostrador y escritorio</div>
+                        </a>
+
+                        <a href="ventas_mobil.html" class="module-card mobile-highlight">
+                            <i class="fas fa-mobile-screen-button module-icon"></i>
+                            <div class="module-text">Ventas Móvil 📱</div>
+                            <div class="module-description">Formato vertical optimizado para celular</div>
                         </a>
 
                         <a href="inventario.html" class="module-card">
@@ -404,7 +309,6 @@
 
     <!-- FOOTER DE AVISO PEGADO ABAJO -->
     <footer class="update-footer">
-        <!-- Usamos marquee para el efecto de movimiento, es simple y efectivo para avisos -->
         <marquee behavior="scroll" direction="left" scrollamount="4">
             <i class="fas fa-info-circle"></i>
             ¡AVISO IMPORTANTE! Para asegurar que la aplicación esté actualizada, por favor presione:

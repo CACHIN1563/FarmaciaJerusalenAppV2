@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="es">
 
 <head>
@@ -12,7 +12,7 @@
         crossorigin="anonymous" referrerpolicy="no-referrer" />
 
     <style>
-        /* Variables y estilos generales (Asegúrate de que coincidan con tu 'estilos.css') */
+        /* Variables y estilos generales (AsegÃºrate de que coincidan con tu 'estilos.css') */
         :root {
             --primary-blue: #007bff;
             --primary-dark: #0056b3;
@@ -21,7 +21,7 @@
             --success-color: #28a745;
             --danger-color: #dc3545;
             --warning-color: #ffc107;
-            /* Amarillo para Retiro/Cierre Mañana */
+            /* Amarillo para Retiro/Cierre MaÃ±ana */
             --info-color: #17a2b8;
             /* Azul claro para Cierres Excel */
             --shadow-medium: 0 4px 15px rgba(0, 0, 0, 0.1);
@@ -43,7 +43,7 @@
         }
 
         /* ---------------------------------------------------------------- */
-        /* --- ESTILOS DEL MENÚ DE NAVEGACIÓN --- */
+        /* --- ESTILOS DEL MENÃš DE NAVEGACIÃ“N --- */
         /* ---------------------------------------------------------------- */
 
         .navbar {
@@ -134,7 +134,7 @@
         }
 
         /* ---------------------------------------------------------------- */
-        /* --- FIN ESTILOS DEL MENÚ DE NAVEGACIÓN --- */
+        /* --- FIN ESTILOS DEL MENÃš DE NAVEGACIÃ“N --- */
         /* ---------------------------------------------------------------- */
 
 
@@ -253,7 +253,7 @@
 
         /* Para Efectivo Restante */
 
-        /* Controles y Botones de Exportación */
+        /* Controles y Botones de ExportaciÃ³n */
         .export-section,
         .cierre-section {
             padding: 20px;
@@ -278,7 +278,7 @@
             align-items: center;
         }
 
-        /* Estilo general del botón de exportación/cierre */
+        /* Estilo general del botÃ³n de exportaciÃ³n/cierre */
         .btn-export {
             color: white;
             border: none;
@@ -310,10 +310,10 @@
             white-space: nowrap;
         }
 
-        /* Botón de PDF Diario (BIG BUTTON) */
+        /* BotÃ³n de PDF Diario (BIG BUTTON) */
         #btnExportarPdfDiario {
             background-color: var(--danger-color);
-            /* Rojo para el PDF específico */
+            /* Rojo para el PDF especÃ­fico */
             font-size: 1.1rem;
             padding: 15px 30px;
             box-shadow: 0 4px 6px rgba(220, 53, 69, 0.4);
@@ -334,7 +334,7 @@
 
         /* Color para Cierres Excel */
 
-        /* Estilo específico para inputs de cierre */
+        /* Estilo especÃ­fico para inputs de cierre */
         #cierreMananaInput input,
         #inyeccionesInput input {
             padding: 10px;
@@ -536,7 +536,7 @@
     </style>
     <script>
         window.onerror = function (message, source, lineno, colno, error) {
-            alert("Error Crítico de Sistema:\n" + message + "\nEn: " + source + ":" + lineno);
+            alert("Error CrÃ­tico de Sistema:\n" + message + "\nEn: " + source + ":" + lineno);
         };
     </script>
     <script src="auth_check.js"></script>
@@ -550,7 +550,7 @@
     <header>
         <nav class="navbar">
             <a href="ventas_dashboard.html" class="logo">
-                <i class="fas fa-prescription-bottle-alt"></i> FARMACIA JERUSALÉN
+                <i class="fas fa-prescription-bottle-alt"></i> FARMACIA JERUSALÃ‰N
             </a>
 
             <ul class="nav-menu">
@@ -558,9 +558,9 @@
                 <li><a href="ventas_dashboard.html">Dashboard</a></li>
 
                 <li class="dropdown">
-                    <a href="#" class="dropbtn">Módulos <i class="fas fa-caret-down"></i></a>
+                    <a href="#" class="dropbtn">MÃ³dulos <i class="fas fa-caret-down"></i></a>
                     <div class="dropdown-content">
-                        <a href="ventas.html">Ventas <i class="fas fa-cash-register" style="float: right;"></i></a>
+                        <a href="ventas.html">Ventas <i class="fas fa-cash-register" style="float: right;"></i></a>`n                        <a href="ventas_mobil.html">Ventas Móvil <i class="fas fa-mobile-alt" style="float: right;"></i></a>
                         <a href="inventario.html">Inventario <i class="fas fa-boxes" style="float: right;"></i></a>
                         <a href="Kardex.html">Kardex <i class="fas fa-file-medical-alt" style="float: right;"></i></a>
                         <a href="facturas.html">Facturas por Pagar <i class="fas fa-file-invoice-dollar"
@@ -570,7 +570,7 @@
                     </div>
                 </li>
 
-                <li><a href="#" onclick="logout()" title="Cerrar Sesión"><i class="fas fa-sign-out-alt"></i></a></li>
+                <li><a href="#" onclick="logout()" title="Cerrar SesiÃ³n"><i class="fas fa-sign-out-alt"></i></a></li>
             </ul>
         </nav>
     </header>
@@ -587,7 +587,7 @@
 
             <div class="kpi-container">
                 <div class="kpi-card kpi-daily">
-                    <h3>Venta Total del Día</h3>
+                    <h3>Venta Total del DÃ­a</h3>
                     <div class="value" id="ventaDiaria">Q 0.00</div>
                     <small>Hoy: <span id="fechaActual"></span></small>
                 </div>
@@ -611,11 +611,11 @@
                 <div class="kpi-card kpi-danger" id="kpiEfectivoRestante" style="display: none;">
                     <h3>Efectivo Restante en Caja</h3>
                     <div class="value" id="efectivoRestante">Q 0.00</div>
-                    <small>Efectivo disponible después del cierre de la mañana.</small>
+                    <small>Efectivo disponible despuÃ©s del cierre de la maÃ±ana.</small>
                 </div>
 
                 <div class="kpi-card kpi-total">
-                    <h3>Venta Histórica Total</h3>
+                    <h3>Venta HistÃ³rica Total</h3>
                     <div style="display: flex; align-items: center; gap: 10px;">
                         <div class="value" id="ventaTotalHistorica" data-raw="0">******</div>
                         <i class="fas fa-eye-slash" style="cursor: pointer; color: #6c757d;"
@@ -632,12 +632,12 @@
                 <div class="button-group">
                     <button class="btn-export btn-cierre-manana" id="btnCierreManana"
                         style="background-color: var(--warning-color); color: var(--dark-gray);">
-                        <i class="fas fa-sun"></i> Cierre de Mañana (Retiro)
+                        <i class="fas fa-sun"></i> Cierre de MaÃ±ana (Retiro)
                     </button>
 
                     <button class="btn-export btn-cierre-tarde" id="btnCierreTarde"
                         style="background-color: var(--primary-blue); display: none;">
-                        <i class="fas fa-moon"></i> Cierre Final del Día
+                        <i class="fas fa-moon"></i> Cierre Final del DÃ­a
                     </button>
                 </div>
 
@@ -658,7 +658,7 @@
                             <input type="number" id="montoInyecciones" placeholder="Ej: 50.00" min="0">
                         </div>
                         <div class="input-group-cierre">
-                            <label for="montoVentaTienda" style="font-weight: 600;">Venta Total del Día TIENDA Q:</label>
+                            <label for="montoVentaTienda" style="font-weight: 600;">Venta Total del DÃ­a TIENDA Q:</label>
                             <input type="number" id="montoVentaTienda" placeholder="Ej: 100.00" min="0">
                             <small style="color: #666; font-style: italic;">(Dato informativo, no se suma al total general)</small>
                         </div>
@@ -667,7 +667,7 @@
 
             </div>
 
-            <!-- SECCIÓN DE CIERRE DE TARDE / FINAL -->
+            <!-- SECCIÃ“N DE CIERRE DE TARDE / FINAL -->
             <div id="cierreTardeInput"
                 style="display: none; margin-top: 25px; padding: 25px; border: 0; border-radius: 12px; background-color: white; box-shadow: var(--shadow-medium);">
                 <h3
@@ -683,9 +683,9 @@
                     <div class="card-custom"
                         style="background: #ffffff; padding: 20px; border-radius: 10px; border: 1px solid #e9ecef; border-left: 5px solid var(--info-color);">
                         <h4 style="margin: 0 0 15px 0; color: var(--dark-gray); font-size: 1.1rem;"><i
-                                class="fas fa-receipt" style="color: var(--info-color);"></i> Facturas del Día</h4>
+                                class="fas fa-receipt" style="color: var(--info-color);"></i> Facturas del DÃ­a</h4>
                         <div class="input-group-cierre" style="gap: 10px; margin-bottom: 15px;">
-                            <input type="text" id="facturaDesc" placeholder="Descripción / No. Factura"
+                            <input type="text" id="facturaDesc" placeholder="DescripciÃ³n / No. Factura"
                                 class="form-control-custom" style="flex: 2;">
                             <input type="number" id="facturaMonto" placeholder="Monto Q" min="0"
                                 class="form-control-custom" style="flex: 1;">
@@ -699,13 +699,13 @@
                             <table class="custom-table" id="tablaFacturas">
                                 <thead>
                                     <tr>
-                                        <th>Descripción</th>
+                                        <th>DescripciÃ³n</th>
                                         <th style="text-align: right;">Monto</th>
                                         <th style="width: 40px;"></th>
                                     </tr>
                                 </thead>
                                 <tbody id="bodyTablaFacturas">
-                                    <!-- Se llenará dinámicamente -->
+                                    <!-- Se llenarÃ¡ dinÃ¡micamente -->
                                 </tbody>
                             </table>
                             <p id="msgSinFacturas"
@@ -721,7 +721,7 @@
                                 class="fas fa-user-tie" style="color: var(--primary-blue);"></i> Pago de Salario</h4>
                         <div style="display: flex; flex-direction: column; gap: 10px;">
                             <label style="font-size: 0.9rem; font-weight: 500;">Nombre del Empleado / Detalle:</label>
-                            <input type="text" id="salarioDesc" placeholder="Ej: Juan Pérez - Turno Tarde"
+                            <input type="text" id="salarioDesc" placeholder="Ej: Juan PÃ©rez - Turno Tarde"
                                 class="form-control-custom">
 
                             <label style="font-size: 0.9rem; font-weight: 500;">Monto a Pagar (Q):</label>
@@ -743,7 +743,7 @@
                             class="fas fa-comment-alt"></i> Notas o Comentarios Finales</h4>
                     <div class="input-group-cierre" style="gap: 10px;">
                         <input type="text" id="comentarioTexto"
-                            placeholder="Escribe aquí cualquier observación importante..." class="form-control-custom"
+                            placeholder="Escribe aquÃ­ cualquier observaciÃ³n importante..." class="form-control-custom"
                             style="background: white;">
                         <button class="btn-export" id="btnAgregarComentario"
                             style="padding: 8px 12px; background-color: var(--warning-color); color: #333; border-radius: 6px;">
@@ -757,16 +757,16 @@
                 <div style="margin-top: 30px; display: flex; justify-content: flex-end;">
                     <button class="btn-export" id="btnConfirmarCierreFinal"
                         style="width: 100%; background-color: var(--primary-dark); justify-content: center; font-size: 1.1rem;">
-                        <i class="fas fa-save"></i> CONFIRMAR CIERRE FINAL DEL DÍA
+                        <i class="fas fa-save"></i> CONFIRMAR CIERRE FINAL DEL DÃA
                     </button>
                 </div>
             </div>
         </div>
 
-        <!-- NUEVO BOTÓN PARA GESTIÓN DE VENTAS -->
+        <!-- NUEVO BOTÃ“N PARA GESTIÃ“N DE VENTAS -->
         <div class="export-section" style="background-color: #e8f5e9; border: 1px solid #c8e6c9;">
-            <h2 style="color: #2e7d32; margin-bottom: 10px;"><i class="fas fa-search-dollar"></i> Gestión de Ventas del
-                Día</h2>
+            <h2 style="color: #2e7d32; margin-bottom: 10px;"><i class="fas fa-search-dollar"></i> GestiÃ³n de Ventas del
+                DÃ­a</h2>
             <div class="button-group">
                 <button class="btn-export" id="btnVerVentasDia" style="background-color: #2e7d32;">
                     <i class="fas fa-list-ul"></i> Ver y Gestionar Ventas de HOY
@@ -777,7 +777,7 @@
         <hr>
 
         <div class="export-section">
-            <h2><i class="fas fa-download"></i> Opciones de Reportes y Exportación</h2>
+            <h2><i class="fas fa-download"></i> Opciones de Reportes y ExportaciÃ³n</h2>
             <div class="button-group">
 
                 <button class="btn-export" id="btnExportarPdfDiario">
@@ -790,10 +790,10 @@
                 </button>
 
                 <button class="btn-export" id="btnExportarExcelTotal">
-                    <i class="fas fa-file-excel"></i> Exportar Histórico (Excel)
+                    <i class="fas fa-file-excel"></i> Exportar HistÃ³rico (Excel)
                 </button>
                 <button class="btn-export" id="btnExportarPdfTotal">
-                    <i class="fas fa-file-pdf"></i> Exportar Histórico (PDF)
+                    <i class="fas fa-file-pdf"></i> Exportar HistÃ³rico (PDF)
                 </button>
             </div>
         </div>
@@ -802,19 +802,19 @@
     </div>
 
     <script>
-        // Esta línea es necesaria si estás usando importación modular de jsPDF en tu archivo JS
-        // (Aunque lo estás importando globalmente, es una buena práctica asegurar la disponibilidad).
+        // Esta lÃ­nea es necesaria si estÃ¡s usando importaciÃ³n modular de jsPDF en tu archivo JS
+        // (Aunque lo estÃ¡s importando globalmente, es una buena prÃ¡ctica asegurar la disponibilidad).
         window.jsPDF = window.jspdf.jsPDF; 
     </script>
 
 
 
-    <!-- MODAL DE GESTIÓN DE VENTAS -->
+    <!-- MODAL DE GESTIÃ“N DE VENTAS -->
     <div id="modalVentasDia" class="modal">
         <div class="modal-content">
             <span class="close-modal" id="closeModalVentas">&times;</span>
             <h2 style="color: var(--primary-dark); border-bottom: 2px solid var(--primary-blue); padding-bottom: 10px;">
-                <i class="fas fa-list-alt"></i> Ventas del Día
+                <i class="fas fa-list-alt"></i> Ventas del DÃ­a
             </h2>
             <div style="overflow-x: auto; max-height: 60vh; overflow-y: auto;">
                 <table style="width: 100%; border-collapse: collapse; margin-top: 15px;" id="tablaVentasDia">
@@ -824,11 +824,11 @@
                             <th style="padding: 10px;">No. Venta</th>
                             <th style="padding: 10px;">Productos</th>
                             <th style="padding: 10px; text-align: right;">Total</th>
-                            <th style="padding: 10px; text-align: center;">Acción</th>
+                            <th style="padding: 10px; text-align: center;">AcciÃ³n</th>
                         </tr>
                     </thead>
                     <tbody id="bodyTablaVentasDia">
-                        <!-- Se llena dinámicamente -->
+                        <!-- Se llena dinÃ¡micamente -->
                     </tbody>
                 </table>
             </div>

@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Registro de Venta | Farmacia JERUSALÉN</title>
+    <title>Registro de Venta | Farmacia JERUSALÃ‰N</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
@@ -31,7 +31,7 @@
             min-height: 100vh;
             color: var(--dark-gray);
         }
-        /* --- ESTILOS DEL MENÚ DE NAVEGACIÓN OMITIDOS PARA BREVEDAD --- */
+        /* --- ESTILOS DEL MENÃš DE NAVEGACIÃ“N OMITIDOS PARA BREVEDAD --- */
         .navbar { background-color: var(--primary-blue); color: white; padding: 10px 30px; display: flex; justify-content: space-between; align-items: center; box-shadow: var(--shadow-medium); font-weight: 600; }
         .navbar .logo { font-size: 1.5rem; font-weight: bold; color: white; text-decoration: none; display: flex; align-items: center; gap: 10px; }
         .nav-menu { list-style: none; display: flex; margin: 0; padding: 0; align-items: center; }
@@ -128,7 +128,7 @@
         .change-display { font-size: 1.3rem; font-weight: 700; text-align: center; color: var(--success-color); padding-top: 5px; }
         .change-display.negative { color: var(--danger-color); }
         .change-display span { font-size: 0.9rem; font-weight: 500; color: var(--dark-gray); display: block; margin-bottom: 5px; }
-        /* --- ESTILOS DE BOTONES DE ACCIÓN --- */
+        /* --- ESTILOS DE BOTONES DE ACCIÃ“N --- */
         .action-buttons { display: flex; flex-direction: column; gap: 10px; margin-top: 25px; }
         .btn-register-sale { width: 100%; padding: 15px; background-color: var(--primary-blue); color: white; border: none; border-radius: 8px; font-size: 1.2rem; font-weight: 600; cursor: pointer; transition: background-color 0.2s ease, box-shadow 0.2s ease; box-shadow: var(--shadow-light); display: flex; align-items: center; justify-content: center; gap: 10px; }
         .btn-register-sale:hover { background-color: var(--primary-dark); box-shadow: var(--shadow-medium); }
@@ -140,14 +140,14 @@
 <body>
     <header>
         <nav class="navbar">
-            <a href="index.html" class="logo"><i class="fas fa-prescription-bottle-alt"></i> FARMACIA JERUSALÉN</a>
+            <a href="index.html" class="logo"><i class="fas fa-prescription-bottle-alt"></i> FARMACIA JERUSALÃ‰N</a>
             <ul class="nav-menu">
                 <li><a href="index.html">Inicio</a></li>
                 <li><a href="ventas_dashboard.html">Dashboard</a></li>
                 <li class="dropdown">
-                    <a href="#" class="dropbtn">Módulos <i class="fas fa-caret-down"></i></a>
+                    <a href="#" class="dropbtn">MÃ³dulos <i class="fas fa-caret-down"></i></a>
                     <div class="dropdown-content">
-                        <a href="ventas.html">Ventas <i class="fas fa-cash-register" style="float: right;"></i></a>
+                        <a href="ventas.html">Ventas <i class="fas fa-cash-register" style="float: right;"></i></a>`n                        <a href="ventas_mobil.html">Ventas Móvil <i class="fas fa-mobile-alt" style="float: right;"></i></a>
                         <a href="inventario.html">Inventario <i class="fas fa-boxes" style="float: right;"></i></a>
                         <a href="Kardex.html">Kardex <i class="fas fa-file-medical-alt" style="float: right;"></i></a>
                         <a href="facturas.html">Facturas por Pagar <i class="fas fa-file-invoice-dollar"
@@ -163,10 +163,10 @@
     <div class="container">
         <div class="main-content">
             <div class="panel panel-left">
-                <h3><i class="fas fa-search"></i> Buscar y Añadir Producto</h3>
+                <h3><i class="fas fa-search"></i> Buscar y AÃ±adir Producto</h3>
 
                 <div class="search-container" style="position: relative;">
-                    <label for="buscar">Nombre o Código del Producto</label>
+                    <label for="buscar">Nombre o CÃ³digo del Producto</label>
                     <div class="input-group">
                         <input type="text" id="buscar" placeholder="Escribe para buscar..." autocomplete="off">
                         <button class="btn-icon" id="btnSearch"><i class="fas fa-search"></i></button>
@@ -191,7 +191,7 @@
                         </select>
                     </div>
 
-                    <button class="btn" id="btnAgregar" disabled><i class="fas fa-plus"></i> Añadir a Venta</button>
+                    <button class="btn" id="btnAgregar" disabled><i class="fas fa-plus"></i> AÃ±adir a Venta</button>
                 </div>
 
                 <h3><i class="fas fa-clipboard-list"></i> Productos en Venta</h3>
@@ -222,7 +222,7 @@
                     </div>
                 </div>
                 <div>
-                    <label style="font-weight: 600; margin-bottom: 10px;">Selecciona Método de Pago:</label>
+                    <label style="font-weight: 600; margin-bottom: 10px;">Selecciona MÃ©todo de Pago:</label>
                     <div class="payment-methods">
                         <label>
                             <input type="radio" name="metodoPago" id="metodoEfectivo" value="efectivo" checked>
@@ -264,4 +264,5 @@
     <script src="ventas.js" type="module"></script>
 </body>
 </html>
+
 
