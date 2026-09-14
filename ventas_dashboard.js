@@ -23,6 +23,7 @@ let todasLasVentas = [];
 let inventarioMap = new Map();
 const RecargoPorcentaje = 0.05; // 5%
 let datosCargadosCompletos = false;
+let totalVentaTiendaGlobal = 0;
 
 // ESTADOS DE CIERRE
 let todosLosCierres = [];
@@ -152,6 +153,7 @@ const btnCompartirWhatsapp = document.getElementById("btnCompartirWhatsapp");
 let baseCajaInicial = BASE_CAJA_DEFAULT;
 let efectivoRestanteMañana = 0;
 let totalInyecciones = 0;
+totalVentaTiendaGlobal = 0;
 
 
 // --- UTILIDADES DE FECHA ---
@@ -277,6 +279,10 @@ async function cargarVentasYCálculos() {
                     infoFacturas = data.facturas || [];
                     infoSalario = data.salario || null;
                     infoComentarios = data.comentarios || [];
+                    if (data.resumenFinanciero) {
+                        totalInyecciones = parseFloat(data.resumenFinanciero.inyecciones || 0);
+                        totalVentaTiendaGlobal = parseFloat(data.resumenFinanciero.ventaTienda || 0);
+                    }
                 }
             } else {
                 // Procesar cierres ANTERIORES para encontrar la BASE
@@ -592,7 +598,7 @@ async function exportarPdfDiario() {
         });
 
         // --- Cálculo de Totales y Resumen ---
-        const totalVentaTienda = parseFloat(document.getElementById("montoVentaTienda")?.value) || 0;
+        const totalVentaTienda = parseFloat(document.getElementById("montoVentaTienda")?.value) || totalVentaTiendaGlobal;
         const totalFacturasDia = infoFacturas.reduce((acc, f) => acc + parseFloat(f.monto || 0), 0);
         const totalSalarioDia = infoSalario ? parseFloat(infoSalario.monto || 0) : 0;
         const totalInyeccionesReal = parseFloat(document.getElementById("montoInyecciones")?.value) || totalInyecciones;
@@ -1234,6 +1240,7 @@ btnConfirmarCierreFinal.addEventListener("click", async () => {
                 baseInicial: baseCajaInicial,
                 ventasEfectivo: totalEfectivoVentas,
                 inyecciones: totalInyecciones,
+                ventaTienda: parseFloat(document.getElementById("montoVentaTienda")?.value) || 0,
                 retiroDra: totalRetiradoDra,
                 totalFacturas: totalPagosFacturas,
                 totalSalario: totalPagoSalario
@@ -1559,7 +1566,7 @@ function generarBlobPdfDiario(ventasDelDia) {
 
     const totalFacturasDia = infoFacturas.reduce((acc, f) => acc + parseFloat(f.monto || 0), 0);
     const totalSalarioDia = infoSalario ? parseFloat(infoSalario.monto || 0) : 0;
-    const totalVentaTienda = parseFloat(document.getElementById("montoVentaTienda")?.value) || 0;
+    const totalVentaTienda = parseFloat(document.getElementById("montoVentaTienda")?.value) || totalVentaTiendaGlobal;
     const efectivoEnCaja = totalEfectivoDia + baseCajaInicial - totalRetiradoDra - totalFacturasDia - totalSalarioDia;
     const ventaNetaFinal = totalNetoDia;
 
@@ -1759,7 +1766,7 @@ btnCompartirWhatsapp?.addEventListener("click", async () => {
     let mensajeTexto = `📊 *REPORTE FARMACIA JERUSALÉN* 📊\n`;
     mensajeTexto += `📅 Fecha: ${fechaHoy}\n`;
     mensajeTexto += `--------------------------------\n`;
-    const totalVentaTienda = parseFloat(document.getElementById("montoVentaTienda")?.value) || 0;
+    const totalVentaTienda = parseFloat(document.getElementById("montoVentaTienda")?.value) || totalVentaTiendaGlobal;
     
     mensajeTexto += `💰 *Venta Global:* ${formatoMoneda(totales.totalDia)}\n`;
     mensajeTexto += `💵 *Efectivo (Ventas):* ${formatoMoneda(totales.efectivoDia)}\n`;
