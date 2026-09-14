@@ -1559,6 +1559,7 @@ function generarBlobPdfDiario(ventasDelDia) {
 
     const totalFacturasDia = infoFacturas.reduce((acc, f) => acc + parseFloat(f.monto || 0), 0);
     const totalSalarioDia = infoSalario ? parseFloat(infoSalario.monto || 0) : 0;
+    const totalVentaTienda = parseFloat(document.getElementById("montoVentaTienda")?.value) || 0;
     const efectivoEnCaja = totalEfectivoDia + baseCajaInicial - totalRetiradoDra - totalFacturasDia - totalSalarioDia;
     const ventaNetaFinal = totalNetoDia;
 
@@ -1668,6 +1669,9 @@ function generarBlobPdfDiario(ventasDelDia) {
         ['Servicio de Inyecciones (Dato aparte)', formatoMoneda(totalInyecciones),
             { content: 'INYECCIONES', styles: { fillColor: [255, 255, 153], textColor: 0 } }],
 
+        ['Venta Total del Día TIENDA (Dato aparte)', formatoMoneda(totalVentaTienda),
+            { content: 'TIENDA', styles: { fillColor: [220, 220, 220], textColor: 0 } }],
+
         ['(-) Pago de Facturas del Día (Sub-total)', formatoMoneda(totalFacturasDia),
             { content: 'FACTURAS', styles: { fillColor: [255, 204, 204], textColor: 0 } }],
 
@@ -1755,10 +1759,13 @@ btnCompartirWhatsapp?.addEventListener("click", async () => {
     let mensajeTexto = `📊 *REPORTE FARMACIA JERUSALÉN* 📊\n`;
     mensajeTexto += `📅 Fecha: ${fechaHoy}\n`;
     mensajeTexto += `--------------------------------\n`;
+    const totalVentaTienda = parseFloat(document.getElementById("montoVentaTienda")?.value) || 0;
+    
     mensajeTexto += `💰 *Venta Global:* ${formatoMoneda(totales.totalDia)}\n`;
     mensajeTexto += `💵 *Efectivo (Ventas):* ${formatoMoneda(totales.efectivoDia)}\n`;
     mensajeTexto += `💳 *Tarjeta (Neto):* ${formatoMoneda(totales.tarjetaDia)}\n`;
-    mensajeTexto += `💉 *Inyecciones:* ${formatoMoneda(totalInyecciones)}\n`;
+    mensajeTexto += `💉 *Inyecciones:* ${formatoMoneda(totalInyecciones)} (Dato aparte)\n`;
+    mensajeTexto += `🏪 *Venta Tienda:* ${formatoMoneda(totalVentaTienda)} (Dato aparte)\n`;
     mensajeTexto += `--------------------------------\n`;
     mensajeTexto += `📉 *SALIDAS / RETIROS:*\n`;
     mensajeTexto += `• Retiro Dra: ${formatoMoneda(totalRetiradoDra)}\n`;
