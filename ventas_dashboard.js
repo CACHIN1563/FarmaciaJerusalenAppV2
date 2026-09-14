@@ -1288,7 +1288,7 @@ btnConfirmarCierreFinal.addEventListener("click", async () => {
                 method: 'POST',
                 mode: 'no-cors', // Evita errores de CORS en el frontend con Google Scripts
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'text/plain'
                 },
                 body: JSON.stringify(payload)
             });
