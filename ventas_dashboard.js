@@ -594,10 +594,11 @@ async function exportarPdfDiario() {
         // --- Cálculo de Totales y Resumen ---
         const totalVentaTienda = parseFloat(document.getElementById("montoVentaTienda")?.value) || 0;
         const totalFacturasDia = infoFacturas.reduce((acc, f) => acc + parseFloat(f.monto || 0), 0);
+        const totalSalarioDia = infoSalario ? parseFloat(infoSalario.monto || 0) : 0;
         const totalInyeccionesReal = parseFloat(document.getElementById("montoInyecciones")?.value) || totalInyecciones;
 
-        // Efectivo en caja = Efectivo Neto (productos) + baseCajaInicial - Total Retirado Dra - Facturas
-        const efectivoEnCaja = totalEfectivoDia + baseCajaInicial - totalRetiradoDra - totalFacturasDia;
+        // Efectivo en caja = Efectivo Neto (productos) + baseCajaInicial - Total Retirado Dra - Facturas - Salario
+        const efectivoEnCaja = totalEfectivoDia + baseCajaInicial - totalRetiradoDra - totalFacturasDia - totalSalarioDia;
 
         // Venta Neta Final = Solo Venta Neto de Productos (según solicitud)
         const ventaNetaFinal = totalNetoDia;
@@ -730,7 +731,7 @@ async function exportarPdfDiario() {
             { content: 'VENTA NETA', styles: { fontStyle: 'bold', fillColor: [153, 204, 153], textColor: 0 } }],
 
             // Inyecciones (Fondo claro)
-            ['(+) Servicio de Inyecciones', formatoMoneda(totalInyecciones),
+            ['Servicio de Inyecciones (Dato aparte)', formatoMoneda(totalInyecciones),
                 { content: 'INYECCIONES', styles: { fillColor: [255, 255, 153], textColor: 0 } }],
 
             // Venta Tienda (NUEVO - Informativo)
@@ -740,6 +741,10 @@ async function exportarPdfDiario() {
             // Facturas (Restado de Caja)
             ['(-) Pago de Facturas del Día (Sub-total)', formatoMoneda(totalFacturasDia),
                 { content: 'FACTURAS', styles: { fillColor: [255, 204, 204], textColor: 0 } }],
+
+            // Salarios (Restado de Caja)
+            ['(-) Pago de Salarios del Día', formatoMoneda(totalSalarioDia),
+                { content: 'SALARIO', styles: { fillColor: [255, 204, 204], textColor: 0 } }],
 
             // Recargo (Fondo claro)
             ['Monto de Recargo por Tarjeta (5%)', formatoMoneda(montoRecargoTotal),
@@ -1019,9 +1024,9 @@ btnConfirmarRetiro.addEventListener("click", async () => {
         return;
     }
 
-    // Calcular el efectivo restante (incluye las inyecciones si ya se registraron)
+    // Calcular el efectivo restante
     // Este valor de 'efectivoRestante' es solo para mostrar el KPI a mitad del día.
-    const efectivoRestante = efectivoActual - montoRetiro + totalInyecciones;
+    const efectivoRestante = efectivoActual - montoRetiro;
 
     try {
         const now = new Date();
@@ -1192,9 +1197,9 @@ btnConfirmarCierreFinal.addEventListener("click", async () => {
     let totalPagosFacturas = cierreFacturasTemp.reduce((sum, item) => sum + item.monto, 0);
     let totalPagoSalario = cierreSalarioTemp ? cierreSalarioTemp.monto : 0;
 
-    // Efectivo Final Físico (lo que queda en el cajón incluyendo inyecciones si no se retiraron aparte)
-    // Asumimos que Inyecciones se queda en caja hasta el cierre final.
-    let efectivoFinalFisico = (baseCajaInicial + totalEfectivoVentas + totalInyecciones)
+    // Efectivo Final Físico
+    // Inyecciones NO se suman a la caja según requerimiento.
+    let efectivoFinalFisico = (baseCajaInicial + totalEfectivoVentas)
         - totalRetiradoDra
         - totalPagosFacturas
         - totalPagoSalario;
@@ -1406,8 +1411,8 @@ montoInyeccionesInput.addEventListener('input', () => {
         const ventasDelDia = todasLasVentas.filter(v => v.fechaVentaStr === hoyStr);
         const totalEfectivoVentas = calcularTotalesVentaDia(ventasDelDia).efectivoDia;
 
-        // Efectivo Restante = Ventas Efectivo NETO + Base Dinámica - Total Retirado Dra + Inyecciones
-        efectivoRestanteMañana = totalEfectivoVentas + baseCajaInicial - totalRetiradoDra + totalInyecciones;
+        // Efectivo Restante = Ventas Efectivo NETO + Base Dinámica - Total Retirado Dra
+        efectivoRestanteMañana = totalEfectivoVentas + baseCajaInicial - totalRetiradoDra;
         efectivoRestanteLbl.textContent = formatoMoneda(efectivoRestanteMañana);
     }
 });
@@ -1437,7 +1442,7 @@ btnCompartirWhatsapp?.addEventListener("click", async () => {
     const totalGastos = gastosFacturas + gastoSalario + totalRetiradoDra;
 
     // Efectivo Final en Caja
-    const efectivoFinal = totales.efectivoDia + totalInyecciones + baseCajaInicial - totalRetiradoDra;
+    const efectivoFinal = totales.efectivoDia + baseCajaInicial - totalRetiradoDra - gastosFacturas - gastoSalario;
 
     const fechaHoy = formatDate(new Date());
 
@@ -1552,8 +1557,10 @@ function generarBlobPdfDiario(ventasDelDia) {
         }
     });
 
-    const efectivoEnCaja = totalEfectivoDia + totalInyecciones + baseCajaInicial - totalRetiradoDra;
-    const ventaNetaFinal = totalNetoDia + totalInyecciones;
+    const totalFacturasDia = infoFacturas.reduce((acc, f) => acc + parseFloat(f.monto || 0), 0);
+    const totalSalarioDia = infoSalario ? parseFloat(infoSalario.monto || 0) : 0;
+    const efectivoEnCaja = totalEfectivoDia + baseCajaInicial - totalRetiradoDra - totalFacturasDia - totalSalarioDia;
+    const ventaNetaFinal = totalNetoDia;
 
     detallesVentaTabla.sort((a, b) => {
         if (a.ordenVenta !== b.ordenVenta) {
@@ -1654,12 +1661,18 @@ function generarBlobPdfDiario(ventasDelDia) {
     y += 8;
 
     const movimientosCaja = [
-        [{ content: 'TOTAL VENTA NETA FINAL (VENTAS + INYECCIONES)', colSpan: 1, styles: { fontStyle: 'bold', fillColor: [215, 235, 255] } },
+        [{ content: 'TOTAL VENTA NETA FINAL (Solo Ventas de Productos)', colSpan: 1, styles: { fontStyle: 'bold', fillColor: [215, 235, 255] } },
         formatoMoneda(ventaNetaFinal),
         { content: 'VENTA NETA', styles: { fontStyle: 'bold', fillColor: [153, 204, 153], textColor: 0 } }],
 
-        ['Total en Inyecciones', formatoMoneda(totalInyecciones),
+        ['Servicio de Inyecciones (Dato aparte)', formatoMoneda(totalInyecciones),
             { content: 'INYECCIONES', styles: { fillColor: [255, 255, 153], textColor: 0 } }],
+
+        ['(-) Pago de Facturas del Día (Sub-total)', formatoMoneda(totalFacturasDia),
+            { content: 'FACTURAS', styles: { fillColor: [255, 204, 204], textColor: 0 } }],
+
+        ['(-) Pago de Salarios del Día', formatoMoneda(totalSalarioDia),
+            { content: 'SALARIO', styles: { fillColor: [255, 204, 204], textColor: 0 } }],
 
         ['Monto de Recargo por Tarjeta (5%)', formatoMoneda(montoRecargoTotal),
             { content: 'RECARGO', styles: { fillColor: [204, 255, 204], textColor: 0 } }],
@@ -1670,7 +1683,7 @@ function generarBlobPdfDiario(ventasDelDia) {
         ['MONTO RETIRADO POR DRA.', formatoMoneda(totalRetiradoDra),
             { content: 'RETIRO', styles: { fillColor: [255, 204, 204], textColor: 0 } }],
 
-        [{ content: 'EFECTIVO RESTANTE EN CAJA (Efectivo Neto + Base - Retiro)', colSpan: 1, styles: { fontStyle: 'bold', fillColor: [255, 204, 204] } },
+        [{ content: 'EFECTIVO RESTANTE EN CAJA (Ventas + Base - Retiro - Facturas - Salario)', colSpan: 1, styles: { fontStyle: 'bold', fillColor: [255, 204, 204] } },
         formatoMoneda(efectivoEnCaja),
         { content: 'FINAL', styles: { fontStyle: 'bold', fillColor: [255, 102, 102], textColor: 255 } }],
     ];
@@ -1736,7 +1749,8 @@ btnCompartirWhatsapp?.addEventListener("click", async () => {
 
     // --- PREPARAR MENSAJE DE TEXTO (FALLBACK) ---
     const gastosFacturasSum = infoFacturas.reduce((acc, f) => acc + (parseFloat(f.monto) || 0), 0);
-    const efectivoFinalCaja = totales.efectivoDia + totalInyecciones + baseCajaInicial - totalRetiradoDra;
+    const gastoSalarioSum = infoSalario ? (parseFloat(infoSalario.monto) || 0) : 0;
+    const efectivoFinalCaja = totales.efectivoDia + baseCajaInicial - totalRetiradoDra - gastosFacturasSum - gastoSalarioSum;
 
     let mensajeTexto = `📊 *REPORTE FARMACIA JERUSALÉN* 📊\n`;
     mensajeTexto += `📅 Fecha: ${fechaHoy}\n`;
