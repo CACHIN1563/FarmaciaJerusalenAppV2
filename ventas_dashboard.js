@@ -1249,7 +1249,35 @@ btnConfirmarCierreFinal.addEventListener("click", async () => {
 
         await addDoc(collection(db, "cierres_caja"), cierreData);
 
-        alert(`✅ CIERRE FINAL COMPLETADO.\n\nEfectivo Final en Caja (Para mañana): ${formatoMoneda(efectivoParaManana)}\n\n(Se han descontado facturas y salarios si los hubo).`);
+        // --- ENVIAR CORREO AUTOMÁTICO CON EMAILJS ---
+        const totales = calcularTotalesVentaDia(ventasDelDia);
+        let mensajeCorreo = `📊 REPORTE FARMACIA JERUSALÉN 📊\n`;
+        mensajeCorreo += `📅 Fecha: ${formatDate(now)}\n`;
+        mensajeCorreo += `--------------------------------\n`;
+        mensajeCorreo += `💰 Venta Global: ${formatoMoneda(totales.totalDia)}\n`;
+        mensajeCorreo += `💵 Efectivo (Ventas): ${formatoMoneda(totales.efectivoDia)}\n`;
+        mensajeCorreo += `💳 Tarjeta (Neto): ${formatoMoneda(totales.tarjetaDia)}\n`;
+        mensajeCorreo += `💉 Inyecciones: ${formatoMoneda(totalInyecciones)} (Dato aparte)\n`;
+        mensajeCorreo += `🏪 Venta Tienda: ${formatoMoneda(parseFloat(document.getElementById("montoVentaTienda")?.value) || 0)} (Dato aparte)\n`;
+        mensajeCorreo += `--------------------------------\n`;
+        mensajeCorreo += `📉 SALIDAS / RETIROS:\n`;
+        mensajeCorreo += `• Retiro Dra: ${formatoMoneda(totalRetiradoDra)}\n`;
+        if (totalPagosFacturas > 0) mensajeCorreo += `• Facturas: ${formatoMoneda(totalPagosFacturas)}\n`;
+        if (totalPagoSalario > 0) mensajeCorreo += `• Salario: ${formatoMoneda(totalPagoSalario)}\n`;
+        mensajeCorreo += `--------------------------------\n`;
+        mensajeCorreo += `✅ EFECTIVO EN CAJA PARA MAÑANA: ${formatoMoneda(efectivoParaManana)}\n`;
+
+        try {
+            await emailjs.send("service_bghpdno", "template_djw5kni", {
+                fecha: formatDate(now),
+                mensaje: mensajeCorreo
+            });
+            console.log("Correo enviado exitosamente vía EmailJS.");
+            alert(`✅ CIERRE FINAL COMPLETADO.\n\nEfectivo Final en Caja (Para mañana): ${formatoMoneda(efectivoParaManana)}\n\n📧 ¡El reporte ha sido enviado automáticamente por correo electrónico!`);
+        } catch (emailError) {
+            console.error("Error enviando correo:", emailError);
+            alert(`✅ CIERRE FINAL COMPLETADO.\n\nEfectivo Final en Caja (Para mañana): ${formatoMoneda(efectivoParaManana)}\n\n⚠️ (Hubo un error al intentar enviar el correo automático).`);
+        }
 
         cierreTardeInputDiv.style.display = 'none';
         await cargarVentasYCálculos();

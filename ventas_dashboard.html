@@ -806,6 +806,14 @@
         // (Aunque lo estás importando globalmente, es una buena práctica asegurar la disponibilidad).
         window.jsPDF = window.jspdf.jsPDF; 
     </script>
+    
+    <!-- LIBRERIA EMAILJS PARA ENVIO DE REPORTES -->
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    <script type="text/javascript">
+        (function() {
+            emailjs.init("mfo1vhsvpY2qCwiVe"); // Tu Public Key
+        })();
+    </script>
 
 
 
