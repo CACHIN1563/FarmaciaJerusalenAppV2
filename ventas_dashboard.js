@@ -1268,12 +1268,33 @@ btnConfirmarCierreFinal.addEventListener("click", async () => {
         mensajeCorreo += `✅ EFECTIVO EN CAJA PARA MAÑANA: ${formatoMoneda(efectivoParaManana)}\n`;
 
         try {
-            await emailjs.send("service_bghpdno", "template_djw5kni", {
-                fecha: formatDate(now),
-                mensaje: mensajeCorreo
+            // URL de tu Google Apps Script
+            const scriptUrl = "https://script.google.com/macros/s/AKfycbwsHYmJUHjDFAGuc9-OGhXU-PHMvkDJBVMZxwvoyZ9TWZSTlhzxG0al8IOSrejAg4JMsQ/exec";
+            
+            // POR FAVOR REVISA Y CAMBIA ESTE CORREO AL QUE QUIERAS USAR
+            const correoDestino = "carloselchinomontealegre@gmail.com"; 
+
+            // Generar el PDF en base64 para adjuntarlo
+            const docPdf = generarBlobPdfDiario(ventasDelDia);
+            const pdfBase64 = docPdf.output('datauristring'); // "data:application/pdf;base64,..."
+
+            const payload = {
+                correo_destino: correoDestino,
+                mensaje: mensajeCorreo,
+                pdf_adjunto: pdfBase64
+            };
+
+            await fetch(scriptUrl, {
+                method: 'POST',
+                mode: 'no-cors', // Evita errores de CORS en el frontend con Google Scripts
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(payload)
             });
-            console.log("Correo enviado exitosamente vía EmailJS (solo texto).");
-            alert(`✅ CIERRE FINAL COMPLETADO.\n\nEfectivo Final en Caja (Para mañana): ${formatoMoneda(efectivoParaManana)}\n\n📧 ¡El resumen del reporte ha sido enviado automáticamente por correo electrónico!`);
+
+            console.log("Correo enviado exitosamente vía Google Apps Script con PDF adjunto.");
+            alert(`✅ CIERRE FINAL COMPLETADO.\n\nEfectivo Final en Caja (Para mañana): ${formatoMoneda(efectivoParaManana)}\n\n📧 ¡El reporte (con PDF adjunto) ha sido enviado por correo automáticamente a ${correoDestino}!`);
         } catch (emailError) {
             console.error("Error enviando correo:", emailError);
             alert(`✅ CIERRE FINAL COMPLETADO.\n\nEfectivo Final en Caja (Para mañana): ${formatoMoneda(efectivoParaManana)}\n\n⚠️ (Hubo un error al intentar enviar el correo automático).`);
