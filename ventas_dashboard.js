@@ -1268,12 +1268,17 @@ btnConfirmarCierreFinal.addEventListener("click", async () => {
         mensajeCorreo += `✅ EFECTIVO EN CAJA PARA MAÑANA: ${formatoMoneda(efectivoParaManana)}\n`;
 
         try {
+            // Generar el PDF en base64 para adjuntarlo
+            const docPdf = generarBlobPdfDiario(ventasDelDia);
+            const pdfBase64 = docPdf.output('datauristring'); // Devuelve "data:application/pdf;base64,..."
+
             await emailjs.send("service_bghpdno", "template_djw5kni", {
                 fecha: formatDate(now),
-                mensaje: mensajeCorreo
+                mensaje: mensajeCorreo,
+                pdf_adjunto: pdfBase64
             });
-            console.log("Correo enviado exitosamente vía EmailJS.");
-            alert(`✅ CIERRE FINAL COMPLETADO.\n\nEfectivo Final en Caja (Para mañana): ${formatoMoneda(efectivoParaManana)}\n\n📧 ¡El reporte ha sido enviado automáticamente por correo electrónico!`);
+            console.log("Correo enviado exitosamente vía EmailJS con PDF adjunto.");
+            alert(`✅ CIERRE FINAL COMPLETADO.\n\nEfectivo Final en Caja (Para mañana): ${formatoMoneda(efectivoParaManana)}\n\n📧 ¡El reporte (con PDF) ha sido enviado automáticamente por correo electrónico!`);
         } catch (emailError) {
             console.error("Error enviando correo:", emailError);
             alert(`✅ CIERRE FINAL COMPLETADO.\n\nEfectivo Final en Caja (Para mañana): ${formatoMoneda(efectivoParaManana)}\n\n⚠️ (Hubo un error al intentar enviar el correo automático).`);
